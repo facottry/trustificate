@@ -184,6 +184,21 @@ const verifyEmailLink = async (token) => {
   user.isEmailVerified = true;
   user.emailVerificationToken = null;
   user.emailVerificationExpiry = null;
+
+  // Create default organization if user doesn't have one
+  if (!user.organizationId) {
+    const Organization = require('../organization/organization.schema');
+    const orgName = `${user.displayName}'s Organization`;
+    const slug = `org-${user._id.toString().slice(-8)}`.toLowerCase();
+    
+    const organization = await Organization.create({
+      name: orgName,
+      slug: slug,
+    });
+    
+    user.organizationId = organization._id;
+  }
+
   await user.save();
 
   return user;

@@ -85,8 +85,8 @@ Sign up at [trustificate.clicktory.in/signup](/signup) and complete email verifi
 Navigate to **Settings → Developers → API Keys** and click **Create API Key**.
 
 Choose:
-- **Development** – for testing (prefixed with `pk_test_`)
-- **Production** – for live usage (prefixed with `pk_live_`)
+- **Development** – for testing (prefixed with \`pk_test_\`)
+- **Production** – for live usage (prefixed with \`pk_live_\`)
 
 > ⚠️ Copy your key immediately. It won't be shown again.
 
@@ -194,7 +194,7 @@ When creating an API key, you can scope it to specific operations:
 
 ## Revoking Keys
 
-Revoke a compromised key immediately from **Settings → Developers → API Keys**. Revoked keys return `401 Unauthorized` on all requests.
+Revoke a compromised key immediately from **Settings → Developers → API Keys**. Revoked keys return \`401 Unauthorized\` on all requests.
 
 ## Error Responses
 
