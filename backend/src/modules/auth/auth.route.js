@@ -281,4 +281,70 @@ router.post('/forgot-password-otp', authController.forgotPasswordOtp);
  */
 router.post('/reset-password-otp', authController.resetPasswordOtp);
 
+/**
+ * @swagger
+ * /api/auth/resend-verification-link:
+ *   post:
+ *     summary: Resend email verification link
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *     responses:
+ *       200:
+ *         description: Verification link sent
+ *       400:
+ *         description: Email already verified or invalid
+ *       404:
+ *         description: User not found
+ */
+router.post('/resend-verification-link', authController.resendVerificationLink);
+
+/**
+ * @swagger
+ * /api/auth/email-status:
+ *   get:
+ *     summary: Check current user email verification status
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Email verification status
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ */
+router.get('/email-status', protect, authController.checkEmailStatus);
+
+/**
+ * @swagger
+ * /api/auth/confirm-email/{token}:
+ *   get:
+ *     summary: Confirm email with verification token
+ *     tags: [Auth]
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Email verification token
+ *     responses:
+ *       200:
+ *         description: Email verified successfully
+ *       400:
+ *         description: Invalid or expired token
+ */
+router.get('/confirm-email/:token', authController.confirmEmailLink);
+
 module.exports = router;

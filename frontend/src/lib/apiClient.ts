@@ -2,7 +2,19 @@
   success: boolean;
   data?: T;
   message?: string;
+  code?: string;
 };
+
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public code?: string,
+    public status?: number
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
 
 const TOKEN_KEY = 'TRUSTIFICATE:token';
 
@@ -29,7 +41,12 @@ export const apiClient = async <T = any>(
   const res = await fetch(url, { ...init, headers, credentials: 'include' });
   const body = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error(body?.message || 'API request failed');
+    const error = new ApiError(
+      body?.message || 'API request failed',
+      body?.code,
+      res.status
+    );
+    throw error;
   }
   return body as ApiResponse<T>;
 };

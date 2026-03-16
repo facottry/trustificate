@@ -18,26 +18,28 @@ const register = async ({ displayName, email, password }) => {
 
   const user = await User.create({ displayName: displayName.trim(), email: email.toLowerCase(), password });
 
-  // Generate email verification OTP
-  const otp = generateOtp();
-  user.authOtp = otp;
-  user.otpExpiry = new Date(Date.now() + 15 * 60 * 1000);
+  // Generate email verification token
+  const verificationToken = crypto.randomBytes(32).toString('hex');
+  user.emailVerificationToken = verificationToken;
+  user.emailVerificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
   await user.save({ validateBeforeSave: false });
 
-  // Send verification email
-  const { sendVerificationEmail } = require('../../services/emailService');
-  await sendVerificationEmail(email.toLowerCase(), otp);
+  // Send verification email with confirmation link
+  const { sendVerificationLinkEmail } = require('../../services/emailService');
+  await sendVerificationLinkEmail(email.toLowerCase(), verificationToken, user.displayName);
 
-  const token = signToken({ id: user._id, role: user.role, organizationId: user.organizationId });
+  // Do NOT return token on registration - user must verify email first
   return {
-    token,
     user: {
       id: user._id,
       displayName: user.displayName,
       email: user.email,
       role: user.role,
       organizationId: user.organizationId,
+      isEmailVerified: false,
     },
+    emailVerificationPending: true,
+    message: 'Please verify your email address. Check your inbox for the verification link.',
   };
 };
 
@@ -51,6 +53,22 @@ const login = async ({ email, password }) => {
   user.lastLoginAt = new Date();
   await user.save({ validateBeforeSave: false });
 
+  // If email not verified, don't return token
+  if (!user.isEmailVerified) {
+    return {
+      user: {
+        id: user._id,
+        displayName: user.displayName,
+        email: user.email,
+        role: user.role,
+        organizationId: user.organizationId,
+        isEmailVerified: false,
+      },
+      emailVerificationPending: true,
+      message: 'Please verify your email address to complete login',
+    };
+  }
+
   const token = signToken({ id: user._id, role: user.role, organizationId: user.organizationId });
   return {
     token,
@@ -60,6 +78,7 @@ const login = async ({ email, password }) => {
       email: user.email,
       role: user.role,
       organizationId: user.organizationId,
+      isEmailVerified: true,
     },
   };
 };
@@ -151,17 +170,60 @@ const resetPassword = async (email, newPassword, otp, token) => {
   await user.save();
 };
 
-const verifyEmail = async (token) => {
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+const verifyEmailLink = async (token) => {
   const user = await User.findOne({
-    _id: decoded.id,
     emailVerificationToken: token,
   });
-  if (!user) throw new AppError('Invalid token', 400);
+  if (!user) throw new AppError('Invalid or expired verification link', 400);
 
-  user.emailVerified = true;
-  user.emailVerificationToken = undefined;
+  // Check if token has expired
+  if (user.emailVerificationExpiry < new Date()) {
+    throw new AppError('Verification link has expired', 400);
+  }
+
+  user.isEmailVerified = true;
+  user.emailVerificationToken = null;
+  user.emailVerificationExpiry = null;
   await user.save();
+
+  return user;
+};
+
+const resendVerificationLink = async (email) => {
+  const user = await User.findOne({ email: email.toLowerCase() });
+  if (!user) throw new AppError('User not found', 404);
+
+  // Check if email is already verified
+  if (user.isEmailVerified) {
+    throw new AppError('Email is already verified', 400);
+  }
+
+  // Generate new verification token
+  const crypto = require('crypto');
+  const verificationToken = crypto.randomBytes(32).toString('hex');
+  user.emailVerificationToken = verificationToken;
+  user.emailVerificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+  await user.save({ validateBeforeSave: false });
+
+  // Send new verification email
+  const { sendVerificationLinkEmail } = require('../../services/emailService');
+  await sendVerificationLinkEmail(email.toLowerCase(), verificationToken, user.displayName);
+
+  return {
+    message: 'Verification link sent successfully',
+    expiresIn: '24 hours',
+  };
+};
+
+const checkEmailVerificationStatus = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user) throw new AppError('User not found', 404);
+
+  return {
+    isEmailVerified: user.isEmailVerified,
+    email: user.email,
+    displayName: user.displayName,
+  };
 };
 
 const generateOtp = () => {
@@ -240,4 +302,4 @@ const resetPasswordOtp = async (email, otp, newPassword) => {
   await user.save();
 };
 
-module.exports = { register, login, getAuthUser, forgotPassword, loginWithOtp, resetPassword, verifyEmail, sendVerificationOtp, verifyEmailOtp, forgotPasswordOtp, resetPasswordOtp };
+module.exports = { register, login, getAuthUser, forgotPassword, loginWithOtp, resetPassword, verifyEmailLink, resendVerificationLink, checkEmailVerificationStatus, sendVerificationOtp, verifyEmailOtp, forgotPasswordOtp, resetPasswordOtp };

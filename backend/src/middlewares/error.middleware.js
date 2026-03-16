@@ -9,9 +9,10 @@ const asyncHandler = (fn) => (req, res, next) =>
  * Custom operational error — status is sent to the client
  */
 class AppError extends Error {
-  constructor(message, status = 500) {
+  constructor(message, status = 500, code = null) {
     super(message);
     this.status = status;
+    this.code = code;
     this.isOperational = true;
   }
 }

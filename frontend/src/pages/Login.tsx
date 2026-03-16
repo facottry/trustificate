@@ -27,23 +27,29 @@ export default function LoginPage() {
 
     try {
       const { data } = await apiClient<{
-        token: string;
-        user: { isEmailVerified: boolean; email: string };
+        token?: string;
+        user: { isEmailVerified: boolean; email: string; displayName: string };
+        emailVerificationPending?: boolean;
       }>("/api/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
 
-      setAuthToken(data.token);
-
-      // If the user has not verified their email, send them to the verification flow.
-      if (data.user?.isEmailVerified === false) {
-        navigate(`/verify-email?email=${encodeURIComponent(data.user.email)}`);
+      // If still needs email verification, redirect to verification screen
+      if (data.emailVerificationPending || !data.user.isEmailVerified) {
+        // Store the email for reference in verification screen
+        localStorage.setItem('TRUSTIFICATE:pendingVerificationEmail', data.user.email);
+        toast.info('Please verify your email to complete login');
+        navigate('/verify-email-link', { state: { email: data.user.email, displayName: data.user.displayName } });
         return;
       }
 
-      await refresh();
-      navigate("/dashboard");
+      // User is verified and has token
+      if (data.token) {
+        setAuthToken(data.token);
+        await refresh();
+        navigate("/dashboard");
+      }
     } catch (err: any) {
       toast.error(err?.message || "Login failed");
     } finally {

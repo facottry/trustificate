@@ -149,8 +149,48 @@ const sendPasswordChangedEmail = async (email, userName) => {
   await transporter.sendMail(mailOptions);
 };
 
+const sendVerificationLinkEmail = async (email, token, userName) => {
+  const verificationLink = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/confirm-email?token=${token}`;
+
+  const mailOptions = {
+    from: process.env.FROM_EMAIL || 'noreply@trustificate.com',
+    to: email,
+    subject: 'Trustificate - Verify Your Email',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; color: white;">
+          <h1 style="margin: 0; font-size: 28px;">Welcome to Trustificate!</h1>
+        </div>
+        <div style="padding: 40px 30px;">
+          <p style="font-size: 16px; color: #333; margin-bottom: 20px;">Hi ${userName},</p>
+          <p style="font-size: 16px; color: #555; line-height: 1.6; margin-bottom: 30px;">
+            Thank you for signing up! Please verify your email address by clicking the button below to get started with Trustificate.
+          </p>
+          <div style="text-align: center; margin: 40px 0;">
+            <a href="${verificationLink}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 40px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold; display: inline-block;">
+              Verify Email
+            </a>
+          </div>
+          <p style="font-size: 14px; color: #999; line-height: 1.6; margin-top: 30px;">
+            This verification link will expire in 24 hours.
+          </p>
+          <p style="font-size: 14px; color: #999;">
+            If you didn't sign up for this account, please ignore this email.
+          </p>
+        </div>
+        <div style="background-color: #f9f9f9; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0;">
+          <p style="margin: 0; font-size: 12px; color: #999;">Best regards,<br><strong>Trustificate Team</strong></p>
+        </div>
+      </div>
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
 module.exports = {
   sendVerificationEmail,
+  sendVerificationLinkEmail,
   sendPasswordResetEmail,
   sendWelcomeEmail,
   sendCertificateReceiverEmail,

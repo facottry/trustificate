@@ -7,6 +7,7 @@ export interface AuthUser {
   email: string;
   role: string;
   organizationId?: string | null;
+  isEmailVerified?: boolean;
 }
 
 export interface Profile {

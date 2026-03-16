@@ -30,12 +30,14 @@ export default function SignupPage() {
     }
     setLoading(true);
     try {
-      await apiClient('/api/auth/register', {
+      const response = await apiClient('/api/auth/register', {
         method: 'POST',
         body: JSON.stringify({ displayName: name, email, password }),
       });
       toast.success('Account created! Please check your email for verification.');
-      navigate(`/verify-email?email=${encodeURIComponent(email)}`);
+      // Store pending verification email for reference
+      localStorage.setItem('TRUSTIFICATE:pendingVerificationEmail', email);
+      navigate('/verify-email-link', { state: { email, displayName: name } });
     } catch (err: any) {
       toast.error(err.message || 'Signup failed');
     } finally {

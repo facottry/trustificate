@@ -3,7 +3,13 @@ const { seedSystemTemplates } = require('../modules/template/template.seed');
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGO_URI, {
+      maxPoolSize: 10,
+      minPoolSize: 5,
+      socketTimeoutMS: 45000,
+      serverSelectionTimeoutMS: 5000,
+      maxIdleTimeMS: 10000,
+    });
     console.log('  ✅  MongoDB connected');
 
     // Ensure built-in system templates exist for all organizations

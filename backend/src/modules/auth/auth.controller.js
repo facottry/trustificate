@@ -6,7 +6,7 @@ const { success } = require('../../utils/apiResponse');
 const register = asyncHandler(async (req, res) => {
   const { displayName, email, password } = req.body;
   const data = await authService.register({ displayName, email, password });
-  success(res, data, 'Registered successfully', 201);
+  success(res, data, data.message, 201);
 });
 
 /** POST /api/auth/login */
@@ -51,8 +51,28 @@ const resetPassword = asyncHandler(async (req, res) => {
 /** POST /api/auth/verify */
 const verifyEmail = asyncHandler(async (req, res) => {
   const { token } = req.body;
-  await authService.verifyEmail(token);
+  await authService.verifyEmailLink(token);
   success(res, null, 'Email verified');
+});
+
+/** GET /api/auth/confirm-email/:token */
+const confirmEmailLink = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+  const user = await authService.verifyEmailLink(token);
+  success(res, user, 'Email verified successfully');
+});
+
+/** POST /api/auth/resend-verification-link */
+const resendVerificationLink = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const data = await authService.resendVerificationLink(email);
+  success(res, data, 'Verification link sent');
+});
+
+/** GET /api/auth/email-status */
+const checkEmailStatus = asyncHandler(async (req, res) => {
+  const status = await authService.checkEmailVerificationStatus(req.user.id);
+  success(res, status, 'Email status retrieved');
 });
 
 /** POST /api/auth/send-verification-otp */
@@ -83,4 +103,4 @@ const resetPasswordOtp = asyncHandler(async (req, res) => {
   success(res, null, 'Password reset successfully');
 });
 
-module.exports = { register, login, getMe, logout, forgotPassword, loginWithOtp, resetPassword, verifyEmail, sendVerificationOtp, verifyEmailOtp, forgotPasswordOtp, resetPasswordOtp };
+module.exports = { register, login, getMe, logout, forgotPassword, loginWithOtp, resetPassword, verifyEmail, confirmEmailLink, resendVerificationLink, checkEmailStatus, sendVerificationOtp, verifyEmailOtp, forgotPasswordOtp, resetPasswordOtp };

@@ -1,6 +1,15 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
+export interface AuthUser {
+  id: string;
+  displayName: string;
+  email: string;
+  role: string;
+  organizationId?: string | null;
+  isEmailVerified?: boolean;
+}
+
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
 
@@ -17,6 +26,11 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Check if email is verified
+  if (!user.isEmailVerified) {
+    return <Navigate to="/verify-email-link" state={{ email: user.email, displayName: user.displayName }} replace />;
   }
 
   return <>{children}</>;

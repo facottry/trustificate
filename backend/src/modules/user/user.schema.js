@@ -33,6 +33,8 @@ const userSchema = new mongoose.Schema(
     resetOtp: { type: String, default: null },
     resetToken: { type: String, default: null },
     resetExpiry: { type: Date, default: null },
+    emailVerificationToken: { type: String, default: null },
+    emailVerificationExpiry: { type: Date, default: null },
   },
   { timestamps: true }
 );

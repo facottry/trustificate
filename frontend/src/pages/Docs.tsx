@@ -118,7 +118,7 @@ function renderDocContent(content: string) {
     if (line.startsWith("> ")) {
       elements.push(
         <div key={elements.length} className="border-l-4 border-warning bg-warning/5 pl-4 py-2 my-4 text-sm text-foreground">
-          {line.slice(2).replace("âš ï¸ ", "")}
+          {line.slice(2)}
         </div>
       );
       i++; continue;

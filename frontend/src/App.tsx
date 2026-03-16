@@ -5,10 +5,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { OptionalProtectedRoute } from "@/components/OptionalProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import VerifyEmail from "./pages/VerifyEmail";
+import VerifyEmailLink from "./pages/VerifyEmailLink";
+import ConfirmEmail from "./pages/ConfirmEmail";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Pricing from "./pages/Pricing";
@@ -63,31 +66,33 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            {/* Public routes */}
+            {/* Public routes - accessible by both authenticated and unauthenticated users */}
             <Route path="/" element={<Index />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:slug" element={<BlogPost />} />
-            <Route path="/team" element={<Team />} />
-            <Route path="/team/:slug" element={<TeamMember />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/verify" element={<Verify />} />
-            <Route path="/certificate/:slug" element={<CertificatePublic />} />
-            <Route path="/testimonials" element={<Testimonials />} />
-            <Route path="/testimonials/:slug" element={<TestimonialDetail />} />
-            <Route path="/docs" element={<Docs />} />
-            <Route path="/docs/:slug" element={<Docs />} />
-            <Route path="/certificate-generator" element={<CertificateGenerator />} />
-            <Route path="/bulk-certificate-generator" element={<BulkCertificateGenerator />} />
-            <Route path="/verify-certificate-online" element={<VerifyCertificateOnline />} />
-            <Route path="/careers" element={<Careers />} />
-            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/pricing" element={<OptionalProtectedRoute><Pricing /></OptionalProtectedRoute>} />
+            <Route path="/about" element={<OptionalProtectedRoute><About /></OptionalProtectedRoute>} />
+            <Route path="/contact" element={<OptionalProtectedRoute><Contact /></OptionalProtectedRoute>} />
+            <Route path="/blog" element={<OptionalProtectedRoute><Blog /></OptionalProtectedRoute>} />
+            <Route path="/blog/:slug" element={<OptionalProtectedRoute><BlogPost /></OptionalProtectedRoute>} />
+            <Route path="/team" element={<OptionalProtectedRoute><Team /></OptionalProtectedRoute>} />
+            <Route path="/team/:slug" element={<OptionalProtectedRoute><TeamMember /></OptionalProtectedRoute>} />
+            <Route path="/terms" element={<OptionalProtectedRoute><Terms /></OptionalProtectedRoute>} />
+            <Route path="/privacy" element={<OptionalProtectedRoute><Privacy /></OptionalProtectedRoute>} />
+            <Route path="/verify" element={<OptionalProtectedRoute><Verify /></OptionalProtectedRoute>} />
+            <Route path="/certificate/:slug" element={<OptionalProtectedRoute><CertificatePublic /></OptionalProtectedRoute>} />
+            <Route path="/testimonials" element={<OptionalProtectedRoute><Testimonials /></OptionalProtectedRoute>} />
+            <Route path="/testimonials/:slug" element={<OptionalProtectedRoute><TestimonialDetail /></OptionalProtectedRoute>} />
+            <Route path="/docs" element={<OptionalProtectedRoute><Docs /></OptionalProtectedRoute>} />
+            <Route path="/docs/:slug" element={<OptionalProtectedRoute><Docs /></OptionalProtectedRoute>} />
+            <Route path="/certificate-generator" element={<OptionalProtectedRoute><CertificateGenerator /></OptionalProtectedRoute>} />
+            <Route path="/bulk-certificate-generator" element={<OptionalProtectedRoute><BulkCertificateGenerator /></OptionalProtectedRoute>} />
+            <Route path="/verify-certificate-online" element={<OptionalProtectedRoute><VerifyCertificateOnline /></OptionalProtectedRoute>} />
+            <Route path="/careers" element={<OptionalProtectedRoute><Careers /></OptionalProtectedRoute>} />
+            <Route path="/checkout" element={<OptionalProtectedRoute><Checkout /></OptionalProtectedRoute>} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/verify-email-link" element={<VerifyEmailLink />} />
+            <Route path="/confirm-email" element={<ConfirmEmail />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
 

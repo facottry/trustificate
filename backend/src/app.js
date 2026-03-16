@@ -15,6 +15,7 @@ const certificateRoutes = require('./modules/certificate/certificate.route');
 const aiRoutes = require('./modules/ai/ai.route');
 const publicRoutes = require('./modules/public/public.route');
 const adminRoutes = require('./modules/admin/admin.route');
+const { requireEmailVerified } = require('./middlewares/emailVerification.middleware');
 
 const app = express();
 
@@ -27,13 +28,16 @@ app.use((req, _res, next) => {
   next();
 });
 
+// ── Environment variables ─────────────────────────────────
+const FRONTEND_URL = process.env.FRONTEND_URL;
 
-const FRONTEND_URL = process.env.FRONTEND_URL ;
 // ── Security ───────────────────────────────────────────────
 app.use(helmet());
 app.use(cors({
-  origin: ['http://localhost:8080', 'http://localhost:5173', 'http://localhost:3000',"https://trustificate.vercel.app", FRONTEND_URL],
-  credentials: true
+  origin: ['http://localhost:8080', 'http://localhost:5173', 'http://localhost:3000', 'https://trustificate.vercel.app', FRONTEND_URL],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // ── Body Parsing ───────────────────────────────────────────
@@ -88,13 +92,13 @@ app.get('/', (req, res) => {
 
 // ── Routes ─────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/organizations', organizationRoutes);
-app.use('/api/templates', templateRoutes);
-app.use('/api/certificates', certificateRoutes);
-app.use('/api/ai', aiLimiter, aiRoutes);
+app.use('/api/users', requireEmailVerified, userRoutes);
+app.use('/api/organizations', requireEmailVerified, organizationRoutes);
+app.use('/api/templates', requireEmailVerified, templateRoutes);
+app.use('/api/certificates', requireEmailVerified, certificateRoutes);
+app.use('/api/ai', requireEmailVerified, aiLimiter, aiRoutes);
 app.use('/api/public', publicRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api/admin', requireEmailVerified, adminRoutes);
 
 // ── Health Check (pings DB + Redis) ────────────────────────
 app.get('/health', async (_req, res) => {
@@ -122,6 +126,7 @@ app.use((err, req, res, _next) => {
   res.status(status).json({
     success: false,
     message: err.message || 'Internal Server Error',
+    ...(err.code && { code: err.code }),
     ...(process.env.NODE_ENV === 'development' && { requestId: req.id }),
   });
 });

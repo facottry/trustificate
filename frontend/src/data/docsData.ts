@@ -28,9 +28,9 @@ TRUSTIFICATE provides a RESTful API that lets you programmatically create, manag
 - **Generate certificates** from templates with dynamic recipient data
 - **Bulk generate** hundreds or thousands of certificates in a single request
 - **Verify certificates** using certificate numbers or slugs
-- **Manage templates** â€” create, update, and list your certificate templates
-- **Track events** â€” monitor certificate views, downloads, and verification attempts
-- **Webhooks** â€” receive real-time notifications when certificates are issued or verified
+- **Manage templates** – create, update, and list your certificate templates
+- **Track events** – monitor certificate views, downloads, and verification attempts
+- **Webhooks** – receive real-time notifications when certificates are issued or verified
 
 ## Base URL
 
@@ -82,13 +82,13 @@ Sign up at [trustificate.clicktory.in/signup](/signup) and complete email verifi
 
 ## Step 2: Generate an API Key
 
-Navigate to **Settings â†’ Developers â†’ API Keys** and click **Create API Key**.
+Navigate to **Settings → Developers → API Keys** and click **Create API Key**.
 
 Choose:
-- **Development** â€” for testing (prefixed with \`pk_test_\`)
-- **Production** â€” for live usage (prefixed with \`pk_live_\`)
+- **Development** – for testing (prefixed with `pk_test_`)
+- **Production** – for live usage (prefixed with `pk_live_`)
 
-> âš ï¸ Copy your key immediately. It won't be shown again.
+> ⚠️ Copy your key immediately. It won't be shown again.
 
 ## Step 3: Create a Template
 
@@ -139,9 +139,9 @@ Share the verification URL or certificate number. Anyone can verify at [/verify]
 
 ## Next Steps
 
-- [Authentication](/docs/authentication) â€” learn about API key security
-- [Create Certificate](/docs/create-certificate) â€” full endpoint reference
-- [Bulk Generation](/docs/bulk-certificate-generation) â€” issue at scale
+- [Authentication](/docs/authentication) – learn about API key security
+- [Create Certificate](/docs/create-certificate) – full endpoint reference
+- [Bulk Generation](/docs/bulk-certificate-generation) – issue at scale
 `,
   },
   {
@@ -186,15 +186,15 @@ When creating an API key, you can scope it to specific operations:
 
 ## Security Best Practices
 
-1. **Never expose keys in client-side code** â€” API keys should only be used server-side
-2. **Use development keys for testing** â€” avoid using production keys in development
-3. **Rotate keys regularly** â€” revoke and regenerate keys periodically
-4. **Set minimum permissions** â€” only grant the permissions your integration needs
-5. **Monitor usage** â€” check the API key logs in Settings for unusual activity
+1. **Never expose keys in client-side code** – API keys should only be used server-side
+2. **Use development keys for testing** – avoid using production keys in development
+3. **Rotate keys regularly** – revoke and regenerate keys periodically
+4. **Set minimum permissions** – only grant the permissions your integration needs
+5. **Monitor usage** – check the API key logs in Settings for unusual activity
 
 ## Revoking Keys
 
-Revoke a compromised key immediately from **Settings â†’ Developers â†’ API Keys**. Revoked keys return \`401 Unauthorized\` on all requests.
+Revoke a compromised key immediately from **Settings → Developers → API Keys**. Revoked keys return `401 Unauthorized` on all requests.
 
 ## Error Responses
 
@@ -217,7 +217,7 @@ Revoke a compromised key immediately from **Settings â†’ Developers â†�
     content: `
 # API Keys
 
-Manage your API keys from the TRUSTIFICATE dashboard under **Settings â†’ Developers â†’ API Keys**.
+Manage your API keys from the TRUSTIFICATE dashboard under **Settings → Developers → API Keys**.
 
 ## Creating a Key
 
@@ -249,7 +249,7 @@ POST /api/v1/api-keys
 }
 \`\`\`
 
-> âš ï¸ The full key is only returned once at creation. Store it securely.
+> ⚠️ The full key is only returned once at creation. Store it securely.
 
 ## Listing Keys
 
@@ -370,7 +370,7 @@ curl -X POST ${BASE_URL}/api/v1/certificates \\
 |------|------------------------------------------|
 | 201  | Certificate created successfully         |
 | 400  | Invalid request body                     |
-| 401  | Unauthorized â€” invalid API key           |
+| 401  | Unauthorized – invalid API key           |
 | 404  | Template not found                       |
 | 429  | Rate limit exceeded                      |
 `,
@@ -517,7 +517,7 @@ curl -X GET ${BASE_URL}/api/v1/certificates/verify/CC-2026-A1B2C3D4-E5F6 \\
   -H "Authorization: Bearer pk_live_xxxxx"
 \`\`\`
 
-## Response â€” Valid Certificate
+## Response – Valid Certificate
 
 \`\`\`json
 {
@@ -536,7 +536,7 @@ curl -X GET ${BASE_URL}/api/v1/certificates/verify/CC-2026-A1B2C3D4-E5F6 \\
 }
 \`\`\`
 
-## Response â€” Revoked Certificate
+## Response – Revoked Certificate
 
 \`\`\`json
 {
@@ -550,7 +550,7 @@ curl -X GET ${BASE_URL}/api/v1/certificates/verify/CC-2026-A1B2C3D4-E5F6 \\
 }
 \`\`\`
 
-## Response â€” Not Found
+## Response – Not Found
 
 \`\`\`json
 {
@@ -597,7 +597,7 @@ Receive real-time HTTP notifications when events occur in your TRUSTIFICATE acco
 
 ### Via Dashboard
 
-Navigate to **Settings â†’ Developers â†’ Webhooks** and add an endpoint URL.
+Navigate to **Settings → Developers → Webhooks** and add an endpoint URL.
 
 ### Via API
 
