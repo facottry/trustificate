@@ -30,7 +30,7 @@ app.use((req, _res, next) => {
 // ── Security ───────────────────────────────────────────────
 app.use(helmet());
 app.use(cors({
-  origin: ['http://localhost:8080', 'http://localhost:5173', 'http://localhost:3000'],
+  origin: ['http://localhost:8080', 'http://localhost:5173', 'http://localhost:3000',"https://trustificate.vercel.app"],
   credentials: true
 }));
 

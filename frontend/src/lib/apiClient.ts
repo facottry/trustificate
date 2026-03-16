@@ -12,7 +12,7 @@ export const setAuthToken = (token: string | null) => {
   else localStorage.removeItem(TOKEN_KEY);
 };
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://trustificate.onrender.com';
 
 export const apiClient = async <T = any>(
   input: RequestInfo,
