@@ -1,0 +1,348 @@
+import { useState, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { PublicLayout } from "@/components/PublicLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { CheckCircle2, Tag, ShieldCheck, ArrowLeft, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
+import { pricingTiers } from "@/data/siteData";
+
+export default function Checkout() {
+  const [searchParams] = useSearchParams();
+  const planSlug = searchParams.get("plan") || "starter";
+  const navigate = useNavigate();
+  const { user, profile } = useAuth();
+
+  const tier = pricingTiers.find((t) => t.name.toLowerCase() === planSlug);
+
+  const [couponCode, setCouponCode] = useState("FREE_100");
+  const [couponApplied, setCouponApplied] = useState(false);
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponError, setCouponError] = useState("");
+  const [validating, setValidating] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [orderComplete, setOrderComplete] = useState(false);
+  const [orderId, setOrderId] = useState("");
+
+  const originalPrice = (tier as any)?.originalPriceValue || 0;
+  const planDiscount = 50;
+  const discountedPrice = (tier as any)?.priceValue || 0;
+  const couponAmount = couponApplied ? Math.round(discountedPrice * (couponDiscount / 100)) : 0;
+  const finalAmount = discountedPrice - couponAmount;
+
+  // Auto-apply coupon on mount
+  useEffect(() => {
+    if (couponCode === "FREE_100" && !couponApplied) {
+      handleApplyCoupon();
+    }
+  }, []);
+
+  async function handleApplyCoupon() {
+    if (!couponCode.trim()) return;
+    setValidating(true);
+    setCouponError("");
+
+    try {
+      const { data, error } = await supabase.rpc("apply_coupon", { _code: couponCode.trim() });
+      if (error) throw error;
+
+      const result = data as any;
+      if (result.valid) {
+        setCouponApplied(true);
+        setCouponDiscount(result.discount_percent);
+        toast.success(`Coupon ${result.code} applied — ${result.discount_percent}% off!`);
+      } else {
+        setCouponError(result.error);
+        setCouponApplied(false);
+      }
+    } catch (err: any) {
+      setCouponError(err.message || "Failed to validate coupon");
+    } finally {
+      setValidating(false);
+    }
+  }
+
+  async function handleCompleteOrder() {
+    if (!user || !profile?.organization_id || !tier) {
+      toast.error("Please log in to complete your purchase.");
+      navigate("/login");
+      return;
+    }
+
+    setProcessing(true);
+    try {
+      // Find plan ID from database
+      const { data: planData } = await supabase
+        .from("plans")
+        .select("id")
+        .eq("name", tier.name === "Pro" ? "Professional" : tier.name)
+        .single();
+
+      if (!planData) {
+        // Try exact name match
+        const { data: planData2 } = await supabase
+          .from("plans")
+          .select("id")
+          .eq("name", tier.name)
+          .single();
+        
+        if (!planData2) {
+          toast.error("Plan not found. Please contact support.");
+          setProcessing(false);
+          return;
+        }
+        
+        var planId = planData2.id;
+      } else {
+        var planId = planData.id;
+      }
+
+      // Create order record
+      const { data: order, error: orderError } = await supabase
+        .from("orders")
+        .insert({
+          organization_id: profile.organization_id,
+          user_id: user.id,
+          plan_id: planId,
+          plan_name: tier.name,
+          original_price: originalPrice,
+          discount_percent: planDiscount,
+          discounted_price: discountedPrice,
+          coupon_code: couponApplied ? couponCode.toUpperCase() : null,
+          coupon_discount_percent: couponApplied ? couponDiscount : 0,
+          final_amount: finalAmount,
+          currency: "INR",
+          status: "completed",
+          payment_method: finalAmount === 0 ? "coupon" : "pending",
+          metadata_json: {
+            checkout_timestamp: new Date().toISOString(),
+            plan_features: tier.features,
+            auto_coupon: couponCode === "FREE_100",
+          },
+        })
+        .select("id")
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Update subscription to new plan
+      const { error: subError } = await supabase
+        .from("subscriptions")
+        .update({
+          plan_id: planId,
+          status: "active",
+          billing_cycle_start: new Date().toISOString().split("T")[0],
+          billing_cycle_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+          updated_at: new Date().toISOString(),
+        })
+        .eq("organization_id", profile.organization_id);
+
+      if (subError) throw subError;
+
+      setOrderId(order.id);
+      setOrderComplete(true);
+      toast.success("Order completed successfully!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to process order");
+    } finally {
+      setProcessing(false);
+    }
+  }
+
+  if (!tier || tier.name === "Free" || tier.name === "Enterprise") {
+    navigate("/pricing");
+    return null;
+  }
+
+  if (orderComplete) {
+    return (
+      <PublicLayout>
+        <section className="py-20 lg:py-28">
+          <div className="container">
+            <div className="mx-auto max-w-md text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30 mb-6">
+                <CheckCircle2 className="h-8 w-8 text-green-600" />
+              </div>
+              <h1 className="text-2xl font-bold mb-2">Order Confirmed!</h1>
+              <p className="text-muted-foreground mb-2">
+                Your <span className="font-semibold text-foreground">{tier.name}</span> plan is now active.
+              </p>
+              <p className="text-xs text-muted-foreground mb-6 font-mono">
+                Order ID: {orderId.slice(0, 8).toUpperCase()}
+              </p>
+
+              <Card className="text-left mb-6">
+                <CardContent className="pt-4 space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Plan</span>
+                    <span className="font-medium">{tier.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Original Price</span>
+                    <span className="line-through text-muted-foreground">₹{originalPrice.toLocaleString("en-IN")}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Launch Discount (50%)</span>
+                    <span className="text-green-600">-₹{(originalPrice - discountedPrice).toLocaleString("en-IN")}</span>
+                  </div>
+                  {couponApplied && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Coupon ({couponCode})</span>
+                      <span className="text-green-600">-₹{couponAmount.toLocaleString("en-IN")}</span>
+                    </div>
+                  )}
+                  <Separator />
+                  <div className="flex justify-between font-semibold text-base">
+                    <span>Total Paid</span>
+                    <span>₹{finalAmount.toLocaleString("en-IN")}</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="flex gap-3 justify-center">
+                <Button onClick={() => navigate("/dashboard")}>Go to Dashboard</Button>
+                <Button variant="outline" onClick={() => navigate("/documents/new")}>Issue First Certificate</Button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </PublicLayout>
+    );
+  }
+
+  return (
+    <PublicLayout>
+      <section className="py-20 lg:py-28">
+        <div className="container">
+          <div className="mx-auto max-w-lg">
+            <Button variant="ghost" size="sm" className="mb-6" onClick={() => navigate("/pricing")}>
+              <ArrowLeft className="mr-1 h-4 w-4" /> Back to Pricing
+            </Button>
+
+            <h1 className="text-2xl font-bold mb-1">Checkout</h1>
+            <p className="text-sm text-muted-foreground mb-8">Complete your subscription to the {tier.name} plan.</p>
+
+            {/* Plan Summary */}
+            <Card className="mb-6">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium flex items-center justify-between">
+                  Order Summary
+                  <Badge variant="secondary" className="text-xs">{tier.name} Plan</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">{tier.name} Plan (monthly)</span>
+                  <span className="line-through text-muted-foreground">₹{originalPrice.toLocaleString("en-IN")}</span>
+                </div>
+                <div className="flex justify-between text-green-600">
+                  <span>Launch Discount (50% off)</span>
+                  <span>-₹{(originalPrice - discountedPrice).toLocaleString("en-IN")}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="font-medium">₹{discountedPrice.toLocaleString("en-IN")}</span>
+                </div>
+
+                <Separator />
+
+                {/* Coupon */}
+                <div className="space-y-2">
+                  <label className="text-xs font-medium flex items-center gap-1">
+                    <Tag className="h-3 w-3" /> Coupon Code
+                  </label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={couponCode}
+                      onChange={(e) => {
+                        setCouponCode(e.target.value.toUpperCase());
+                        setCouponApplied(false);
+                        setCouponError("");
+                      }}
+                      placeholder="Enter coupon code"
+                      className="font-mono text-sm h-9"
+                      disabled={couponApplied}
+                    />
+                    {couponApplied ? (
+                      <Badge variant="outline" className="shrink-0 text-green-600 border-green-300 bg-green-50 dark:bg-green-950/20 h-9 px-3 flex items-center">
+                        <CheckCircle2 className="h-3 w-3 mr-1" /> Applied
+                      </Badge>
+                    ) : (
+                      <Button size="sm" variant="outline" className="h-9 shrink-0" onClick={handleApplyCoupon} disabled={validating}>
+                        {validating ? <Loader2 className="h-3 w-3 animate-spin" /> : "Apply"}
+                      </Button>
+                    )}
+                  </div>
+                  {couponError && <p className="text-xs text-destructive">{couponError}</p>}
+                  {couponApplied && (
+                    <p className="text-xs text-green-600">🎉 {couponDiscount}% off applied with {couponCode}</p>
+                  )}
+                </div>
+
+                {couponApplied && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Coupon Discount ({couponDiscount}%)</span>
+                    <span>-₹{couponAmount.toLocaleString("en-IN")}</span>
+                  </div>
+                )}
+
+                <Separator />
+
+                <div className="flex justify-between font-semibold text-lg">
+                  <span>Total</span>
+                  <span>₹{finalAmount.toLocaleString("en-IN")}</span>
+                </div>
+                {finalAmount === 0 && (
+                  <p className="text-xs text-green-600 text-center">🎉 Your total is ₹0 — no payment required!</p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Security note */}
+            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-6">
+              <ShieldCheck className="h-4 w-4 text-primary" />
+              <span>Your transaction is recorded securely. All plan features activate immediately.</span>
+            </div>
+
+            {/* Complete Order */}
+            <Button
+              className="w-full h-12 text-base"
+              onClick={handleCompleteOrder}
+              disabled={processing}
+            >
+              {processing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : finalAmount === 0 ? (
+                "Activate Plan — Free"
+              ) : (
+                `Pay ₹${finalAmount.toLocaleString("en-IN")}`
+              )}
+            </Button>
+
+            {!user && (
+              <p className="text-xs text-center text-muted-foreground mt-4">
+                You'll need to{" "}
+                <Button variant="link" className="p-0 h-auto text-xs" onClick={() => navigate("/login")}>
+                  log in
+                </Button>{" "}
+                or{" "}
+                <Button variant="link" className="p-0 h-auto text-xs" onClick={() => navigate("/signup")}>
+                  create an account
+                </Button>{" "}
+                to complete checkout.
+              </p>
+            )}
+          </div>
+        </div>
+      </section>
+    </PublicLayout>
+  );
+}

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://trustificate.clicktory.in/docs/introduction</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://trustificate.clicktory.in/docs/getting-started</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://trustificate.clicktory.in/docs/authentication</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://trustificate.clicktory.in/docs/api-keys</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://trustificate.clicktory.in/docs/create-certificate</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://trustificate.clicktory.in/docs/bulk-certificate-generation</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://trustificate.clicktory.in/docs/verify-certificate</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://trustificate.clicktory.in/docs/webhooks</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://trustificate.clicktory.in/docs/sdk-examples</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://trustificate.clicktory.in/docs/errors</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+</urlset>
+
