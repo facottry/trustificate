@@ -27,10 +27,12 @@ app.use((req, _res, next) => {
   next();
 });
 
+
+const FRONTEND_URL = process.env.FRONTEND_URL ;
 // ── Security ───────────────────────────────────────────────
 app.use(helmet());
 app.use(cors({
-  origin: ['http://localhost:8080', 'http://localhost:5173', 'http://localhost:3000',"https://trustificate.vercel.app"],
+  origin: ['http://localhost:8080', 'http://localhost:5173', 'http://localhost:3000',"https://trustificate.vercel.app", FRONTEND_URL],
   credentials: true
 }));
 
