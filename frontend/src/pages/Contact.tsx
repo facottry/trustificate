@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/apiClient";
 
 export default function Contact() {
   const [submitting, setSubmitting] = useState(false);
@@ -22,14 +22,17 @@ export default function Contact() {
     e.preventDefault();
     setSubmitting(true);
 
-    const { error } = await supabase.from("contact_submissions").insert({
-      first_name: firstName.trim(),
-      last_name: lastName.trim(),
-      email: email.trim(),
-      company: company.trim() || null,
-      subject: subject || null,
-      message: message.trim(),
-    });
+    const { error } = await apiClient<any>("/api/public/contact", {
+      method: "POST",
+      body: JSON.stringify({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim(),
+        company: company.trim() || null,
+        subject: subject || null,
+        message: message.trim(),
+      }),
+    }).then(res => ({ error: null })).catch(err => ({ error: err }));
 
     setSubmitting(false);
 
@@ -126,7 +129,7 @@ export default function Contact() {
                   Need a custom solution? Our team can help with volume pricing, SSO, custom integrations, and dedicated support.
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Email: <span className="font-medium text-foreground">enterprise@TRUSTIFICATE.app</span>
+                  Email: <span className="font-medium text-foreground">admin@edutainverse.com</span>
                 </p>
               </div>
 
@@ -134,7 +137,7 @@ export default function Contact() {
                 <h4 className="text-sm font-semibold mb-2">Support</h4>
                 <p className="text-sm text-muted-foreground">
                   Existing customers can reach our support team at{" "}
-                  <span className="font-medium text-foreground">support@TRUSTIFICATE.app</span> or through the in-app help center.
+                  <span className="font-medium text-foreground">admin@edutainverse.com</span> or through the in-app help center.
                 </p>
               </div>
             </div>

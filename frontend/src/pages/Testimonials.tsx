@@ -99,7 +99,7 @@ export default function Testimonials() {
             "@type": "WebPage",
             name: testimonialOverview.metaTitle,
             description: testimonialOverview.metaDescription,
-            url: "https://TRUSTIFICATEapp.lovable.app/testimonials",
+            url: "https://trustificate.clicktory.in/testimonials",
           }),
         }}
       />

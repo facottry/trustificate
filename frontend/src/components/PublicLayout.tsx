@@ -1,9 +1,26 @@
-﻿import { Link } from "react-router-dom";
-import { Search, Menu, Linkedin, Twitter, Youtube } from "lucide-react";
+﻿import { Link, useNavigate } from "react-router-dom";
+import { Search, Menu, Linkedin, Twitter, Youtube, LayoutDashboard, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { MascotInline } from "@/components/Mascot";
-import logoImg from "@/assets/logo.png";
+import { Logo } from "@/components/Logo";
+import { useAuth } from "@/hooks/useAuth";
+
+function getInitials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join("");
+}
 
 const navLinks = [
   { label: "Product", href: "/#features" },
@@ -42,13 +59,17 @@ const socialLinks = [
 ];
 
 export function PublicLayout({ children }: { children: React.ReactNode }) {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const initials = user?.displayName ? getInitials(user.displayName) : "?";
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-8">
             <Link to="/" className="flex items-center gap-2 group">
-              <img src={logoImg} alt="TRUSTIFICATE" className="h-12 w-auto" />
+              <Logo size="sm" />
               <MascotInline className="h-5 w-5 group-hover:animate-[wave_0.8s_ease-in-out_1]" />
             </Link>
             <nav className="hidden md:flex items-center gap-6">
@@ -63,12 +84,38 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
             <Button variant="ghost" size="sm" asChild>
               <Link to="/verify"><Search className="mr-1.5 h-3.5 w-3.5" /> Verify</Link>
             </Button>
-            <Button size="sm" variant="ghost" asChild>
-              <Link to="/login">Sign In</Link>
-            </Button>
-            <Button size="sm" asChild>
-              <Link to="/signup">Get Started</Link>
-            </Button>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2">
+                    {initials}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <div className="px-2 py-1.5">
+                    <p className="text-sm font-medium truncate">{user.displayName}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                    <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => { signOut(); navigate("/"); }}>
+                    <LogOut className="mr-2 h-4 w-4" /> Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Button size="sm" variant="ghost" asChild>
+                  <Link to="/login">Sign In</Link>
+                </Button>
+                <Button size="sm" asChild>
+                  <Link to="/signup">Get Started</Link>
+                </Button>
+              </>
+            )}
           </nav>
           <div className="md:hidden">
             <Sheet>
@@ -88,12 +135,35 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
                     <SheetClose asChild>
                       <Button variant="outline" size="sm" asChild><Link to="/verify"><Search className="mr-1.5 h-3.5 w-3.5" /> Verify</Link></Button>
                     </SheetClose>
-                    <SheetClose asChild>
-                      <Button variant="ghost" size="sm" asChild><Link to="/login">Sign In</Link></Button>
-                    </SheetClose>
-                    <SheetClose asChild>
-                      <Button size="sm" asChild><Link to="/signup">Get Started</Link></Button>
-                    </SheetClose>
+                    {user ? (
+                      <>
+                        <div className="flex items-center gap-2 px-1 py-1">
+                          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-semibold shrink-0">
+                            {initials}
+                          </span>
+                          <span className="text-sm font-medium truncate">{user.displayName}</span>
+                        </div>
+                        <SheetClose asChild>
+                          <Button variant="ghost" size="sm" asChild>
+                            <Link to="/dashboard"><LayoutDashboard className="mr-1.5 h-3.5 w-3.5" /> Dashboard</Link>
+                          </Button>
+                        </SheetClose>
+                        <SheetClose asChild>
+                          <Button variant="ghost" size="sm" onClick={() => { signOut(); navigate("/"); }}>
+                            <LogOut className="mr-1.5 h-3.5 w-3.5" /> Sign Out
+                          </Button>
+                        </SheetClose>
+                      </>
+                    ) : (
+                      <>
+                        <SheetClose asChild>
+                          <Button variant="ghost" size="sm" asChild><Link to="/login">Sign In</Link></Button>
+                        </SheetClose>
+                        <SheetClose asChild>
+                          <Button size="sm" asChild><Link to="/signup">Get Started</Link></Button>
+                        </SheetClose>
+                      </>
+                    )}
                   </div>
                 </div>
               </SheetContent>
@@ -109,7 +179,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
           <div className="grid gap-8 md:grid-cols-5">
             <div className="md:col-span-2">
               <Link to="/" className="flex items-center gap-2 mb-4">
-                <img src={logoImg} alt="TRUSTIFICATE" className="h-12 w-auto" />
+                <Logo size="sm" />
                 <MascotInline className="h-4 w-4" />
               </Link>
               <p className="text-xs text-muted-foreground leading-relaxed max-w-xs mb-6">
@@ -146,7 +216,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
         </div>
         <div className="border-t">
           <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-muted-foreground">Â© {new Date().getFullYear()} TRUSTIFICATE, Inc. All rights reserved.</p>
+            <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} TRUSTIFICATE, Inc. All rights reserved.</p>
             <div className="flex items-center gap-4">
               <Link to="/terms" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Terms</Link>
               <Link to="/privacy" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Privacy</Link>

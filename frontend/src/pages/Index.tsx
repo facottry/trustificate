@@ -1,5 +1,5 @@
 ﻿import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { PublicLayout } from "@/components/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,7 +39,7 @@ export default function LandingPage() {
     if (searchQuery.trim()) navigate(`/verify?q=${encodeURIComponent(searchQuery.trim())}`);
   };
 
-  const fmt = (val: number) => val === 0 ? "â€”" : val.toLocaleString("en-IN");
+  const fmt = (val: number) => val === 0 ? "0" : val.toLocaleString("en-IN");
 
   return (
     <PublicLayout>

@@ -1,77 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://localhost:8080/</loc>
+    <loc>https://trustificate.clicktory.in/</loc>
     <priority>1</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>http://localhost:8080/about</loc>
+    <loc>https://trustificate.clicktory.in/about</loc>
     <priority>0.8</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>http://localhost:8080/pricing</loc>
+    <loc>https://trustificate.clicktory.in/pricing</loc>
     <priority>0.8</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>http://localhost:8080/contact</loc>
+    <loc>https://trustificate.clicktory.in/contact</loc>
     <priority>0.8</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>http://localhost:8080/terms</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>http://localhost:8080/privacy</loc>
+    <loc>https://trustificate.clicktory.in/terms</loc>
     <priority>0.8</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>http://localhost:8080/verify</loc>
+    <loc>https://trustificate.clicktory.in/privacy</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://trustificate.clicktory.in/verify</loc>
     <priority>0.8</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>http://localhost:8080/blog</loc>
+    <loc>https://trustificate.clicktory.in/blog</loc>
     <priority>0.7</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>http://localhost:8080/docs</loc>
+    <loc>https://trustificate.clicktory.in/docs</loc>
     <priority>0.7</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>http://localhost:8080/careers</loc>
+    <loc>https://trustificate.clicktory.in/careers</loc>
     <priority>0.6</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>http://localhost:8080/team</loc>
+    <loc>https://trustificate.clicktory.in/team</loc>
     <priority>0.6</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>http://localhost:8080/testimonials</loc>
+    <loc>https://trustificate.clicktory.in/testimonials</loc>
     <priority>0.6</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>http://localhost:8080/certificate-generator</loc>
+    <loc>https://trustificate.clicktory.in/certificate-generator</loc>
     <priority>0.7</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>http://localhost:8080/bulk-certificate-generator</loc>
+    <loc>https://trustificate.clicktory.in/bulk-certificate-generator</loc>
     <priority>0.7</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>http://localhost:8080/verify-certificate-online</loc>
+    <loc>https://trustificate.clicktory.in/verify-certificate-online</loc>
     <priority>0.7</priority>
     <changefreq>monthly</changefreq>
   </url>

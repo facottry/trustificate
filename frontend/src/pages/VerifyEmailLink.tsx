@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Mail, Clock, RotateCw, CheckCircle2 } from "lucide-react";
-import logoImg from "@/assets/logo.png";
+import { Logo } from "@/components/Logo";
 
 export default function VerifyEmailLinkPage() {
   const location = useLocation();
@@ -125,9 +125,8 @@ export default function VerifyEmailLinkPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <Link to="/" className="inline-flex items-center gap-2 mb-6">
-            <img src={logoImg} alt="TRUSTIFICATE" className="h-9 w-9" />
-            <span className="text-xl font-bold">TRUSTIFICATE</span>
+          <Link to="/" className="inline-block mb-6">
+            <Logo size="md" />
           </Link>
         </div>
 

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import logoImg from "@/assets/logo.png";
+import { Logo } from "@/components/Logo";
 
 export default function VerifyEmailPage() {
   const navigate = useNavigate();
@@ -55,9 +55,8 @@ export default function VerifyEmailPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <Link to="/" className="inline-flex items-center gap-2">
-            <img src={logoImg} alt="TRUSTIFICATE" className="h-9 w-9" />
-            <span className="text-xl font-bold">TRUSTIFICATE</span>
+          <Link to="/" className="inline-block">
+            <Logo size="md" />
           </Link>
         </div>
         <Card>

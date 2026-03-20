@@ -1,7 +1,7 @@
 ﻿import { LayoutDashboard, FileText, Award, LogOut, ShieldCheck, Settings, BookOpen } from "lucide-react";
-import logoImg from "@/assets/logo.png";
-import { NavLink } from "@/components/NavLink";
+import { Logo, LogoIcon } from "@/components/Logo";
 import { MascotInline } from "@/components/Mascot";
+import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -60,13 +60,13 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border px-4 py-3">
         <div className="flex items-center gap-2">
           {collapsed ? (
-            <div className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded bg-primary text-primary-foreground font-semibold text-xs">
-              TfT
+            <div className="relative flex shrink-0 items-center justify-center">
+              <LogoIcon className="h-7 w-7" />
               <MascotInline className="absolute -bottom-1 -right-1.5 h-3.5 w-3.5" />
             </div>
           ) : (
             <>
-              <img src={logoImg} alt="TRUSTIFICATE" className="h-9 w-auto" />
+              <Logo size="sm" />
               <MascotInline className="h-3.5 w-3.5" />
             </>
           )}
@@ -116,4 +116,3 @@ export function AppSidebar() {
     </Sidebar>
   );
 }
-

@@ -7,14 +7,14 @@ import { MapPin, Clock, Briefcase, Users, Zap, Heart, ArrowRight } from "lucide-
 
 const openPositions = [
   {
-    title: "Software Engineer Intern  Frontend",
+    title: "Software Engineer Intern \u2014 Frontend",
     team: "Engineering",
     location: "Remote / Bangalore",
     type: "Internship",
     description: "Build intuitive interfaces that power credential verification for millions. Work with React, TypeScript, and modern design systems.",
   },
   {
-    title: "Software Engineer Intern  Backend",
+    title: "Software Engineer Intern \u2014 Backend",
     team: "Engineering",
     location: "Remote / Bangalore",
     type: "Internship",
@@ -77,7 +77,7 @@ export default function Careers() {
             Build the trust layer for credentials
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-            Join a team solving one of the most persistent problems in education and employmentâ€”document fraud. We're building infrastructure that institutions trust.
+            Join a team solving one of the most persistent problems in education and employment—document fraud. We're building infrastructure that institutions trust.
           </p>
           <Button size="lg" asChild>
             <a href="#positions">View Open Positions</a>

@@ -59,7 +59,7 @@ Content-Type: application/json
 
 ## Need Help?
 
-- **Email**: api-support@TRUSTIFICATE.app
+- **Email**: api-admin@edutainverse.com
 - **Status Page**: status.TRUSTIFICATE.app
 - **Community**: Join our developer Discord
 `,
@@ -914,7 +914,7 @@ try {
 
 ## Need Help?
 
-If you encounter persistent errors, contact [api-support@TRUSTIFICATE.app](mailto:api-support@TRUSTIFICATE.app) with:
+If you encounter persistent errors, contact [api-admin@edutainverse.com](mailto:api-admin@edutainverse.com) with:
 
 - Your request payload
 - The full error response

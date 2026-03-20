@@ -25,7 +25,7 @@ export default function About() {
             <p className="text-lg text-muted-foreground leading-relaxed">
               TRUSTIFICATE was founded on a simple belief: every credential should be instantly
               verifiable. We're building enterprise-grade infrastructure that makes document fraud impossible
-              and verification effortlessâ€”at any scale.
+              and verification effortless—at any scale.
             </p>
           </div>
         </div>

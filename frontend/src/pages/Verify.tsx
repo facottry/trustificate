@@ -149,7 +149,7 @@ export default function VerifyPage() {
             </p>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
               {recentVerifications.map((cert) => (
-                <Link key={cert.certificate_number} to={`/certificate/${cert.slug}`}>
+                <Link key={cert.certificateNumber || cert._id} to={`/certificate/${cert.slug}`}>
                   <Card className="hover:shadow-md transition-shadow border-border hover:border-primary/20">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-2">
@@ -158,12 +158,12 @@ export default function VerifyPage() {
                         </Badge>
                         <ArrowRight className="h-4 w-4 text-muted-foreground" />
                       </div>
-                      <p className="font-medium text-foreground text-sm">{cert.recipient_name}</p>
-                      <p className="text-xs text-muted-foreground mb-2">{cert.course_name || cert.training_name || "Certificate"}</p>
+                      <p className="font-medium text-foreground text-sm">{cert.recipientName}</p>
+                      <p className="text-xs text-muted-foreground mb-2">{cert.courseName || cert.trainingName || "Certificate"}</p>
                       <Separator className="my-2" />
                       <div className="flex justify-between text-xs text-muted-foreground">
-                        <span className="font-mono">{cert.certificate_number.slice(0, 18)}...</span>
-                        <span>{new Date(cert.issue_date).toLocaleDateString()}</span>
+                        <span className="font-mono">{(cert.certificateNumber || "").slice(0, 18)}...</span>
+                        <span>{new Date(cert.issueDate).toLocaleDateString()}</span>
                       </div>
                     </CardContent>
                   </Card>

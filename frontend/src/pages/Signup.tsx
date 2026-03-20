@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { PasswordInput } from "@/components/PasswordInput";
 import { toast } from "sonner";
-import logoImg from "@/assets/logo.png";
+import { Logo } from "@/components/Logo";
 import { Mascot } from "@/components/Mascot";
 
 export default function SignupPage() {
@@ -54,9 +54,8 @@ export default function SignupPage() {
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <Mascot mood="greeting" size="lg" message="Let's get you started!" className="mb-4" />
-          <Link to="/" className="inline-flex items-center gap-2">
-            <img src={logoImg} alt="TRUSTIFICATE" className="h-9 w-9" />
-            <span className="text-xl font-bold">TRUSTIFICATE</span>
+          <Link to="/" className="inline-block">
+            <Logo size="md" />
           </Link>
         </div>
 
