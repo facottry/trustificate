@@ -98,7 +98,7 @@ export default function RegistryPage() {
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h1 className="text-2xl font-bold">Registry</h1>
-            <p className="text-muted-foreground">Complete document registry â€” platform & external certificates</p>
+            <p className="text-muted-foreground">Complete document registry platform & external certificates</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={exportCSV} disabled={filtered.length === 0}>

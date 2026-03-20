@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Mascot, MascotTipWidget } from "@/components/Mascot";
 import { Award, ShieldCheck, ShieldX, Globe, Plus, Zap } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlanGuard } from "@/hooks/usePlanGuard";
 import { UsageBanner } from "@/components/UsageBanner";
@@ -29,35 +29,36 @@ export default function DashboardPage() {
   const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   useEffect(() => {
-    if (!profile?.organization_id) return;
+    if (profile === undefined) return;
+    if (!profile?.organization_id) {
+      setLoading(false);
+      return;
+    }
     const orgId = profile.organization_id;
 
     async function fetchData() {
-      const [allRes, recentRes] = await Promise.all([
-        supabase
-          .from("certificates")
-          .select("id, status, is_external")
-          .eq("organization_id", orgId),
-        supabase
-          .from("certificates")
-          .select("id, certificate_number, recipient_name, status, issue_date, is_external, certificate_templates(title)")
-          .eq("organization_id", orgId)
-          .order("created_at", { ascending: false })
-          .limit(8),
-      ]);
+      try {
+        const [allRes, recentRes] = await Promise.all([
+          apiClient<any[]>('/api/certificates').catch(() => ({ data: [] })),
+          apiClient<any[]>('/api/certificates?limit=8&sort=-createdAt').catch(() => ({ data: [] })),
+        ]);
 
-      const all = allRes.data || [];
-      setStats({
-        totalDocs: all.length,
-        activeDocs: all.filter((c) => c.status === "issued").length,
-        revokedDocs: all.filter((c) => c.status === "revoked").length,
-        externalDocs: all.filter((c) => c.is_external).length,
-      });
-      setRecentCerts(recentRes.data || []);
-      setLoading(false);
+        const all = (allRes as any).data || [];
+        setStats({
+          totalDocs: all.length,
+          activeDocs: all.filter((c: any) => c.status === "issued").length,
+          revokedDocs: all.filter((c: any) => c.status === "revoked").length,
+          externalDocs: all.filter((c: any) => c.isExternal).length,
+        });
+        setRecentCerts((recentRes as any).data || []);
+      } catch (err) {
+        console.error("Dashboard data fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
     }
     fetchData();
-  }, [profile?.organization_id]);
+  }, [profile]);
 
   const metrics = [
     { title: "Total Documents", value: stats.totalDocs, icon: Award },
@@ -120,58 +121,54 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Usage Warning */}
-        {orgUsage && (
-          <UsageBanner
-            metric="certificates_created"
-            usage={getUsageCount("certificates_created")}
-            limit={getLimit("certificates_created")}
-            onUpgrade={() => setUpgradeOpen(true)}
-          />
-        )}
+        {/* Usage Warning — show the most urgent banner across both metrics */}
+        {orgUsage && (() => {
+          const metrics = [
+            { metric: "certificates_created", usage: getUsageCount("certificates_created"), limit: getLimit("certificates_created") },
+            { metric: "templates_created", usage: getUsageCount("templates_created"), limit: getLimit("templates_created") },
+          ];
 
-        {/* Empty state (no documents yet) */}
-        {!loading && stats.totalDocs === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center gap-4 text-center">
-              <Mascot mood="empty" size="lg" message="You're all set! Let's start issuing documents." />
-              <p className="text-sm text-muted-foreground max-w-md">
-                Create your first document or template to populate this dashboard with activity and usage stats.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Button size="sm" asChild>
-                  <Link to="/documents/new">Issue document</Link>
-                </Button>
-                <Button size="sm" variant="outline" asChild>
-                  <Link to="/templates/new">Create template</Link>
-                </Button>
-                <Button size="sm" variant="ghost" asChild>
-                  <Link to="/welcome">Setup guide</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {metrics.map((m) => (
-              <Card key={m.title}>
-                <CardContent className="pt-5 pb-4">
-                  {loading ? (
-                    <Skeleton className="h-12 w-full" />
-                  ) : (
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-xs text-muted-foreground font-medium">{m.title}</p>
-                        <p className="text-2xl font-semibold mt-1">{m.value}</p>
-                      </div>
-                      <m.icon className="h-4 w-4 text-muted-foreground" />
+          // Filter out unlimited (-1) and zero limits, compute percent
+          const candidates = metrics
+            .filter((m) => m.limit > 0)
+            .map((m) => ({ ...m, percent: Math.round((m.usage / m.limit) * 100) }))
+            .filter((m) => m.percent >= 80);
+
+          if (candidates.length === 0) return null;
+
+          // Pick the most urgent (highest percent; ties broken by first)
+          const mostUrgent = candidates.reduce((a, b) => (b.percent > a.percent ? b : a));
+
+          return (
+            <UsageBanner
+              metric={mostUrgent.metric}
+              usage={mostUrgent.usage}
+              limit={mostUrgent.limit}
+              planName={orgUsage.plan_name}
+            />
+          );
+        })()}
+
+        {/* Stats Grid */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {metrics.map((m) => (
+            <Card key={m.title}>
+              <CardContent className="pt-5 pb-4">
+                {loading ? (
+                  <Skeleton className="h-12 w-full" />
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">{m.title}</p>
+                      <p className="text-2xl font-semibold mt-1">{m.value}</p>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+                    <m.icon className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
         {/* Plan Usage */}
         {!usageLoading && orgUsage && (
@@ -254,22 +251,22 @@ export default function DashboardPage() {
                   </TableHeader>
                   <TableBody>
                     {recentCerts.map((cert) => (
-                      <TableRow key={cert.id}>
+                      <TableRow key={cert._id || cert.id}>
                         <TableCell>
                           <Link
-                            to={cert.is_external ? `/registry/${cert.id}` : `/documents/${cert.id}`}
+                            to={cert.isExternal ? `/registry/${cert._id || cert.id}` : `/documents/${cert._id || cert.id}`}
                             className="font-mono text-xs text-primary hover:underline"
                           >
-                            {cert.certificate_number}
+                            {cert.certificateNumber}
                           </Link>
                         </TableCell>
-                        <TableCell className="text-sm">{cert.recipient_name}</TableCell>
+                        <TableCell className="text-sm">{cert.recipientName}</TableCell>
                         <TableCell className="hidden sm:table-cell">
-                          {cert.is_external ? (
+                          {cert.isExternal ? (
                             <span className="text-xs text-muted-foreground">External</span>
                           ) : (
                             <span className="text-xs text-muted-foreground">
-                              {(cert.certificate_templates as any)?.title || "—"}
+                              {cert.templateId?.title || "\u2014"}
                             </span>
                           )}
                         </TableCell>
@@ -282,7 +279,7 @@ export default function DashboardPage() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground hidden sm:table-cell">
-                          {new Date(cert.issue_date).toLocaleDateString()}
+                          {new Date(cert.issueDate).toLocaleDateString()}
                         </TableCell>
                       </TableRow>
                     ))}

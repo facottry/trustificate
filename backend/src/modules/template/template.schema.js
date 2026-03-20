@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const templateSchema = new mongoose.Schema(
   {
+    name: { type: String, default: '', trim: true },
     title: { type: String, required: true, trim: true },
     placeholders: { type: [String], default: [] },
     numberPrefix: { type: String, default: 'CERT' },

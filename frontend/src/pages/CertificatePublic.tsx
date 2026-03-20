@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { PublicLayout } from "@/components/PublicLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import { generatePDF, generatePNG } from "@/lib/pdf-generator";
 import { getTemplateFromCertificate } from "@/lib/certificate-snapshot";
 import { CheckCircle, XCircle, Download, Award, Globe, Copy, ExternalLink, Clock, Image } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/apiClient";
 import { toast } from "sonner";
 import { Mascot, VerificationBadge } from "@/components/Mascot";
 
@@ -26,27 +26,20 @@ export default function CertificatePublicPage() {
   useEffect(() => {
     if (!slug) return;
     async function fetch() {
-      // Query certificate with joined template (works for authed org members)
-      const { data } = await supabase
-        .from("certificates")
-        .select("*, certificate_templates(*)")
-        .eq("slug", slug)
-        .single();
-
-      if (!data) {
+      try {
+        const { data } = await apiClient<any>(`/api/certificates/slug/${slug}`);
+        if (!data) {
+          setNotFound(true);
+          setLoading(false);
+          return;
+        }
+        setCert(data);
+        setTemplate(getTemplateFromCertificate(data));
+        setLoading(false);
+      } catch {
         setNotFound(true);
         setLoading(false);
-        return;
       }
-      setCert(data);
-      // Use snapshot from metadata_json first, fallback to joined template
-      setTemplate(getTemplateFromCertificate(data));
-      setLoading(false);
-
-      await supabase.from("certificate_events").insert({
-        certificate_id: data.id,
-        event_type: "viewed",
-      });
     }
     fetch();
   }, [slug]);
@@ -57,21 +50,11 @@ export default function CertificatePublicPage() {
     } else if (certRef.current && cert) {
       await generatePDF(certRef.current, `${cert.certificate_number}.pdf`);
     }
-    if (cert) {
-      await supabase.from("certificate_events").insert({
-        certificate_id: cert.id,
-        event_type: "downloaded",
-      });
-    }
   };
 
   const handleDownloadPNG = async () => {
     if (certRef.current && cert) {
       await generatePNG(certRef.current, `${cert.certificate_number}.png`);
-      await supabase.from("certificate_events").insert({
-        certificate_id: cert.id,
-        event_type: "downloaded",
-      });
     }
   };
 

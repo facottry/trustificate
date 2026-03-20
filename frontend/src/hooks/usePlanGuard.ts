@@ -37,7 +37,10 @@ export function usePlanGuard() {
   const [loading, setLoading] = useState(true);
 
   const fetchUsage = useCallback(async () => {
-    if (!user?.organizationId) return;
+    if (!user?.organizationId) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const { data } = await apiClient<OrgUsage>(`/api/organizations/${user.organizationId}/usage`);
@@ -54,14 +57,49 @@ export function usePlanGuard() {
 
   const checkLimit = useCallback(
     async (metric: string): Promise<PlanCheckResult> => {
-      if (!user?.organizationId) {
+      const orgId = user?.organizationId;
+      if (!orgId) {
         return { allowed: false, usage: 0, limit: 0, reason: "No organization" };
       }
-      // This implementation currently allows all actions.
-      // Replace with real plan enforcement logic as needed.
-      return { allowed: true, usage: 0, limit: 0, plan_name: orgUsage?.plan_name };
+
+      // Use cached orgUsage or fetch fresh data
+      let data = orgUsage;
+      if (!data) {
+        try {
+          const res = await apiClient<OrgUsage>(`/api/organizations/${orgId}/usage`);
+          data = res.data ?? null;
+        } catch {
+          return { allowed: false, usage: 0, limit: 0, reason: "Failed to fetch usage" };
+        }
+      }
+
+      if (!data) {
+        return { allowed: false, usage: 0, limit: 0, reason: "No usage data" };
+      }
+
+      const limit = (data.limits as any)[metric];
+      const current = data.usage[metric] || 0;
+      const plan_name = data.plan_name;
+
+      // Feature flag (boolean), not a numeric limit
+      if (typeof limit !== "number") {
+        return { allowed: true, usage: 0, limit: 0, plan_name };
+      }
+
+      // Unlimited plan
+      if (limit === -1) {
+        return { allowed: true, usage: current, limit: -1, remaining: -1, plan_name };
+      }
+
+      // Over limit
+      if (current >= limit) {
+        return { allowed: false, usage: current, limit, remaining: 0, reason: "Plan limit reached", plan_name };
+      }
+
+      // Under limit
+      return { allowed: true, usage: current, limit, remaining: limit - current, plan_name };
     },
-    [user?.organizationId, orgUsage?.plan_name]
+    [user?.organizationId, orgUsage]
   );
 
   const incrementUsage = useCallback(

@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, Search, Award } from "lucide-react";
 import { Mascot } from "@/components/Mascot";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function CertificatesPage() {
@@ -20,13 +20,13 @@ export default function CertificatesPage() {
 
   useEffect(() => {
     if (!profile?.organization_id) return;
-    supabase
-      .from("certificates")
-      .select("*, certificate_templates(title)")
-      .eq("organization_id", profile.organization_id)
-      .order("created_at", { ascending: false })
+    apiClient<any[]>('/api/certificates?sort=-createdAt')
       .then(({ data }) => {
         setCerts(data || []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setCerts([]);
         setLoading(false);
       });
   }, [profile?.organization_id]);

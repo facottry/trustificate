@@ -7,10 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Award, Download, Upload } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Plus, Search, Award, Download, Upload, Trash2 } from "lucide-react";
 import { Mascot } from "@/components/Mascot";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 const PAGE_SIZE = 20;
 
@@ -24,20 +26,17 @@ export default function DocumentsPage() {
 
   const fetchPage = async (pageNum: number, append = false) => {
     if (!profile?.organization_id) return;
-    const from = pageNum * PAGE_SIZE;
-    const to = from + PAGE_SIZE - 1;
-    const { data } = await supabase
-      .from("certificates")
-      .select("*, certificate_templates(title)")
-      .eq("organization_id", profile.organization_id)
-      .eq("is_external", false)
-      .order("created_at", { ascending: false })
-      .range(from, to);
-
-    const results = data || [];
-    setCerts((prev) => (append ? [...prev, ...results] : results));
-    setHasMore(results.length === PAGE_SIZE);
-    setLoading(false);
+    try {
+      const { data } = await apiClient<any[]>(`/api/certificates?limit=${PAGE_SIZE}&page=${pageNum + 1}&sort=-createdAt`);
+      const results = data || [];
+      setCerts((prev) => (append ? [...prev, ...results] : results));
+      setHasMore(results.length === PAGE_SIZE);
+    } catch {
+      if (!append) setCerts([]);
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -51,25 +50,35 @@ export default function DocumentsPage() {
     fetchPage(next, true);
   };
 
+  const handleDelete = async (c: any) => {
+    try {
+      await apiClient(`/api/certificates/${c._id || c.id}`, { method: 'DELETE' });
+      toast.success("Certificate deleted");
+      setCerts((prev) => prev.filter((cert) => (cert._id || cert.id) !== (c._id || c.id)));
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete certificate");
+    }
+  };
+
   const filtered = certs.filter((c) => {
     const q = search.toLowerCase();
     if (!q) return true;
     return (
-      c.certificate_number?.toLowerCase().includes(q) ||
-      c.recipient_name?.toLowerCase().includes(q) ||
-      c.recipient_email?.toLowerCase().includes(q)
+      c.certificateNumber?.toLowerCase().includes(q) ||
+      c.recipientName?.toLowerCase().includes(q) ||
+      c.recipientEmail?.toLowerCase().includes(q)
     );
   });
 
   const exportCSV = () => {
     const headers = ["Certificate #", "Recipient", "Email", "Template", "Status", "Issue Date"];
     const rows = filtered.map((c) => [
-      c.certificate_number,
-      c.recipient_name,
-      c.recipient_email || "",
-      (c.certificate_templates as any)?.title || "",
+      c.certificateNumber,
+      c.recipientName,
+      c.recipientEmail || "",
+      c.templateId?.title || "",
       c.status,
-      c.issue_date,
+      c.issueDate,
     ]);
     const csv = [headers, ...rows].map((r) => r.map((v: string) => `"${v}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
@@ -130,19 +139,20 @@ export default function DocumentsPage() {
                       <TableHead>Template</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Issue Date</TableHead>
+                      <TableHead className="w-10"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filtered.map((c) => (
-                      <TableRow key={c.id} className={c.status === "draft" ? "bg-amber-50/40 dark:bg-amber-950/10" : ""}>
+                      <TableRow key={c._id || c.id} className={c.status === "draft" ? "bg-amber-50/40 dark:bg-amber-950/10" : ""}>
                         <TableCell>
-                          <Link to={`/documents/${c.id}`} className="font-mono text-sm text-primary hover:underline">
-                            {c.certificate_number}
+                          <Link to={`/documents/${c._id || c.id}`} className="font-mono text-sm text-primary hover:underline">
+                            {c.certificateNumber}
                           </Link>
                         </TableCell>
-                        <TableCell className="font-medium">{c.recipient_name}</TableCell>
+                        <TableCell className="font-medium">{c.recipientName}</TableCell>
                         <TableCell className="text-muted-foreground text-sm">
-                          {(c.certificate_templates as any)?.title || "â€”"}
+                          {c.templateId?.title || "\u2014"}
                         </TableCell>
                         <TableCell>
                           <Badge
@@ -153,7 +163,28 @@ export default function DocumentsPage() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-muted-foreground text-sm">
-                          {new Date(c.issue_date).toLocaleDateString()}
+                          {new Date(c.issueDate).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Certificate?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This will permanently delete certificate {c.certificateNumber}. This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDelete(c)}>Delete</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -172,4 +203,3 @@ export default function DocumentsPage() {
     </AdminLayout>
   );
 }
-

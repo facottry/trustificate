@@ -46,7 +46,7 @@ export default function WelcomePage() {
       <div className="max-w-3xl mx-auto space-y-8 animate-fade-in">
         <div className="text-center pt-4">
           <Mascot mood="greeting" size="xl" showMessage={false} className="mb-2" />
-          <h1 className="text-2xl font-bold">Welcome, {name}! ðŸŽ‰</h1>
+          <h1 className="text-2xl font-bold">Welcome, {name}! 🎉</h1>
           <p className="text-muted-foreground mt-2 max-w-md mx-auto">
             Your account is ready. We've set up sample templates and credentials to get you started. Here's what to do next:
           </p>

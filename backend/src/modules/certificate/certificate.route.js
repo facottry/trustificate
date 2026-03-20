@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const certificateController = require('./certificate.controller');
 const { protect } = require('../../middlewares/auth.middleware');
+const { enforcePlanLimit } = require('../../middlewares/planEnforcement.middleware');
 
 /**
  * @swagger
@@ -14,12 +15,23 @@ const { protect } = require('../../middlewares/auth.middleware');
  * @swagger
  * /api/certificates/issue:
  *   post:
- *     summary: Issue a new certificate
+ *     summary: Issue a new certificate (legacy)
  *     tags: [Certificates]
  *     security:
  *       - bearerAuth: []
  */
-router.post('/issue', protect, certificateController.issueCertificate);
+router.post('/issue', protect, enforcePlanLimit('certificates_created'), certificateController.issueCertificate);
+
+/**
+ * @swagger
+ * /api/certificates:
+ *   post:
+ *     summary: Create a new certificate
+ *     tags: [Certificates]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post('/', protect, enforcePlanLimit('certificates_created'), certificateController.createCertificate);
 
 /**
  * @swagger
@@ -34,17 +46,53 @@ router.get('/', protect, certificateController.listCertificates);
 
 /**
  * @swagger
- * /api/public/verify/{certificateNumber}:
+ * /api/certificates/slug/{slug}:
+ *   get:
+ *     summary: Get certificate by slug (public)
+ *     tags: [Certificates]
+ */
+router.get('/slug/:slug', certificateController.getCertificateBySlug);
+
+/**
+ * @swagger
+ * /api/certificates/public/verify/{certificateNumber}:
  *   get:
  *     summary: Verify a certificate by number (public)
  *     tags: [Certificates]
- *     parameters:
- *       - in: path
- *         name: certificateNumber
- *         required: true
- *         schema:
- *           type: string
  */
 router.get('/public/verify/:certificateNumber', certificateController.verifyCertificate);
+
+/**
+ * @swagger
+ * /api/certificates/{id}:
+ *   get:
+ *     summary: Get certificate by ID
+ *     tags: [Certificates]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get('/:id', protect, certificateController.getCertificateById);
+
+/**
+ * @swagger
+ * /api/certificates/{id}:
+ *   put:
+ *     summary: Update a certificate
+ *     tags: [Certificates]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.put('/:id', protect, certificateController.updateCertificate);
+
+/**
+ * @swagger
+ * /api/certificates/{id}:
+ *   delete:
+ *     summary: Delete a certificate
+ *     tags: [Certificates]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.delete('/:id', protect, certificateController.deleteCertificate);
 
 module.exports = router;

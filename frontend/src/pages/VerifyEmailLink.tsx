@@ -51,7 +51,7 @@ export default function VerifyEmailLinkPage() {
     const checkStatus = async () => {
       try {
         setCheckingStatus(true);
-        const response = await apiClient("/api/auth/email-status", {
+        const response = await apiClient(`/api/auth/email-status?email=${encodeURIComponent(email)}`, {
           method: "GET",
         });
         if (response.data?.isEmailVerified) {

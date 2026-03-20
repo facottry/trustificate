@@ -14,7 +14,7 @@ const benefits = [
   { icon: Shield, title: "Each One Verifiable", desc: "Every bulk-issued certificate gets its own unique ID, QR code, and public verification page." },
   { icon: Clock, title: "Template-Locked", desc: "Select a template once. All certificates in the batch inherit the same design and branding." },
   { icon: BarChart3, title: "Success Report", desc: "Get a detailed report showing which certificates were issued, which failed, and why." },
-  { icon: AlertCircle, title: "Validation Pre-Check", desc: "We validate every row before issuing â€” missing names, bad emails, and duplicates are flagged upfront." },
+  { icon: AlertCircle, title: "Validation Pre-Check", desc: "We validate every row before issuing missing names, bad emails, and duplicates are flagged upfront." },
 ];
 
 const steps = [
@@ -26,7 +26,7 @@ const steps = [
 const useCases = [
   { title: "Universities", desc: "Issue graduation certificates for entire batches of students at once." },
   { title: "HR & Training", desc: "Certify employees who completed compliance or professional development programs." },
-  { title: "Bootcamps", desc: "Issue completion certificates to cohorts of 50â€“500 graduates." },
+  { title: "Bootcamps", desc: "Issue completion certificates to cohorts of 50500 graduates." },
   { title: "Conferences", desc: "Generate attendance or speaker certificates for all event participants." },
 ];
 
@@ -34,7 +34,7 @@ export default function BulkCertificateGeneratorPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Bulk Certificate Generator â€” Issue 1000s of Credentials via CSV | TRUSTIFICATE";
+    document.title = "Bulk Certificate Generator Issue 1000s of Credentials via CSV | TRUSTIFICATE";
     const meta = document.querySelector('meta[name="description"]');
     if (meta) meta.setAttribute("content", "Bulk issue verifiable certificates from a CSV file. Upload a spreadsheet, select a template, and generate thousands of tamper-proof credentials in minutes.");
   }, []);
@@ -58,7 +58,7 @@ export default function BulkCertificateGeneratorPage() {
         <div className="container relative">
           <div className="mx-auto max-w-3xl text-center">
             <Badge variant="secondary" className="mb-6 text-xs border border-primary/20 bg-primary/5 text-primary">
-              ðŸ“Š CSV Upload â†’ Instant Issuance
+              ðŸ“Š CSV Upload → Instant Issuance
             </Badge>
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-foreground leading-[1.1] mb-6">
               Bulk Certificate Generator
@@ -74,10 +74,10 @@ export default function BulkCertificateGeneratorPage() {
                 Try Bulk Issuance Free <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
               <Button size="lg" variant="outline" onClick={() => navigate("/certificate-generator")} className="h-12 px-8 text-base">
-                Single Certificate â†’
+                Single Certificate →
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">Free during beta Â· Unlimited bulk issuance on Pro plan</p>
+            <p className="text-xs text-muted-foreground">Free during beta · Unlimited bulk issuance on Pro plan</p>
           </div>
         </div>
       </section>
@@ -105,7 +105,7 @@ export default function BulkCertificateGeneratorPage() {
         <div className="container">
           <div className="text-center mb-14 max-w-2xl mx-auto">
             <h2 className="text-3xl font-bold mb-4">Built for scale, designed for trust</h2>
-            <p className="text-muted-foreground">Every certificate in a bulk batch is individually verifiable â€” not just a pretty PDF.</p>
+            <p className="text-muted-foreground">Every certificate in a bulk batch is individually verifiable not just a pretty PDF.</p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
             {benefits.map((b) => (

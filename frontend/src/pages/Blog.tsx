@@ -10,7 +10,7 @@ export default function Blog() {
   const [visibleCount, setVisibleCount] = useState(POSTS_PER_PAGE);
 
   useEffect(() => {
-    document.title = "Blog | TRUSTIFICATE â€” Certificate Generation & Verification Insights";
+    document.title = "Blog | TRUSTIFICATE Certificate Generation & Verification Insights";
     const meta = document.querySelector('meta[name="description"]');
     const desc = "Expert insights on certificate generation, digital credential verification, compliance, and document automation from the TRUSTIFICATE team.";
     if (meta) {
@@ -73,9 +73,9 @@ export default function Blog() {
               <article key={post.slug} className="py-8 first:pt-0">
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-xs font-medium text-primary">{post.category}</span>
-                  <span className="text-xs text-muted-foreground">Â·</span>
+                  <span className="text-xs text-muted-foreground">·</span>
                   <span className="text-xs text-muted-foreground">{post.date}</span>
-                  <span className="text-xs text-muted-foreground">Â·</span>
+                  <span className="text-xs text-muted-foreground">·</span>
                   <span className="text-xs text-muted-foreground">{post.readTime}</span>
                 </div>
                 <Link to={`/blog/${post.slug}`}>

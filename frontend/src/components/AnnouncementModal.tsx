@@ -59,7 +59,7 @@ export function AnnouncementModal() {
             </Badge>
             <p className="text-2xl font-bold text-foreground mt-1">100% OFF</p>
             <p className="text-sm text-muted-foreground mt-1">
-              All paid plans â€” use coupon code
+              All paid plans use coupon code
             </p>
             <code className="inline-block mt-2 px-4 py-1.5 rounded-md bg-foreground text-background font-mono font-bold text-lg tracking-wider">
               FREE_100
@@ -68,16 +68,16 @@ export function AnnouncementModal() {
 
           <ul className="space-y-2 text-sm">
             <li className="flex items-center gap-2">
-              <span className="text-orange-500">âœ“</span>
+              <span className="text-orange-500">✔</span>
               All plans already 50% off during launch
             </li>
             <li className="flex items-center gap-2">
-              <span className="text-orange-500">âœ“</span>
-              Coupon brings your checkout total to â‚¹0
+              <span className="text-orange-500">✔</span>
+              Coupon brings your checkout total to ₹0
             </li>
             <li className="flex items-center gap-2">
-              <span className="text-orange-500">âœ“</span>
-              Full transaction recorded â€” real plan activation
+              <span className="text-orange-500">✔</span>
+              Full transaction recorded real plan activation
             </li>
           </ul>
 

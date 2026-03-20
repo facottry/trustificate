@@ -7,14 +7,14 @@ import { MapPin, Clock, Briefcase, Users, Zap, Heart, ArrowRight } from "lucide-
 
 const openPositions = [
   {
-    title: "Software Engineer Intern â€“ Frontend",
+    title: "Software Engineer Intern  Frontend",
     team: "Engineering",
     location: "Remote / Bangalore",
     type: "Internship",
     description: "Build intuitive interfaces that power credential verification for millions. Work with React, TypeScript, and modern design systems.",
   },
   {
-    title: "Software Engineer Intern â€“ Backend",
+    title: "Software Engineer Intern  Backend",
     team: "Engineering",
     location: "Remote / Bangalore",
     type: "Internship",

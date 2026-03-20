@@ -69,12 +69,12 @@ const moodAnimations: Record<MascotMood, string> = {
 
 const defaultMessages: Record<MascotMood, string> = {
   idle: "",
-  working: "Working on itâ€¦",
-  success: "All done! ðŸŽ‰",
+  working: "Working on it…",
+  success: "All done! 🎉",
   error: "Oops, something went wrong.",
   empty: "Nothing here yet!",
-  loading: "Preparing your documentâ€¦",
-  verified: "This credential is authentic! âœ“",
+  loading: "Preparing your document…",
+  verified: "This credential is authentic! ✔",
   notFound: "We couldn't find that.",
   proud: "Great work!",
   greeting: "Welcome to TRUSTIFICATE!",
@@ -91,7 +91,7 @@ export function Mascot({ mood = "idle", size = "md", message, className, showMes
     <div className={cn("flex flex-col items-center gap-2", className)}>
       <img
         src={moodImg}
-        alt="Minty â€” TRUSTIFICATE mascot"
+        alt="Minty TRUSTIFICATE mascot"
         className={cn(
           sizeMap[size],
           moodAnimations[mood],
@@ -177,13 +177,13 @@ export function MascotTipWidget() {
   );
 }
 
-/** Mascot loader â€” replaces boring spinners */
-export function MascotLoader({ message = "Preparing your documentâ€¦" }: { message?: string }) {
+/** Mascot loader replaces boring spinners */
+export function MascotLoader({ message = "Preparing your document…" }: { message?: string }) {
   return (
     <div className="flex flex-col items-center gap-3 py-8">
       <img
         src={mascotImg}
-        alt="Loadingâ€¦"
+        alt="Loading…"
         className="h-16 w-16 object-contain animate-[bounce_1.5s_ease-in-out_infinite] dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]"
         draggable={false}
       />

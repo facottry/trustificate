@@ -63,7 +63,7 @@ export default function VerifyPage() {
   const features = [
     { icon: ShieldCheck, title: "Tamper-Proof", desc: "Every certificate is cryptographically secured and linked to its issuing organization." },
     { icon: QrCode, title: "QR Code Scanning", desc: "Scan the QR code on any certificate to instantly open its verification page." },
-    { icon: Clock, title: "Real-Time Status", desc: "Check if a certificate is active, revoked, or expired â€” status updates in real time." },
+    { icon: Clock, title: "Real-Time Status", desc: "Check if a certificate is active, revoked, or expired status updates in real time." },
     { icon: FileText, title: "Full Details", desc: "View recipient name, course, issuer, date, and organization details on verification." },
   ];
 

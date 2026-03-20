@@ -14,7 +14,7 @@ npm run generate-sitemap
 2. **Fetches static routes** with appropriate SEO metadata (priority, change frequency)
 3. **Queries issued certificates** from the database (status: 'issued')
 4. **Generates XML sitemap** compliant with sitemap protocol
-5. **Writes to frontend public directory** at `documintapp/public/sitemap.xml`
+5. **Writes to frontend public directory** at `frontend/public/sitemap.xml`
 
 ## SEO Configuration
 
@@ -38,7 +38,7 @@ npm run generate-sitemap
 
 ## Output
 
-The script generates clean, valid XML sitemap at `documintapp/public/sitemap.xml` that can be served directly by the frontend.
+The script generates clean, valid XML sitemap at `frontend/public/sitemap.xml` that can be served directly by the frontend.
 
 ## CI/CD Integration
 

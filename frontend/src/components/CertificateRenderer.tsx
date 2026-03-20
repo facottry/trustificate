@@ -32,6 +32,7 @@ interface CertificateData {
 }
 
 function replacePlaceholders(text: string, data: CertificateData): string {
+  if (!text) return "";
   return text
     .replace(/\{\{recipient_name\}\}/g, data.recipientName)
     .replace(/\{\{course_name\}\}/g, data.courseName || "")
@@ -94,37 +95,56 @@ export const CertificateRenderer = forwardRef<HTMLDivElement, { data: Certificat
     return (
       <div
         ref={ref}
-        className="relative overflow-hidden shadow-lg"
         style={{
+          position: "relative",
+          overflow: "hidden",
           width: isLandscape ? "842px" : "595px",
           height: isLandscape ? "595px" : "842px",
           backgroundColor: bgColor,
           fontFamily,
           color: fontColor,
+          boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
           ...patternStyle,
         }}
       >
         {/* Decorative border */}
         <div
-          className="absolute inset-3 border-2 rounded-sm"
-          style={{ borderColor: secondaryColor }}
+          style={{
+            position: "absolute",
+            top: "12px",
+            right: "12px",
+            bottom: "12px",
+            left: "12px",
+            border: `2px solid ${secondaryColor}`,
+            borderRadius: "2px",
+          }}
         />
         <div
-          className="absolute inset-5 border rounded-sm"
-          style={{ borderColor: `${secondaryColor}55` }}
+          style={{
+            position: "absolute",
+            top: "20px",
+            right: "20px",
+            bottom: "20px",
+            left: "20px",
+            border: `1px solid ${secondaryColor}55`,
+            borderRadius: "2px",
+          }}
         />
 
         {/* Corner ornaments */}
         {[
-          "top-6 left-6",
-          "top-6 right-6",
-          "bottom-6 left-6",
-          "bottom-6 right-6",
-        ].map((pos, i) => (
+          { top: "24px", left: "24px" },
+          { top: "24px", right: "24px" },
+          { bottom: "24px", left: "24px" },
+          { bottom: "24px", right: "24px" },
+        ].map((posStyle, i) => (
           <div
             key={i}
-            className={`absolute ${pos} h-6 w-6`}
             style={{
+              position: "absolute",
+              ...posStyle,
+              width: "24px",
+              height: "24px",
               borderTop: i < 2 ? `3px solid ${secondaryColor}` : "none",
               borderBottom: i >= 2 ? `3px solid ${secondaryColor}` : "none",
               borderLeft: i % 2 === 0 ? `3px solid ${secondaryColor}` : "none",
@@ -134,82 +154,255 @@ export const CertificateRenderer = forwardRef<HTMLDivElement, { data: Certificat
         ))}
 
         {/* Content */}
-        <div className="absolute inset-0 flex flex-col items-center justify-between p-12">
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "48px",
+          }}
+        >
           {/* Header */}
-          <div className="text-center space-y-1 pt-4">
-            <div className="flex items-center justify-center gap-2 mb-3">
+          <div style={{ textAlign: "center", paddingTop: "16px" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                marginBottom: "12px",
+              }}
+            >
               <div
-                className="h-10 w-10 rounded-full flex items-center justify-center text-white font-bold text-lg"
-                style={{ backgroundColor: primaryColor }}
+                style={{
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: "18px",
+                  backgroundColor: primaryColor,
+                }}
               >
                 D
               </div>
             </div>
-            <p className="text-xs tracking-[0.3em] uppercase" style={{ color: secondaryColor }}>
+            <p
+              style={{
+                fontSize: "12px",
+                letterSpacing: "0.3em",
+                textTransform: "uppercase",
+                color: secondaryColor,
+                marginBottom: "4px",
+              }}
+            >
               {data.templateSubtitle || "Certificate of Completion"}
             </p>
             <h1
-              className="text-2xl font-bold tracking-tight"
-              style={{ color: primaryColor }}
+              style={{
+                fontSize: "24px",
+                fontWeight: "bold",
+                letterSpacing: "-0.025em",
+                color: primaryColor,
+                margin: 0,
+              }}
             >
               {data.templateTitle}
             </h1>
           </div>
 
           {/* Body */}
-          <div className="text-center max-w-md space-y-4 flex-1 flex flex-col justify-center">
-            <p className="text-xs uppercase tracking-[0.2em]" style={{ color: `${fontColor}99` }}>
+          <div
+            style={{
+              textAlign: "center",
+              maxWidth: "448px",
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              gap: "16px",
+            }}
+          >
+            <p
+              style={{
+                fontSize: "12px",
+                textTransform: "uppercase",
+                letterSpacing: "0.2em",
+                color: `${fontColor}99`,
+                margin: 0,
+              }}
+            >
               This certificate is awarded to
             </p>
             <p
-              className="text-3xl font-bold"
-              style={{ color: primaryColor }}
+              style={{
+                fontSize: "30px",
+                fontWeight: "bold",
+                color: primaryColor,
+                margin: 0,
+              }}
             >
               {data.recipientName}
             </p>
-            <div className="mx-auto w-24 border-t-2" style={{ borderColor: secondaryColor }} />
-            <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: `${fontColor}cc` }}>
+            <div
+              style={{
+                width: "96px",
+                borderTop: `2px solid ${secondaryColor}`,
+                margin: "0 auto",
+              }}
+            />
+            <p
+              style={{
+                fontSize: "14px",
+                lineHeight: "1.625",
+                whiteSpace: "pre-line",
+                color: `${fontColor}cc`,
+                margin: 0,
+              }}
+            >
               {processedBody}
             </p>
           </div>
 
           {/* Footer */}
-          <div className="w-full flex items-end justify-between pt-4">
-            <div className="text-center">
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "flex-end",
+              justifyContent: "space-between",
+              paddingTop: "16px",
+            }}
+          >
+            <div style={{ textAlign: "center" }}>
               {data.signatureImageUrl ? (
-                <img src={data.signatureImageUrl} alt="Signature" className="mx-auto mb-1 h-10 max-w-[120px] object-contain" />
+                <img
+                  src={data.signatureImageUrl}
+                  alt="Signature"
+                  style={{
+                    display: "block",
+                    margin: "0 auto 4px",
+                    height: "40px",
+                    maxWidth: "120px",
+                    objectFit: "contain",
+                  }}
+                />
               ) : (
-                <div className="mb-1 w-32 border-t" style={{ borderColor: primaryColor }} />
+                <div
+                  style={{
+                    marginBottom: "4px",
+                    width: "128px",
+                    borderTop: `1px solid ${primaryColor}`,
+                  }}
+                />
               )}
-              <p className="text-sm font-semibold" style={{ color: primaryColor }}>
+              <p
+                style={{
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: primaryColor,
+                  margin: 0,
+                }}
+              >
                 {data.issuerName}
               </p>
               {data.issuerTitle && (
-                <p className="text-xs" style={{ color: `${fontColor}99` }}>{data.issuerTitle}</p>
+                <p
+                  style={{
+                    fontSize: "12px",
+                    color: `${fontColor}99`,
+                    margin: "2px 0 0",
+                  }}
+                >
+                  {data.issuerTitle}
+                </p>
               )}
             </div>
 
-            <div className="text-center">
+            <div style={{ textAlign: "center" }}>
               {data.sealImageUrl ? (
-                <img src={data.sealImageUrl} alt="Seal" className="mx-auto mb-2 h-14 w-14 object-contain" />
+                <img
+                  src={data.sealImageUrl}
+                  alt="Seal"
+                  style={{
+                    display: "block",
+                    margin: "0 auto 8px",
+                    height: "56px",
+                    width: "56px",
+                    objectFit: "contain",
+                  }}
+                />
               ) : (
                 <div
-                  className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full border-2"
-                  style={{ borderColor: secondaryColor }}
+                  style={{
+                    width: "56px",
+                    height: "56px",
+                    borderRadius: "50%",
+                    border: `2px solid ${secondaryColor}`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    margin: "0 auto 8px",
+                  }}
                 >
-                  <span className="text-xs font-bold" style={{ color: secondaryColor }}>
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: "bold",
+                      color: secondaryColor,
+                    }}
+                  >
                     SEAL
                   </span>
                 </div>
               )}
-              <p className="text-[10px]" style={{ color: `${fontColor}66` }}>{data.issueDate}</p>
+              <p
+                style={{
+                  fontSize: "10px",
+                  color: `${fontColor}66`,
+                  margin: 0,
+                }}
+              >
+                {data.issueDate}
+              </p>
             </div>
 
             {showCertNum && (
-              <div className="text-center">
-                <div className="mb-1 w-32 border-t" style={{ borderColor: primaryColor }} />
-                <p className="text-xs" style={{ color: `${fontColor}99` }}>Certificate No.</p>
-                <p className="text-xs font-mono font-semibold" style={{ color: primaryColor }}>
+              <div style={{ textAlign: "center" }}>
+                <div
+                  style={{
+                    marginBottom: "4px",
+                    width: "128px",
+                    borderTop: `1px solid ${primaryColor}`,
+                  }}
+                />
+                <p
+                  style={{
+                    fontSize: "12px",
+                    color: `${fontColor}99`,
+                    margin: 0,
+                  }}
+                >
+                  Certificate No.
+                </p>
+                <p
+                  style={{
+                    fontSize: "12px",
+                    fontFamily: "monospace",
+                    fontWeight: 600,
+                    color: primaryColor,
+                    margin: "2px 0 0",
+                  }}
+                >
                   {data.certificateNumber}
                 </p>
               </div>
@@ -217,9 +410,31 @@ export const CertificateRenderer = forwardRef<HTMLDivElement, { data: Certificat
           </div>
 
           {/* Mascot watermark */}
-          <div className="absolute bottom-3 right-8 flex items-center gap-1 opacity-40">
-            <img src={mascotImg} alt="" className="h-4 w-4 object-contain" />
-            <span className="text-[7px] tracking-widest uppercase font-medium" style={{ color: primaryColor }}>
+          <div
+            style={{
+              position: "absolute",
+              bottom: "12px",
+              right: "32px",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              opacity: 0.4,
+            }}
+          >
+            <img
+              src={mascotImg}
+              alt=""
+              style={{ height: "16px", width: "16px", objectFit: "contain" }}
+            />
+            <span
+              style={{
+                fontSize: "7px",
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                fontWeight: 500,
+                color: primaryColor,
+              }}
+            >
               Verified by TRUSTIFICATE
             </span>
           </div>

@@ -1,7 +1,8 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Zap } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Check, Zap, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface UpgradeModalProps {
@@ -57,29 +58,57 @@ export function UpgradeModal({ open, onOpenChange, currentPlan, metric, usage, l
   const info = PLAN_HIGHLIGHTS[next];
   const navigate = useNavigate();
 
+  const hasUsageInfo = metric && usage !== undefined && limit !== undefined && limit > 0;
+  const usagePercent = hasUsageInfo ? Math.min(Math.round((usage / limit) * 100), 100) : 0;
+  const remaining = hasUsageInfo ? Math.max(limit - usage, 0) : 0;
+  const atLimit = hasUsageInfo && usage >= limit;
+  const metricLabel = metric?.replace(/_/g, " ") ?? "";
+  const showFreeCoupon = (!currentPlan || currentPlan === "Free") && next === "Starter";
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-primary" />
-            Upgrade to {next}
+            {atLimit ? (
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+            ) : (
+              <Zap className="h-5 w-5 text-primary" />
+            )}
+            {atLimit ? "You've reached your limit" : `Upgrade to ${next}`}
           </DialogTitle>
           <DialogDescription>
-            {metric && usage !== undefined && limit !== undefined
-              ? `You've used ${usage} of ${limit} ${metric.replace(/_/g, " ")} this month.`
+            {hasUsageInfo
+              ? atLimit
+                ? `You've used all ${limit} ${metricLabel} available on the ${currentPlan ?? "Free"} plan this month.`
+                : `You've used ${usage} of ${limit} ${metricLabel} this month — ${remaining} remaining.`
               : "Unlock more capacity and features for your team."}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
+          {hasUsageInfo && (
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{metricLabel}</span>
+                <span>{usage} / {limit}</span>
+              </div>
+              <Progress
+                value={usagePercent}
+                className={`h-2 ${atLimit ? "[&>div]:bg-destructive" : usagePercent >= 80 ? "[&>div]:bg-yellow-500" : ""}`}
+              />
+            </div>
+          )}
+
           <div className="flex items-baseline justify-between">
             <div>
               <Badge variant="secondary" className="text-xs mb-1">
                 {next} Plan
               </Badge>
               <p className="text-2xl font-bold">{info?.price}</p>
-              <p className="text-xs text-green-600">Use FREE_100 for 100% off at checkout</p>
+              {showFreeCoupon && (
+                <p className="text-xs text-green-600">Use code FREE_100 to get Starter for free</p>
+              )}
             </div>
             {currentPlan && (
               <span className="text-xs text-muted-foreground">
@@ -102,7 +131,7 @@ export function UpgradeModal({ open, onOpenChange, currentPlan, metric, usage, l
               onOpenChange(false);
               navigate(`/checkout?plan=${next.toLowerCase()}`);
             }}>
-              Upgrade Now
+              {atLimit ? "Upgrade Now — Unlock More" : "Upgrade Now"}
             </Button>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Maybe Later

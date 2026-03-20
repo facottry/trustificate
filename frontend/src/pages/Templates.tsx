@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, FileText, Edit, Copy, ToggleLeft, ToggleRight } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Plus, FileText, Edit, Copy, ToggleLeft, ToggleRight, Trash2 } from "lucide-react";
 import { Mascot } from "@/components/Mascot";
 import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -39,13 +40,14 @@ export default function TemplatesPage() {
 
   useEffect(() => {
     fetchTemplates();
-  }, [profile?.organizationId]);
+  }, [profile?.organization_id]);
 
   const handleDuplicate = async (t: any) => {
     try {
       await apiClient('/api/templates', {
         method: 'POST',
         body: JSON.stringify({
+          name: `${t.name || t.title} (Copy)`,
           title: `${t.title} (Copy)`,
           placeholders: t.placeholders,
           isActive: t.isActive,
@@ -71,7 +73,7 @@ export default function TemplatesPage() {
 
   const handleToggleActive = async (t: any) => {
     try {
-      await apiClient(`/api/templates/${t.id}`, {
+      await apiClient(`/api/templates/${t.id || t._id}`, {
         method: 'PUT',
         body: JSON.stringify({ isActive: !t.isActive }),
       });
@@ -79,6 +81,16 @@ export default function TemplatesPage() {
       fetchTemplates();
     } catch (err: any) {
       toast.error(err.message || "Failed to update template status");
+    }
+  };
+
+  const handleDelete = async (t: any) => {
+    try {
+      await apiClient(`/api/templates/${t.id || t._id}`, { method: 'DELETE' });
+      toast.success("Template deleted");
+      fetchTemplates();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete template");
     }
   };
 
@@ -118,11 +130,11 @@ export default function TemplatesPage() {
             {templates.map((t) => {
               const theme = (t.configuration?.color_theme as any) || {};
               const placeholders = Array.isArray(t.placeholders) ? t.placeholders : [];
-              const count = certCounts[t.id] || 0;
+              const count = certCounts[t.id || t._id] || 0;
               const isSystem = Boolean(t.isSystem);
               return (
                 <Card
-                  key={t.id}
+                  key={t.id || t._id}
                   className={`group transition-shadow hover:shadow-md ${!t.isActive ? "border-amber-400/50 bg-amber-50/30 dark:bg-amber-950/10" : ""}`}
                 >
                   <CardHeader className="pb-3">
@@ -145,7 +157,7 @@ export default function TemplatesPage() {
                         </Button>
                         {!isSystem && (
                           <Button variant="ghost" size="icon" className="h-8 w-8" asChild title="Edit">
-                            <Link to={`/templates/${t.id}/edit`}>
+                            <Link to={`/templates/${t.id || t._id}/edit`}>
                               <Edit className="h-3.5 w-3.5" />
                             </Link>
                           </Button>
@@ -161,12 +173,34 @@ export default function TemplatesPage() {
                             {t.isActive ? <ToggleRight className="h-3.5 w-3.5" /> : <ToggleLeft className="h-3.5 w-3.5" />}
                           </Button>
                         )}
+                        {!isSystem && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" title="Delete">
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Template?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This will permanently delete "{t.name || t.title}". Existing certificates using this template will not be affected.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDelete(t)}>Delete</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <CardTitle className="text-base mt-2">{t.title}</CardTitle>
-                        {t.configuration?.subtitle && <CardDescription>{t.configuration.subtitle}</CardDescription>}
+                        <CardTitle className="text-base mt-2">{t.name || t.title}</CardTitle>
+                        <CardDescription className="text-xs">{t.title}</CardDescription>
+                        {t.configuration?.subtitle && <CardDescription className="text-xs text-muted-foreground/70">{t.configuration.subtitle}</CardDescription>}
                       </div>
                       {isSystem && (
                         <Badge variant="outline" className="text-xs h-6">

@@ -15,6 +15,7 @@ const certificateRoutes = require('./modules/certificate/certificate.route');
 const aiRoutes = require('./modules/ai/ai.route');
 const publicRoutes = require('./modules/public/public.route');
 const adminRoutes = require('./modules/admin/admin.route');
+const planRoutes = require('./modules/plan/plan.route');
 const { requireEmailVerified } = require('./middlewares/emailVerification.middleware');
 
 const app = express();
@@ -99,6 +100,7 @@ app.use('/api/certificates', requireEmailVerified, certificateRoutes);
 app.use('/api/ai', requireEmailVerified, aiLimiter, aiRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/admin', requireEmailVerified, adminRoutes);
+app.use('/api', requireEmailVerified, planRoutes);
 
 // ── Health Check (pings DB + Redis) ────────────────────────
 app.get('/health', async (_req, res) => {

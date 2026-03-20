@@ -1,4 +1,4 @@
-﻿import { useState, useRef } from "react";
+﻿import { useState, useRef, useEffect } from "react";
 import { buildTemplateSnapshot } from "@/lib/certificate-snapshot";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/components/AdminLayout";
@@ -9,12 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlanGuard } from "@/hooks/usePlanGuard";
 import { UpgradeModal } from "@/components/UpgradeModal";
 import { ArrowLeft, Upload, FileSpreadsheet, CheckCircle2, AlertCircle, Download } from "lucide-react";
-import { useEffect } from "react";
 
 interface ParsedRow {
   recipientName: string;
@@ -28,7 +27,7 @@ interface ParsedRow {
 export default function BulkUploadPage() {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
-  const { checkLimit, incrementUsage } = usePlanGuard();
+  const { checkLimit, refreshUsage } = usePlanGuard();
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [planInfo, setPlanInfo] = useState<{ plan_name?: string; usage?: number; limit?: number }>({});
   const fileRef = useRef<HTMLInputElement>(null);
@@ -41,13 +40,9 @@ export default function BulkUploadPage() {
 
   useEffect(() => {
     if (!profile?.organization_id) return;
-    supabase
-      .from("certificate_templates")
-      .select("id, title, number_prefix")
-      .eq("organization_id", profile.organization_id)
-      .eq("is_active", true)
-      .order("title")
-      .then(({ data }) => setTemplates(data || []));
+    apiClient<any[]>('/api/templates?isActive=true')
+      .then(({ data }) => setTemplates(data || []))
+      .catch(() => setTemplates([]));
   }, [profile?.organization_id]);
 
   const downloadSampleCSV = () => {
@@ -107,7 +102,7 @@ export default function BulkUploadPage() {
   };
 
   const handleBulkIssue = async () => {
-    const template = templates.find((t) => t.id === selectedTemplateId);
+    const template = templates.find((t) => (t.id || t._id) === selectedTemplateId);
     if (!template) {
       toast.error("Select a template first");
       return;
@@ -127,7 +122,7 @@ export default function BulkUploadPage() {
       return;
     }
     const remaining = guard.remaining ?? 0;
-    if (validRows.length > remaining) {
+    if (guard.limit !== -1 && validRows.length > remaining) {
       toast.error(`You only have ${remaining} certificates remaining this month. CSV contains ${validRows.length} rows.`);
       return;
     }
@@ -136,45 +131,40 @@ export default function BulkUploadPage() {
     let success = 0;
     let failed = 0;
 
+    const certPrefix = template.numberPrefix || template.number_prefix || "CERT";
+
     for (const row of validRows) {
-      const { data: numData, error: numError } = await supabase.rpc("generate_certificate_number", {
-        _prefix: template.number_prefix || "CERT",
-      });
-
-      if (numError || !numData) {
-        failed++;
-        continue;
-      }
-
-      const certNumber = numData as string;
+      const certNumber = `${certPrefix}-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
       const slug = certNumber.toLowerCase().replace(/\s+/g, "-");
 
-      const { error } = await supabase.from("certificates").insert({
-        template_id: template.id,
-        certificate_number: certNumber,
-        slug,
-        recipient_name: row.recipientName,
-        recipient_email: row.recipientEmail || null,
-        course_name: row.courseName || null,
-        issuer_name: "TRUSTIFICATE",
-        issue_date: row.issueDate,
-        organization_id: profile?.organization_id,
-        created_by: user?.id,
-        status: "issued",
-        metadata_json: { template_snapshot: buildTemplateSnapshot(template) } as any,
-      });
-
-      if (error) {
-        failed++;
-      } else {
+      try {
+        await apiClient('/api/certificates', {
+          method: 'POST',
+          body: JSON.stringify({
+            templateId: template.id || template._id,
+            certificateNumber: certNumber,
+            slug,
+            recipientName: row.recipientName,
+            recipientEmail: row.recipientEmail || null,
+            courseName: row.courseName || null,
+            issuerName: "TRUSTIFICATE",
+            issueDate: row.issueDate,
+            organizationId: profile?.organization_id,
+            createdBy: user?.id,
+            status: "issued",
+            metadataJson: { template_snapshot: buildTemplateSnapshot(template) },
+          }),
+        });
         success++;
+      } catch {
+        failed++;
       }
     }
 
     setUploading(false);
     setResult({ success, failed });
     if (success > 0) {
-      await incrementUsage("certificates_created", success);
+      await refreshUsage();
       toast.success(`${success} certificate${success > 1 ? "s" : ""} issued successfully!`);
     }
     if (failed > 0) {
@@ -211,8 +201,8 @@ export default function BulkUploadPage() {
               </SelectTrigger>
               <SelectContent>
                 {templates.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    {t.title} ({t.number_prefix})
+                  <SelectItem key={t.id || t._id} value={t.id || t._id}>
+                    {t.title} ({t.numberPrefix || t.number_prefix})
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -312,7 +302,7 @@ export default function BulkUploadPage() {
             <AlertDescription>
               Completed: {result.success} issued, {result.failed} failed.{" "}
               <Button variant="link" className="px-0 h-auto" onClick={() => navigate("/documents")}>
-                View documents â†’
+                View documents →
               </Button>
             </AlertDescription>
           </Alert>

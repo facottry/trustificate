@@ -16,10 +16,10 @@ import { AnnouncementModal } from "@/components/AnnouncementModal";
 const features = [
   { icon: FileText, title: "Template-Driven Issuance", description: "Design branded credential blueprints with custom fields. Issue thousands of verifiable documents in minutes, not days." },
   { icon: Shield, title: "Instant Public Verification", description: "Anyone can verify a credential's authenticity in under 3 seconds. No account needed. No phone calls. No waiting." },
-  { icon: Globe, title: "Unified Credential Registry", description: "Register and verify credentials from any source â€” internal or external â€” in a single, searchable registry." },
+  { icon: Globe, title: "Unified Credential Registry", description: "Register and verify credentials from any source internal or external in a single, searchable registry." },
   { icon: Lock, title: "Tamper-Proof by Design", description: "Every credential carries a cryptographic identifier, QR code, and verification URL. Forgery becomes impossible." },
   { icon: Zap, title: "AI-Powered Workflows", description: "Smart form filling, template suggestions, and automated issuance powered by AI. Reduce manual work by 80%." },
-  { icon: BarChart3, title: "Compliance & Audit Trails", description: "Track every credential event â€” issuance, verification, revocation. Export audit reports for regulatory requirements." },
+  { icon: BarChart3, title: "Compliance & Audit Trails", description: "Track every credential event issuance, verification, revocation. Export audit reports for regulatory requirements." },
 ];
 
 const useCases = [
@@ -71,7 +71,7 @@ export default function LandingPage() {
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              No credit card required Â· SOC 2 compliant Â· 99.9% uptime SLA
+              No credit card required · SOC 2 compliant · 99.9% uptime SLA
             </p>
           </div>
         </div>
@@ -121,7 +121,7 @@ export default function LandingPage() {
         <div className="container">
           <div className="mb-14 text-center max-w-2xl mx-auto">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">Everything you need for credential trust</h2>
-            <p className="text-muted-foreground leading-relaxed">From template design to public verification â€” TRUSTIFICATE is the complete infrastructure for credential management.</p>
+            <p className="text-muted-foreground leading-relaxed">From template design to public verification TRUSTIFICATE is the complete infrastructure for credential management.</p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
             {features.map((f) => (
@@ -191,7 +191,7 @@ export default function LandingPage() {
               Ready to make your credentials unforgeable?
             </h2>
             <p className="text-muted-foreground mb-8 leading-relaxed">
-              Join organizations using TRUSTIFICATE to issue, manage, and verify credentials. Free during beta â€” start now.
+              Join organizations using TRUSTIFICATE to issue, manage, and verify credentials. Free during beta start now.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button size="lg" onClick={() => navigate("/signup")} className="h-12 px-8 text-base shadow-lg shadow-primary/25">

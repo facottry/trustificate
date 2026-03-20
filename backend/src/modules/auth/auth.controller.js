@@ -1,6 +1,10 @@
+const jwt = require('jsonwebtoken');
 const authService = require('./auth.service');
 const { asyncHandler } = require('../../middlewares/error.middleware');
+const { AppError } = require('../../middlewares/error.middleware');
 const { success } = require('../../utils/apiResponse');
+
+const signToken = (payload) => jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
 
 /** POST /api/auth/register */
 const register = asyncHandler(async (req, res) => {
@@ -59,7 +63,18 @@ const verifyEmail = asyncHandler(async (req, res) => {
 const confirmEmailLink = asyncHandler(async (req, res) => {
   const { token } = req.params;
   const user = await authService.verifyEmailLink(token);
-  success(res, user, 'Email verified successfully');
+  const jwtToken = signToken({ id: user._id, role: user.role, organizationId: user.organizationId });
+  success(res, {
+    token: jwtToken,
+    user: {
+      id: user._id,
+      displayName: user.displayName,
+      email: user.email,
+      role: user.role,
+      organizationId: user.organizationId,
+      isEmailVerified: true,
+    },
+  }, 'Email verified successfully');
 });
 
 /** POST /api/auth/resend-verification-link */
@@ -71,7 +86,9 @@ const resendVerificationLink = asyncHandler(async (req, res) => {
 
 /** GET /api/auth/email-status */
 const checkEmailStatus = asyncHandler(async (req, res) => {
-  const status = await authService.checkEmailVerificationStatus(req.user.id);
+  const { email } = req.query;
+  if (!email) throw new AppError('Email query parameter is required', 400);
+  const status = await authService.checkEmailVerificationStatusByEmail(email);
   success(res, status, 'Email status retrieved');
 });
 

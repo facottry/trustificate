@@ -1,5 +1,7 @@
 const Template = require('./template.schema');
 const { AppError } = require('../../middlewares/error.middleware');
+const usageService = require('../usage/usage.service');
+const { ensureBillingCycle } = require('../organization/organization.service');
 
 const createTemplate = async ({ title, placeholders, isActive, layout, configuration }, organizationId, userId) => {
   if (!organizationId) throw new AppError('Organization context missing', 400);
@@ -13,6 +15,13 @@ const createTemplate = async ({ title, placeholders, isActive, layout, configura
     createdBy: userId,
     isSystem: false,
   });
+
+  // Increment usage after successful template creation
+  const org = await ensureBillingCycle(template.organizationId);
+  if (org) {
+    await usageService.incrementUsage(org._id, 'templates_created', org.billingCycleStart, org.billingCycleEnd);
+  }
+
   return template;
 };
 

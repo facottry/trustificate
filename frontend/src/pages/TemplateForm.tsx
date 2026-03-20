@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { CertificateRenderer } from "@/components/CertificateRenderer";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useAIAssist } from "@/hooks/useAIAssist";
 import { usePlanGuard } from "@/hooks/usePlanGuard";
@@ -50,6 +50,8 @@ export default function TemplateFormPage() {
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [planInfo, setPlanInfo] = useState<{ plan_name?: string; usage?: number; limit?: number }>({});
 
+  const [templateName, setTemplateName] = useState("");
+  const [nameManuallyEdited, setNameManuallyEdited] = useState(false);
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [bodyText, setBodyText] = useState("");
@@ -98,10 +100,22 @@ export default function TemplateFormPage() {
     }
   };
 
+  const handleTitleChange = (value: string) => {
+    setTitle(value);
+    if (!nameManuallyEdited) {
+      setTemplateName(value);
+    }
+  };
+
   const handleTitleBlur = () => {
     if (title.trim() && !bodyText.trim() && !isEdit) {
       handleAISuggest(title);
     }
+  };
+
+  const handleNameChange = (value: string) => {
+    setTemplateName(value);
+    setNameManuallyEdited(true);
   };
 
   const handleSignatureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -141,6 +155,8 @@ export default function TemplateFormPage() {
     apiClient(`/api/templates/${id}`)
       .then((response) => {
         const data = response.data;
+        setTemplateName(data.name || data.title || "");
+        if (data.name) setNameManuallyEdited(true);
         setTitle(data.title);
         setSubtitle(data.subtitle || "");
         setBodyText(data.bodyText);
@@ -178,6 +194,7 @@ export default function TemplateFormPage() {
   };
 
   const buildPayload = (isDraft: boolean) => ({
+    name: templateName.trim() || title.trim(),
     title: title.trim(),
     subtitle: subtitle.trim() || null,
     body_text: bodyText.trim() || "Draft — body text pending",
@@ -223,15 +240,19 @@ export default function TemplateFormPage() {
       }
     }
 
-    let error;
-    if (isEdit) {
-      ({ error } = await supabase.from("certificate_templates").update(payload).eq("id", id!));
-    } else {
-      ({ error } = await supabase.from("certificate_templates").insert(payload));
+    let error: any = null;
+    try {
+      if (isEdit) {
+        await apiClient(`/api/templates/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+      } else {
+        await apiClient('/api/templates', { method: 'POST', body: JSON.stringify(payload) });
+      }
+    } catch (err: any) {
+      error = err;
     }
 
     setSaving(false);
-    if (error) toast.error(error.message);
+    if (error) toast.error(error.message || 'Failed to save template');
     else {
       if (!isEdit) await incrementUsage("templates_created");
       toast.success(isEdit ? "Template updated" : "Template created");
@@ -251,15 +272,19 @@ export default function TemplateFormPage() {
     setSaving(true);
     const payload = buildPayload(true);
 
-    let error;
-    if (isEdit) {
-      ({ error } = await supabase.from("certificate_templates").update(payload).eq("id", id!));
-    } else {
-      ({ error } = await supabase.from("certificate_templates").insert(payload));
+    let error: any = null;
+    try {
+      if (isEdit) {
+        await apiClient(`/api/templates/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+      } else {
+        await apiClient('/api/templates', { method: 'POST', body: JSON.stringify(payload) });
+      }
+    } catch (err: any) {
+      error = err;
     }
 
     setSaving(false);
-    if (error) toast.error(error.message);
+    if (error) toast.error(error.message || 'Failed to save draft');
     else {
       toast.success("Draft saved");
       navigate("/templates");
@@ -342,8 +367,12 @@ export default function TemplateFormPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Title</Label>
-                  <Input value={title} onChange={(e) => setTitle(e.target.value)} onBlur={handleTitleBlur} placeholder="e.g. Internship Completion, Safety Training" required />
+                  <Label>Template Name <span className="text-muted-foreground font-normal text-xs">(for your reference)</span></Label>
+                  <Input value={templateName} onChange={(e) => handleNameChange(e.target.value)} placeholder="Auto-filled from title — override to customize" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Title <span className="text-muted-foreground font-normal text-xs">(shown on certificate)</span></Label>
+                  <Input value={title} onChange={(e) => handleTitleChange(e.target.value)} onBlur={handleTitleBlur} placeholder="e.g. Internship Completion, Safety Training" required />
                 </div>
                 <div className="space-y-2">
                   <Label>Subtitle</Label>

@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 const values = [
   { title: "Trust First", desc: "Every feature we build starts with the question: does this increase trust in the document ecosystem?" },
   { title: "Institutional Grade", desc: "We build for universities, training institutes, and enterprises. Our standards reflect the institutions that rely on us." },
-  { title: "Open Verification", desc: "Document verification should be free, instant, and accessible to anyone â€” no account required." },
+  { title: "Open Verification", desc: "Document verification should be free, instant, and accessible to anyone no account required." },
   { title: "Privacy by Design", desc: "We collect only what's necessary. Document data belongs to issuers and recipients, not to us." },
 ];
 
@@ -37,7 +37,7 @@ export default function About() {
           <h2 className="text-2xl font-bold mb-6">Our Mission</h2>
           <p className="text-muted-foreground leading-relaxed mb-4">
             In a world where document fraud costs organizations billions annually, we believe
-            verification should be a fundamental right â€” not a luxury. TRUSTIFICATE provides the
+            verification should be a fundamental right not a luxury. TRUSTIFICATE provides the
             infrastructure for any organization to issue tamper-proof credentials and for anyone
             to verify them instantly.
           </p>
@@ -79,7 +79,7 @@ export default function About() {
             </p>
             <p>
               <strong className="text-foreground">For Verifiers:</strong> Instantly verify any TRUSTIFICATE credential
-              for free â€” no account needed. Just enter the certificate number or scan the QR code.
+              for free no account needed. Just enter the certificate number or scan the QR code.
             </p>
           </div>
         </div>
@@ -91,7 +91,7 @@ export default function About() {
           <div className="mx-auto max-w-lg text-center">
             <h2 className="text-2xl font-bold mb-4">Start issuing verifiable credentials today</h2>
             <p className="text-sm text-muted-foreground mb-6">
-              Whether you're a training institute, university, or enterprise â€” TRUSTIFICATE is built for you.
+              Whether you're a training institute, university, or enterprise TRUSTIFICATE is built for you.
             </p>
             <Button onClick={() => navigate("/signup")}>
               Get Started Free <ArrowRight className="ml-2 h-4 w-4" />

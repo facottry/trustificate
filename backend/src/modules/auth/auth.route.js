@@ -312,19 +312,23 @@ router.post('/resend-verification-link', authController.resendVerificationLink);
  * @swagger
  * /api/auth/email-status:
  *   get:
- *     summary: Check current user email verification status
+ *     summary: Check user email verification status by email
  *     tags: [Auth]
- *     security:
- *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: Email verification status
- *       401:
- *         description: Unauthorized
+ *       400:
+ *         description: Email query parameter is required
  *       404:
  *         description: User not found
  */
-router.get('/email-status', protect, authController.checkEmailStatus);
+router.get('/email-status', authController.checkEmailStatus);
 
 /**
  * @swagger

@@ -11,15 +11,24 @@ if (missing.length) {
   process.exit(1);
 }
 
+const { seedDefaultCoupons } = require('./modules/plan/plan.service');
+
 const PORT = process.env.PORT || 3001;
 const server = http.createServer(app);
 
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   console.log('');
   console.log(`  🚀  trustificate is running!`);
   console.log(`  🌐  http://localhost:${PORT}`);
   console.log(`  📄  Swagger:  http://localhost:${PORT}/api-docs`);
   console.log('');
+
+  // Seed default coupons on startup
+  try {
+    await seedDefaultCoupons();
+  } catch (err) {
+    console.error('  ⚠️  Failed to seed default coupons:', err.message);
+  }
 });
 
 // ── Graceful shutdown ──────────────────────────────────────

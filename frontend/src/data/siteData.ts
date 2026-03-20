@@ -14,7 +14,7 @@ export const pricingTiers = [
     discount: null,
     popular: false,
     features: [
-      "Up to 50 credentials/month",
+      "Up to 10 credentials/month",
       "1 template",
       "Public verification pages",
       "QR code generation",

@@ -1,4 +1,4 @@
-import type { Json } from "@/integrations/supabase/types";
+// Template snapshot utilities for certificate metadata
 
 /**
  * Build an immutable template snapshot to store in certificate metadata_json.
@@ -16,17 +16,19 @@ export interface TemplateSnapshot {
   seal_config: Record<string, unknown> | null;
 }
 
-export function buildTemplateSnapshot(template: any): Json {
+export function buildTemplateSnapshot(template: any): any {
+  // Support both direct snake_case fields (from snapshot) and nested configuration (from Mongoose)
+  const config = template.configuration || {};
   return {
     title: template.title ?? "",
-    subtitle: template.subtitle ?? null,
-    body_text: template.body_text ?? "",
+    subtitle: template.subtitle ?? config.subtitle ?? null,
+    body_text: template.body_text ?? config.body_text ?? "",
     layout: template.layout ?? "landscape",
-    color_theme: template.color_theme ?? null,
-    background_style: template.background_style ?? null,
-    signature_config: template.signature_config ?? null,
-    seal_config: template.seal_config ?? null,
-  } as Json;
+    color_theme: template.color_theme ?? config.color_theme ?? null,
+    background_style: template.background_style ?? config.background_style ?? null,
+    signature_config: template.signature_config ?? config.signature_config ?? null,
+    seal_config: template.seal_config ?? config.seal_config ?? null,
+  };
 }
 
 /**
@@ -41,16 +43,19 @@ export function getTemplateFromCertificate(cert: any): TemplateSnapshot | null {
   }
 
   // Fallback to joined template (only works for authenticated org members)
-  if (cert.certificate_templates) {
+  // Support both old Supabase-style (certificate_templates) and Mongoose populated (templateId)
+  const joined = cert.certificate_templates || cert.templateId;
+  if (joined && typeof joined === 'object') {
+    const config = joined.configuration || {};
     return {
-      title: cert.certificate_templates.title,
-      subtitle: cert.certificate_templates.subtitle,
-      body_text: cert.certificate_templates.body_text,
-      layout: cert.certificate_templates.layout,
-      color_theme: cert.certificate_templates.color_theme as any,
-      background_style: cert.certificate_templates.background_style as any,
-      signature_config: cert.certificate_templates.signature_config as any,
-      seal_config: cert.certificate_templates.seal_config as any,
+      title: joined.title ?? config.title ?? "",
+      subtitle: joined.subtitle ?? config.subtitle ?? null,
+      body_text: joined.body_text ?? config.body_text ?? "",
+      layout: joined.layout ?? "landscape",
+      color_theme: (joined.color_theme ?? config.color_theme ?? null) as any,
+      background_style: (joined.background_style ?? config.background_style ?? null) as any,
+      signature_config: (joined.signature_config ?? config.signature_config ?? null) as any,
+      seal_config: (joined.seal_config ?? config.seal_config ?? null) as any,
     };
   }
 

@@ -1,8 +1,9 @@
 const Organization = require('./organization.schema');
 const Role = require('../role/role.schema');
 const { AppError } = require('../../middlewares/error.middleware');
-
 const User = require('../user/user.schema');
+const usageService = require('../usage/usage.service');
+const { getPlan, isUnlimited } = require('../../utils/planConfig');
 
 const createOrganization = async ({ name, slug, logoUrl }, userId) => {
   const existing = await Organization.findOne({ slug });
@@ -26,7 +27,13 @@ const getOrganizationsForUser = async (userId) => {
 
 const getOrganizationById = async (orgId, userId) => {
   const role = await Role.findOne({ userId, organizationId: orgId });
-  if (!role) throw new AppError('Not authorized to access this organization', 403);
+  if (!role) {
+    // Fallback: allow if user's own organizationId matches
+    const user = await User.findById(userId);
+    if (!user || String(user.organizationId) !== String(orgId)) {
+      throw new AppError('Not authorized to access this organization', 403);
+    }
+  }
   const org = await Organization.findById(orgId);
   if (!org) throw new AppError('Organization not found', 404);
   return org;
@@ -34,7 +41,13 @@ const getOrganizationById = async (orgId, userId) => {
 
 const updateOrganization = async (orgId, userId, data) => {
   const role = await Role.findOne({ userId, organizationId: orgId });
-  if (!role || role.role !== 'admin') throw new AppError('Not authorized', 403);
+  if (!role) {
+    // Fallback: allow if user's own organizationId matches
+    const user = await User.findById(userId);
+    if (!user || String(user.organizationId) !== String(orgId)) {
+      throw new AppError('Not authorized', 403);
+    }
+  }
   const org = await Organization.findByIdAndUpdate(orgId, data, { new: true, runValidators: true });
   if (!org) throw new AppError('Organization not found', 404);
   return org;
@@ -50,38 +63,82 @@ const deleteOrganization = async (orgId, userId) => {
 };
 
 const getUsage = async (orgId, userId) => {
-  await getOrganizationById(orgId, userId);
+  let org = await getOrganizationById(orgId, userId);
+  const planConfig = getPlan(org.plan);
 
-  // Placeholder usage/limits. Replace with real plan logic as needed.
+  // Ensure billing cycle dates are persisted (handles orgs created before plan fields existed)
+  const raw = await Organization.findById(orgId).lean();
+  if (!raw.billingCycleStart || !raw.billingCycleEnd) {
+    const now = new Date();
+    const end = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    org = await Organization.findByIdAndUpdate(
+      orgId,
+      { $set: { billingCycleStart: now, billingCycleEnd: end } },
+      { new: true }
+    );
+  }
+
+  const now = new Date();
+  const cycleExpired = org.billingCycleEnd && new Date(org.billingCycleEnd) < now;
+
+  let usage;
+  if (cycleExpired) {
+    // Billing cycle has ended — treat usage as 0 for the new implicit cycle
+    usage = { certificates_created: 0, templates_created: 0 };
+  } else {
+    usage = await usageService.getUsageForOrg(
+      org._id,
+      org.billingCycleStart,
+      org.billingCycleEnd
+    );
+  }
+
   return {
-    plan_name: 'starter',
-    plan_id: 'starter',
-    price_monthly: 0,
-    billing_cycle_start: new Date().toISOString(),
-    billing_cycle_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    plan_name: planConfig.name,
+    plan_id: org.plan,
+    price_monthly: planConfig.price,
+    billing_cycle_start: org.billingCycleStart.toISOString(),
+    billing_cycle_end: org.billingCycleEnd.toISOString(),
     limits: {
-      certificates_created: 999999,
-      templates_created: 999999,
-      team_members: 999999,
-      bulk_import: true,
-      api_access: true,
-      webhook_access: true,
-      analytics_access: true,
-      audit_exports: true,
-      priority_support: true,
+      certificates_created: planConfig.limits.certificates_created,
+      templates_created: planConfig.limits.templates_created,
+      ...planConfig.features,
     },
     usage: {
-      certificates_created: 0,
-      templates_created: 0,
-      team_members: 0,
+      certificates_created: usage.certificates_created,
+      templates_created: usage.templates_created,
     },
   };
 };
 
 const incrementUsage = async (orgId, userId, metric, amount = 1) => {
-  await getOrganizationById(orgId, userId);
-  // Placeholder: no-op. Real implementation should persist usage in the database.
-  return { success: true };
+  const org = await getOrganizationById(orgId, userId);
+  return usageService.incrementUsage(
+    org._id,
+    metric,
+    org.billingCycleStart,
+    org.billingCycleEnd,
+    amount
+  );
+};
+
+/**
+ * Ensure an org has persisted billing cycle dates.
+ * Returns the org document (lean) with guaranteed billingCycleStart/End.
+ */
+const ensureBillingCycle = async (orgId) => {
+  let org = await Organization.findById(orgId).lean();
+  if (!org) return null;
+  if (!org.billingCycleStart || !org.billingCycleEnd) {
+    const now = new Date();
+    const end = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    org = await Organization.findByIdAndUpdate(
+      orgId,
+      { $set: { billingCycleStart: now, billingCycleEnd: end } },
+      { new: true }
+    ).lean();
+  }
+  return org;
 };
 
 module.exports = {
@@ -92,4 +149,5 @@ module.exports = {
   deleteOrganization,
   getUsage,
   incrementUsage,
+  ensureBillingCycle,
 };

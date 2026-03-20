@@ -12,7 +12,7 @@ import {
 const benefits = [
   { icon: Palette, title: "Template-Driven Design", desc: "Choose from professionally designed templates or create your own with custom branding, logos, and color schemes." },
   { icon: Shield, title: "Tamper-Proof Verification", desc: "Every certificate includes a unique cryptographic ID, QR code, and public verification URL." },
-  { icon: Zap, title: "AI-Powered Filling", desc: "AI pre-fills recipient details, body text, and formatting. Issue certificates 10Ã— faster than manual methods." },
+  { icon: Zap, title: "AI-Powered Filling", desc: "AI pre-fills recipient details, body text, and formatting. Issue certificates 10× faster than manual methods." },
   { icon: QrCode, title: "QR Code & Unique URL", desc: "Each certificate gets a scannable QR code and a permanent verification link anyone can check." },
   { icon: Download, title: "PDF Export", desc: "Download high-quality PDFs for printing or email distribution. Branded and professional." },
   { icon: Lock, title: "Audit Trail", desc: "Every issuance, view, and download is logged. Full compliance-ready audit trail." },
@@ -39,7 +39,7 @@ export default function CertificateGeneratorPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Free Certificate Generator â€” Create Verifiable Credentials | TRUSTIFICATE";
+    document.title = "Free Certificate Generator Create Verifiable Credentials | TRUSTIFICATE";
     const meta = document.querySelector('meta[name="description"]');
     if (meta) meta.setAttribute("content", "Generate tamper-proof, verifiable certificates with QR codes and public verification URLs. Free certificate maker for courses, training, and compliance. No design skills needed.");
   }, []);
@@ -64,7 +64,7 @@ export default function CertificateGeneratorPage() {
         <div className="container relative">
           <div className="mx-auto max-w-3xl text-center">
             <Badge variant="secondary" className="mb-6 text-xs border border-primary/20 bg-primary/5 text-primary">
-              ðŸš€ Free during beta â€” No credit card required
+              🚀 Free during beta No credit card required
             </Badge>
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-foreground leading-[1.1] mb-6">
               Free Certificate Generator
@@ -83,7 +83,7 @@ export default function CertificateGeneratorPage() {
                 See Live Example
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">No signup needed to verify Â· 50 free certificates/month on Free plan</p>
+            <p className="text-xs text-muted-foreground">No signup needed to verify · 50 free certificates/month on Free plan</p>
           </div>
         </div>
       </section>

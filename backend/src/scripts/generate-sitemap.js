@@ -84,7 +84,7 @@ async function generateSitemap() {
     sitemap += '</urlset>';
 
     // Write to frontend public directory
-    const frontendPublicDir = path.resolve(__dirname, '../../../documintapp/public');
+    const frontendPublicDir = path.resolve(__dirname, '../../../frontend/public');
     const sitemapPath = path.join(frontendPublicDir, 'sitemap.xml');
 
     // Ensure directory exists

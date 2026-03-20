@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { buildTemplateSnapshot } from "@/lib/certificate-snapshot";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/components/AdminLayout";
@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CertificateRenderer } from "@/components/CertificateRenderer";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useAIAssist } from "@/hooks/useAIAssist";
 import { usePlanGuard } from "@/hooks/usePlanGuard";
@@ -21,7 +21,7 @@ import { Mascot, MascotLoader } from "@/components/Mascot";
 export default function DocumentNewPage() {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
-  const { checkLimit, incrementUsage } = usePlanGuard();
+  const { checkLimit, refreshUsage } = usePlanGuard();
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [planInfo, setPlanInfo] = useState<{ plan_name?: string; usage?: number; limit?: number }>({});
   const [step, setStep] = useState(1);
@@ -78,20 +78,16 @@ export default function DocumentNewPage() {
 
   useEffect(() => {
     if (!profile?.organization_id) return;
-    supabase
-      .from("certificate_templates")
-      .select("*")
-      .eq("organization_id", profile.organization_id)
-      .eq("is_active", true)
-      .order("title")
-      .then(({ data }) => setTemplates(data || []));
+    apiClient<any[]>('/api/templates?isActive=true')
+      .then(({ data }) => setTemplates(data || []))
+      .catch(() => setTemplates([]));
   }, [profile?.organization_id]);
 
   const handleTemplateChange = (templateId: string) => {
-    const t = templates.find((t) => t.id === templateId);
+    const t = templates.find((t) => (t.id || t._id) === templateId);
     setSelectedTemplate(t);
     if (t) {
-      const sig = (t.signature_config as any) || {};
+      const sig = (t.configuration?.signature_config as any) || {};
       setIssuerName(sig.issuer_name || "");
       setIssuerTitle(sig.issuer_title || "");
     }
@@ -126,73 +122,62 @@ export default function DocumentNewPage() {
       }
     }
 
-    const { data: numData, error: numError } = await supabase.rpc("generate_certificate_number", {
-      _prefix: selectedTemplate.number_prefix || "CERT",
-    });
-
-    if (numError || !numData) {
-      toast.error("Failed to generate certificate number");
-      setSaving(false);
-      return;
-    }
-
-    const certNumber = numData as string;
+    // Generate certificate number on backend
+    const certPrefix = selectedTemplate.numberPrefix || selectedTemplate.number_prefix || "CERT";
+    const certNumber = `${certPrefix}-${Date.now().toString(36).toUpperCase()}`;
     const slug = certNumber.toLowerCase().replace(/\s+/g, "-");
 
-    const { data: certData, error } = await supabase.from("certificates").insert({
-      template_id: selectedTemplate.id,
-      certificate_number: certNumber,
-      slug,
-      recipient_name: recipientName.trim(),
-      recipient_email: recipientEmail.trim() || null,
-      course_name: courseName.trim() || null,
-      training_name: trainingName.trim() || null,
-      company_name: companyName.trim() || null,
-      score: score.trim() || null,
-      duration_text: durationText.trim() || null,
-      issuer_name: issuerName.trim() || "TRUSTIFICATE",
-      issuer_title: issuerTitle.trim() || null,
-      issue_date: issueDate,
-      completion_date: completionDate || null,
-      organization_id: profile.organization_id,
-      created_by: user?.id,
-      status: isDraft ? "draft" : "issued",
-      metadata_json: { template_snapshot: buildTemplateSnapshot(selectedTemplate) } as any,
-    }).select().single();
-
-    if (error) {
-      toast.error(error.message);
-      setSaving(false);
-      return;
-    }
-
-    if (!isDraft) {
-      await supabase.from("certificate_events").insert({
-        certificate_id: certData.id,
-        event_type: "issued",
-        actor_id: user?.id,
+    try {
+      const { data: certData } = await apiClient<any>('/api/certificates', {
+        method: 'POST',
+        body: JSON.stringify({
+          templateId: selectedTemplate.id || selectedTemplate._id,
+          certificateNumber: certNumber,
+          slug,
+          recipientName: recipientName.trim(),
+          recipientEmail: recipientEmail.trim() || null,
+          courseName: courseName.trim() || null,
+          trainingName: trainingName.trim() || null,
+          companyName: companyName.trim() || null,
+          score: score.trim() || null,
+          durationText: durationText.trim() || null,
+          issuerName: issuerName.trim() || "TRUSTIFICATE",
+          issuerTitle: issuerTitle.trim() || null,
+          issueDate,
+          completionDate: completionDate || null,
+          organizationId: profile.organization_id,
+          createdBy: user?.id,
+          status: isDraft ? "draft" : "issued",
+          metadataJson: { template_snapshot: buildTemplateSnapshot(selectedTemplate) },
+        }),
       });
-      await incrementUsage("certificates_created");
-    }
 
-    setGeneratedCert(certData);
-    setSaving(false);
+      if (!isDraft) {
+        await refreshUsage();
+      }
 
-    if (isDraft) {
-      toast.success("Draft saved!");
-      navigate("/documents");
-    } else {
-      setStep(4);
-      toast.success(`Document ${certNumber} generated!`);
+      setGeneratedCert(certData);
+      setSaving(false);
+
+      if (isDraft) {
+        toast.success("Draft saved!");
+        navigate("/documents");
+      } else {
+        setStep(4);
+        toast.success(`Document ${certNumber} generated!`);
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to create certificate");
+      setSaving(false);
     }
   };
 
   const handleGenerate = () => handleSaveOrGenerate(false);
   const handleSaveDraft = () => handleSaveOrGenerate(true);
 
-  const theme = (selectedTemplate?.color_theme as any) || {};
-  const bgStyle = (selectedTemplate?.background_style as any) || {};
-  const sigConfig = (selectedTemplate?.signature_config as any) || {};
+  const theme = (selectedTemplate?.configuration?.color_theme as any) || {};
+  const bgStyle = (selectedTemplate?.configuration?.background_style as any) || {};
+  const sigConfig = (selectedTemplate?.configuration?.signature_config as any) || {};
 
   const steps = [
     { num: 1, label: "Select Template" },
@@ -247,13 +232,14 @@ export default function DocumentNewPage() {
               ) : (
                 <div className="grid gap-3 sm:grid-cols-2">
                   {templates.map((t) => {
-                    const tTheme = (t.color_theme as any) || {};
+                    const tTheme = (t.configuration?.color_theme as any) || {};
+                    const tId = t.id || t._id;
                     return (
                       <div
-                        key={t.id}
-                        onClick={() => handleTemplateChange(t.id)}
+                        key={tId}
+                        onClick={() => handleTemplateChange(tId)}
                         className={`cursor-pointer rounded-lg border-2 p-4 transition-colors ${
-                          selectedTemplate?.id === t.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"
+                          (selectedTemplate?.id || selectedTemplate?._id) === tId ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -261,11 +247,11 @@ export default function DocumentNewPage() {
                             className="flex h-9 w-9 items-center justify-center rounded-lg text-white font-bold text-xs"
                             style={{ backgroundColor: tTheme.primary || "hsl(192,85%,22%)" }}
                           >
-                            {t.number_prefix?.charAt(0) || "C"}
+                            {(t.numberPrefix || t.number_prefix)?.charAt(0) || "C"}
                           </div>
                           <div>
                             <p className="font-medium text-sm">{t.title}</p>
-                            <p className="text-xs text-muted-foreground">{t.number_prefix} Â· {t.layout}</p>
+                            <p className="text-xs text-muted-foreground">{t.numberPrefix || t.number_prefix} · {t.layout}</p>
                           </div>
                         </div>
                       </div>
@@ -362,14 +348,14 @@ export default function DocumentNewPage() {
                       issueDate: new Date(issueDate).toLocaleDateString(),
                       completionDate: completionDate ? new Date(completionDate).toLocaleDateString() : undefined,
                       durationText, issuerName: issuerName || "TRUSTIFICATE", issuerTitle,
-                      certificateNumber: `${selectedTemplate.number_prefix}-XXXX-XXXXXX`,
+                      certificateNumber: `${selectedTemplate.numberPrefix || selectedTemplate.number_prefix || "CERT"}-XXXX-XXXXXX`,
                       templateTitle: selectedTemplate.title,
-                      templateSubtitle: selectedTemplate.subtitle,
-                      bodyText: selectedTemplate.body_text,
+                      templateSubtitle: selectedTemplate.configuration?.subtitle,
+                      bodyText: selectedTemplate.configuration?.body_text || "",
                       colorTheme: theme,
                       backgroundPattern: bgStyle.pattern,
                       signatureImageUrl: sigConfig.signature_image_url,
-                      sealImageUrl: ((selectedTemplate?.seal_config as any) || {}).seal_image_url,
+                      sealImageUrl: ((selectedTemplate?.configuration?.seal_config as any) || {}).seal_image_url,
                       showCertNumber: sigConfig.show_cert_number !== false,
                       layout: selectedTemplate.layout,
                     }}

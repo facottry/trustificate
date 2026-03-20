@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const templateController = require('./template.controller');
 const { protect } = require('../../middlewares/auth.middleware');
+const { enforcePlanLimit } = require('../../middlewares/planEnforcement.middleware');
 // const multer = require('multer');
 // const upload = multer({ dest: 'uploads/' });
 
@@ -21,7 +22,7 @@ const { protect } = require('../../middlewares/auth.middleware');
  *     security:
  *       - bearerAuth: []
  */
-router.post('/', protect, templateController.createTemplate);
+router.post('/', protect, enforcePlanLimit('templates_created'), templateController.createTemplate);
 
 /**
  * @swagger

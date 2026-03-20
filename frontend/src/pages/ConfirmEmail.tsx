@@ -30,14 +30,17 @@ export default function ConfirmEmailPage() {
           method: "GET",
         });
 
-        if (response.success && response.data?.token) {
-          // Store the token received from email confirmation
-          setAuthToken(response.data.token);
-          // Clean up stored verification email
+        if (response.success) {
+          // Store the JWT if returned
+          if (response.data?.token) {
+            setAuthToken(response.data.token);
+          }
           localStorage.removeItem('TRUSTIFICATE:pendingVerificationEmail');
           setVerified(true);
-          toast.success("Email verified successfully! Redirecting to dashboard...");
-          setTimeout(() => navigate("/dashboard"), 3000);
+          toast.success("Email verified successfully! Redirecting...");
+          setTimeout(() => navigate("/"), 2500);
+        } else {
+          setError("Verification failed. Please try again.");
         }
       } catch (error: any) {
         const errorMessage = error?.message || "Failed to verify email";
@@ -93,11 +96,11 @@ export default function ConfirmEmailPage() {
                     Your email has been verified and your account is fully activated!
                   </p>
                 </div>
-                <Button onClick={() => navigate("/dashboard")} className="w-full">
-                  Go to Dashboard
-                </Button>
-                <Button onClick={() => navigate("/")} variant="outline" className="w-full">
-                  Back to Home
+                <p className="text-xs text-muted-foreground text-center">
+                  Redirecting to home page...
+                </p>
+                <Button onClick={() => navigate("/")} className="w-full">
+                  Go to Home
                 </Button>
               </CardContent>
             </>

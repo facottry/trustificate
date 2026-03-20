@@ -11,11 +11,11 @@ import {
 
 const benefits = [
   { icon: Clock, title: "Instant Results", desc: "Verification completes in under 3 seconds. No waiting, no phone calls, no manual checks." },
-  { icon: Globe, title: "No Account Required", desc: "Anyone â€” employers, universities, regulators â€” can verify a credential without creating an account." },
+  { icon: Globe, title: "No Account Required", desc: "Anyone employers, universities, regulators can verify a credential without creating an account." },
   { icon: QrCode, title: "QR Code Scanning", desc: "Scan the QR code on any TRUSTIFICATE certificate to instantly open its verification page." },
   { icon: Shield, title: "Tamper-Proof", desc: "Cryptographic identifiers make forgery impossible. If it's been altered, verification will fail." },
   { icon: Lock, title: "Revocation Aware", desc: "If a certificate has been revoked, the verification page shows it immediately. No stale data." },
-  { icon: FileText, title: "Full Details", desc: "Verification shows recipient name, course, issuer, date, and status â€” everything needed for due diligence." },
+  { icon: FileText, title: "Full Details", desc: "Verification shows recipient name, course, issuer, date, and status everything needed for due diligence." },
 ];
 
 const audiences = [
@@ -30,7 +30,7 @@ export default function VerifyCertificateOnlinePage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Verify Certificate Online â€” Instant Credential Authentication | TRUSTIFICATE";
+    document.title = "Verify Certificate Online Instant Credential Authentication | TRUSTIFICATE";
     const meta = document.querySelector('meta[name="description"]');
     if (meta) meta.setAttribute("content", "Verify any certificate online in seconds. Enter a certificate number or scan a QR code to instantly authenticate credentials. Free, no account needed.");
   }, []);
@@ -59,7 +59,7 @@ export default function VerifyCertificateOnlinePage() {
         <div className="container relative">
           <div className="mx-auto max-w-3xl text-center">
             <Badge variant="secondary" className="mb-6 text-xs border border-primary/20 bg-primary/5 text-primary">
-              ðŸ” Free Â· No account needed Â· Instant results
+              ðŸ” Free · No account needed · Instant results
             </Badge>
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-foreground leading-[1.1] mb-6">
               Verify Any Certificate
@@ -92,7 +92,7 @@ export default function VerifyCertificateOnlinePage() {
             {[
               { num: "1", title: "Enter or Scan", desc: "Type the certificate number into the search box, or scan the QR code with your phone camera." },
               { num: "2", title: "Instant Lookup", desc: "We check the credential against our cryptographic registry in real time." },
-              { num: "3", title: "See Full Details", desc: "View recipient, issuer, date, status, and whether it's been revoked â€” all instantly." },
+              { num: "3", title: "See Full Details", desc: "View recipient, issuer, date, status, and whether it's been revoked all instantly." },
             ].map((s) => (
               <div key={s.num} className="text-center">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-bold mx-auto mb-4 shadow-md shadow-primary/20">
@@ -157,7 +157,7 @@ export default function VerifyCertificateOnlinePage() {
               Start Issuing Free <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
             <Button size="lg" variant="outline" onClick={() => navigate("/certificate-generator")} className="h-12 px-8 text-base">
-              Certificate Generator â†’
+              Certificate Generator →
             </Button>
           </div>
         </div>

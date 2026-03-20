@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,16 +7,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { usePlanGuard } from "@/hooks/usePlanGuard";
+import { apiClient } from "@/lib/apiClient";
 import { toast } from "sonner";
-import { Shield, Building2, User, Save, KeyRound, Users, Receipt, Download } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Shield, Building2, User, Save, KeyRound, Users, CreditCard, Zap } from "lucide-react";
 import { PasswordInput } from "@/components/PasswordInput";
+
+function getNextPlan(current?: string): string {
+  const lower = current?.toLowerCase();
+  if (!lower || lower === "free") return "starter";
+  if (lower === "starter") return "pro";
+  return "enterprise";
+}
 
 export default function SettingsPage() {
   const { profile, user } = useAuth();
+  const navigate = useNavigate();
+  const { orgUsage, loading: usageLoading } = usePlanGuard();
   const [displayName, setDisplayName] = useState(profile?.display_name || "");
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || "");
   const [saving, setSaving] = useState(false);
@@ -25,10 +36,6 @@ export default function SettingsPage() {
   const [orgLogo, setOrgLogo] = useState("");
   const [savingOrg, setSavingOrg] = useState(false);
   const [members, setMembers] = useState<any[]>([]);
-
-  // Orders
-  const [orders, setOrders] = useState<any[]>([]);
-  const [ordersLoading, setOrdersLoading] = useState(true);
 
   // Password
   const [newPassword, setNewPassword] = useState("");
@@ -43,58 +50,62 @@ export default function SettingsPage() {
   }, [profile]);
 
   useEffect(() => {
-    if (!profile?.organization_id) return;
+    if (!user?.organizationId) return;
     // Fetch org details
-    supabase
-      .from("organizations")
-      .select("name, logo_url")
-      .eq("id", profile.organization_id)
-      .single()
+    apiClient<any>(`/api/organizations/${user.organizationId}`)
       .then(({ data }) => {
         if (data) {
           setOrgName(data.name || "");
-          setOrgLogo(data.logo_url || "");
+          setOrgLogo(data.logoUrl || "");
         }
-      });
-    // Fetch members
-    supabase
-      .from("organization_members")
-      .select("id, role, created_at, user_id")
-      .eq("organization_id", profile.organization_id)
-      .order("created_at")
-      .then(({ data }) => setMembers(data || []));
-    // Fetch orders
-    supabase
-      .from("orders")
-      .select("*")
-      .eq("organization_id", profile.organization_id)
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        setOrders(data || []);
-        setOrdersLoading(false);
-      });
-  }, [profile?.organization_id]);
+      })
+      .catch(() => {});
+  }, [user?.organizationId]);
 
   const handleSaveProfile = async () => {
-    if (!profile) return;
+    if (!user) return;
     setSaving(true);
-    const { error } = await supabase
-      .from("profiles")
-      .update({ display_name: displayName.trim() || null, avatar_url: avatarUrl.trim() || null })
-      .eq("user_id", user!.id);
+    try {
+      await apiClient(`/api/users/${user.id}`, {
+        method: "PUT",
+        body: JSON.stringify({ displayName: displayName.trim(), avatarUrl: avatarUrl.trim() || null }),
+      });
+      toast.success("Profile updated!");
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to save profile");
+    }
     setSaving(false);
-    error ? toast.error(error.message) : toast.success("Profile updated!");
   };
 
   const handleSaveOrg = async () => {
-    if (!profile?.organization_id) return;
+    if (!orgName.trim()) {
+      toast.error("Organization name is required");
+      return;
+    }
     setSavingOrg(true);
-    const { error } = await supabase
-      .from("organizations")
-      .update({ name: orgName.trim(), logo_url: orgLogo.trim() || null })
-      .eq("id", profile.organization_id);
+    try {
+      if (user?.organizationId) {
+        // Update existing organization
+        await apiClient(`/api/organizations/${user.organizationId}`, {
+          method: "PUT",
+          body: JSON.stringify({ name: orgName.trim(), logoUrl: orgLogo.trim() || null }),
+        });
+        toast.success("Organization updated!");
+      } else {
+        // Create new organization
+        const slug = orgName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        await apiClient(`/api/organizations`, {
+          method: "POST",
+          body: JSON.stringify({ name: orgName.trim(), slug, logoUrl: orgLogo.trim() || null }),
+        });
+        toast.success("Organization created!");
+        // Refresh auth to pick up the new organizationId
+        window.location.reload();
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to save organization");
+    }
     setSavingOrg(false);
-    error ? toast.error(error.message) : toast.success("Organization updated!");
   };
 
   const handleChangePassword = async (e: React.FormEvent) => {
@@ -102,13 +113,18 @@ export default function SettingsPage() {
     if (newPassword.length < 6) { toast.error("Min 6 characters"); return; }
     if (newPassword !== confirmPassword) { toast.error("Passwords do not match"); return; }
     setChangingPw(true);
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
-    setChangingPw(false);
-    if (error) { toast.error(error.message); } else {
+    try {
+      await apiClient(`/api/users/change-password`, {
+        method: "PUT",
+        body: JSON.stringify({ newPassword }),
+      });
       toast.success("Password changed!");
       setNewPassword("");
       setConfirmPassword("");
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to change password");
     }
+    setChangingPw(false);
   };
 
   const initials = displayName
@@ -175,10 +191,15 @@ export default function SettingsPage() {
             <CardDescription>Manage your organization details</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {!user?.organizationId && (
+              <p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-3">
+                You don't have an organization yet. Create one to start issuing certificates.
+              </p>
+            )}
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>Organization Name</Label>
-                <Input value={orgName} onChange={(e) => setOrgName(e.target.value)} />
+                <Input value={orgName} onChange={(e) => setOrgName(e.target.value)} placeholder="My Organization" />
               </div>
               <div className="space-y-2">
                 <Label>Logo URL</Label>
@@ -187,10 +208,99 @@ export default function SettingsPage() {
             </div>
             <Button onClick={handleSaveOrg} disabled={savingOrg} size="sm">
               <Save className="mr-1.5 h-3.5 w-3.5" />
-              {savingOrg ? "Saving..." : "Save Organization"}
+              {savingOrg ? "Saving..." : user?.organizationId ? "Save Organization" : "Create Organization"}
             </Button>
           </CardContent>
         </Card>
+
+        {/* Plan & Billing */}
+        {user?.organizationId && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <CreditCard className="h-4 w-4" /> Plan & Billing
+              </CardTitle>
+              <CardDescription>Your current plan and usage</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {usageLoading || !orgUsage ? (
+                <p className="text-sm text-muted-foreground">Loading plan details…</p>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="capitalize">{orgUsage.plan_name}</Badge>
+                      {orgUsage.billing_cycle_end && (
+                        <span className="text-sm text-muted-foreground">
+                          Renews {new Date(orgUsage.billing_cycle_end).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
+                        </span>
+                      )}
+                    </div>
+                    <Button size="sm" onClick={() => navigate(`/checkout?plan=${getNextPlan(orgUsage.plan_name)}`)}>
+                      <Zap className="mr-1.5 h-3.5 w-3.5" />
+                      Upgrade Plan
+                    </Button>
+                  </div>
+
+                  <Separator />
+
+                  {/* Certificates usage */}
+                  {orgUsage.limits.certificates_created === -1 ? (
+                    <div className="flex justify-between text-sm">
+                      <span>Certificates</span>
+                      <span className="text-muted-foreground">{orgUsage.usage.certificates_created ?? 0} used · Unlimited</span>
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between text-sm">
+                        <span>Certificates</span>
+                        <span className="text-muted-foreground">
+                          {orgUsage.usage.certificates_created ?? 0} / {orgUsage.limits.certificates_created}
+                        </span>
+                      </div>
+                      <Progress
+                        value={orgUsage.limits.certificates_created > 0
+                          ? Math.min(Math.round(((orgUsage.usage.certificates_created ?? 0) / orgUsage.limits.certificates_created) * 100), 100)
+                          : 0}
+                        className="h-2"
+                      />
+                    </div>
+                  )}
+
+                  {/* Templates usage */}
+                  {orgUsage.limits.templates_created === -1 ? (
+                    <div className="flex justify-between text-sm">
+                      <span>Templates</span>
+                      <span className="text-muted-foreground">{orgUsage.usage.templates_created ?? 0} used · Unlimited</span>
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between text-sm">
+                        <span>Templates</span>
+                        <span className="text-muted-foreground">
+                          {orgUsage.usage.templates_created ?? 0} / {orgUsage.limits.templates_created}
+                        </span>
+                      </div>
+                      <Progress
+                        value={orgUsage.limits.templates_created > 0
+                          ? Math.min(Math.round(((orgUsage.usage.templates_created ?? 0) / orgUsage.limits.templates_created) * 100), 100)
+                          : 0}
+                        className="h-2"
+                      />
+                    </div>
+                  )}
+
+                  {/* Free plan promotional banner */}
+                  {orgUsage.plan_name?.toLowerCase() === "free" && (
+                    <div className="rounded-md border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+                      🎉 Use code <span className="font-semibold">FREE_100</span> to unlock Starter features for free!
+                    </div>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Team Members */}
         <Card>
@@ -214,97 +324,24 @@ export default function SettingsPage() {
                 </TableHeader>
                 <TableBody>
                   {members.map((m) => (
-                    <TableRow key={m.id}>
+                    <TableRow key={m.id || m._id}>
                       <TableCell className="font-mono text-xs">
-                        {m.user_id === user?.id ? (
+                        {(m.userId || m.user_id) === user?.id ? (
                           <span className="text-primary">You</span>
                         ) : (
-                          m.user_id.slice(0, 8) + "..."
+                          (m.userId || m.user_id || "").toString().slice(0, 8) + "..."
                         )}
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline" className="text-xs capitalize">{m.role}</Badge>
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
-                        {new Date(m.created_at).toLocaleDateString()}
+                        {m.createdAt ? new Date(m.createdAt).toLocaleDateString() : "—"}
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Order History */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Receipt className="h-4 w-4" /> Order History
-            </CardTitle>
-            <CardDescription>Your past transactions and receipts</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {ordersLoading ? (
-              <div className="space-y-3">
-                {[...Array(3)].map((_, i) => (
-                  <Skeleton key={i} className="h-10 w-full" />
-                ))}
-              </div>
-            ) : orders.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No transactions yet. Orders will appear here after you subscribe to a plan.</p>
-            ) : (
-              <div className="overflow-x-auto -mx-6 px-6">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="text-xs">Order ID</TableHead>
-                      <TableHead className="text-xs">Plan</TableHead>
-                      <TableHead className="text-xs hidden sm:table-cell">Original</TableHead>
-                      <TableHead className="text-xs hidden sm:table-cell">Coupon</TableHead>
-                      <TableHead className="text-xs">Total</TableHead>
-                      <TableHead className="text-xs">Status</TableHead>
-                      <TableHead className="text-xs hidden sm:table-cell">Date</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {orders.map((order) => (
-                      <TableRow key={order.id}>
-                        <TableCell className="font-mono text-xs">
-                          {order.id.slice(0, 8).toUpperCase()}
-                        </TableCell>
-                        <TableCell className="text-sm font-medium">{order.plan_name}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground hidden sm:table-cell line-through">
-                          ₹{order.original_price?.toLocaleString("en-IN")}
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell">
-                          {order.coupon_code ? (
-                            <Badge variant="outline" className="text-[10px] font-mono">
-                              {order.coupon_code}
-                            </Badge>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-sm font-semibold">
-                          ₹{order.final_amount?.toLocaleString("en-IN")}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={order.status === "completed" ? "default" : "secondary"}
-                            className="text-[10px]"
-                          >
-                            {order.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-xs text-muted-foreground hidden sm:table-cell">
-                          {new Date(order.created_at).toLocaleDateString()}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
             )}
           </CardContent>
         </Card>

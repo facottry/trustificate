@@ -61,7 +61,7 @@ export function AppSidebar() {
         <div className="flex items-center gap-2">
           {collapsed ? (
             <div className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded bg-primary text-primary-foreground font-semibold text-xs">
-              D
+              TfT
               <MascotInline className="absolute -bottom-1 -right-1.5 h-3.5 w-3.5" />
             </div>
           ) : (

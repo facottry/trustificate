@@ -188,6 +188,7 @@ const verifyEmailLink = async (token) => {
   // Create default organization if user doesn't have one
   if (!user.organizationId) {
     const Organization = require('../organization/organization.schema');
+    const Role = require('../role/role.schema');
     const orgName = `${user.displayName}'s Organization`;
     const slug = `org-${user._id.toString().slice(-8)}`.toLowerCase();
     
@@ -196,7 +197,11 @@ const verifyEmailLink = async (token) => {
       slug: slug,
     });
     
+    // Grant admin role so settings/update operations work
+    await Role.create({ userId: user._id, organizationId: organization._id, role: 'admin' });
+    
     user.organizationId = organization._id;
+    user.role = 'admin';
   }
 
   await user.save();
@@ -230,8 +235,8 @@ const resendVerificationLink = async (email) => {
   };
 };
 
-const checkEmailVerificationStatus = async (userId) => {
-  const user = await User.findById(userId);
+const checkEmailVerificationStatusByEmail = async (email) => {
+  const user = await User.findOne({ email: email.toLowerCase() });
   if (!user) throw new AppError('User not found', 404);
 
   return {
@@ -317,4 +322,4 @@ const resetPasswordOtp = async (email, otp, newPassword) => {
   await user.save();
 };
 
-module.exports = { register, login, getAuthUser, forgotPassword, loginWithOtp, resetPassword, verifyEmailLink, resendVerificationLink, checkEmailVerificationStatus, sendVerificationOtp, verifyEmailOtp, forgotPasswordOtp, resetPasswordOtp };
+module.exports = { register, login, getAuthUser, forgotPassword, loginWithOtp, resetPassword, verifyEmailLink, resendVerificationLink, checkEmailVerificationStatusByEmail, sendVerificationOtp, verifyEmailOtp, forgotPasswordOtp, resetPasswordOtp };

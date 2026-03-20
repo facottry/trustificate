@@ -7,40 +7,46 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle2, Tag, ShieldCheck, ArrowLeft, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { pricingTiers } from "@/data/siteData";
 
 export default function Checkout() {
   const [searchParams] = useSearchParams();
-  const planSlug = searchParams.get("plan") || "starter";
+  const planSlug = searchParams.get("plan");
   const navigate = useNavigate();
   const { user, profile } = useAuth();
 
-  const tier = pricingTiers.find((t) => t.name.toLowerCase() === planSlug);
+  const tier = planSlug ? pricingTiers.find((t) => t.name.toLowerCase() === planSlug) : null;
 
-  const [couponCode, setCouponCode] = useState("FREE_100");
+  const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [couponError, setCouponError] = useState("");
   const [validating, setValidating] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
-  const [orderId, setOrderId] = useState("");
+  const [orderData, setOrderData] = useState<any>(null);
 
   const originalPrice = (tier as any)?.originalPriceValue || 0;
-  const planDiscount = 50;
   const discountedPrice = (tier as any)?.priceValue || 0;
   const couponAmount = couponApplied ? Math.round(discountedPrice * (couponDiscount / 100)) : 0;
   const finalAmount = discountedPrice - couponAmount;
 
-  // Auto-apply coupon on mount
+  // Pre-fill FREE_100 coupon for starter plan and auto-apply
   useEffect(() => {
-    if (couponCode === "FREE_100" && !couponApplied) {
+    if (tier && tier.name.toLowerCase() === "starter") {
+      setCouponCode("FREE_100");
+    }
+  }, [tier]);
+
+  useEffect(() => {
+    if (couponCode === "FREE_100" && !couponApplied && tier) {
       handleApplyCoupon();
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [couponCode]);
 
   async function handleApplyCoupon() {
     if (!couponCode.trim()) return;
@@ -48,16 +54,18 @@ export default function Checkout() {
     setCouponError("");
 
     try {
-      const { data, error } = await supabase.rpc("apply_coupon", { _code: couponCode.trim() });
-      if (error) throw error;
+      const res = await apiClient<{ valid: boolean; discount_percent?: number; code?: string; error?: string }>(
+        "/api/coupons/validate",
+        { method: "POST", body: JSON.stringify({ code: couponCode.trim() }) }
+      );
 
-      const result = data as any;
-      if (result.valid) {
+      const result = res.data;
+      if (result?.valid) {
         setCouponApplied(true);
-        setCouponDiscount(result.discount_percent);
+        setCouponDiscount(result.discount_percent || 0);
         toast.success(`Coupon ${result.code} applied — ${result.discount_percent}% off!`);
       } else {
-        setCouponError(result.error);
+        setCouponError(result?.error || "Invalid coupon");
         setCouponApplied(false);
       }
     } catch (err: any) {
@@ -68,7 +76,8 @@ export default function Checkout() {
   }
 
   async function handleCompleteOrder() {
-    if (!user || !profile?.organization_id || !tier) {
+    const orgId = user?.organizationId || profile?.organization_id;
+    if (!user || !orgId || !tier) {
       toast.error("Please log in to complete your purchase.");
       navigate("/login");
       return;
@@ -76,75 +85,18 @@ export default function Checkout() {
 
     setProcessing(true);
     try {
-      // Find plan ID from database
-      const { data: planData } = await supabase
-        .from("plans")
-        .select("id")
-        .eq("name", tier.name === "Pro" ? "Professional" : tier.name)
-        .single();
-
-      if (!planData) {
-        // Try exact name match
-        const { data: planData2 } = await supabase
-          .from("plans")
-          .select("id")
-          .eq("name", tier.name)
-          .single();
-        
-        if (!planData2) {
-          toast.error("Plan not found. Please contact support.");
-          setProcessing(false);
-          return;
+      const res = await apiClient<any>(
+        `/api/organizations/${orgId}/plan`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            plan: tier.name.toLowerCase(),
+            couponCode: couponApplied ? couponCode.toUpperCase() : undefined,
+          }),
         }
-        
-        var planId = planData2.id;
-      } else {
-        var planId = planData.id;
-      }
+      );
 
-      // Create order record
-      const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .insert({
-          organization_id: profile.organization_id,
-          user_id: user.id,
-          plan_id: planId,
-          plan_name: tier.name,
-          original_price: originalPrice,
-          discount_percent: planDiscount,
-          discounted_price: discountedPrice,
-          coupon_code: couponApplied ? couponCode.toUpperCase() : null,
-          coupon_discount_percent: couponApplied ? couponDiscount : 0,
-          final_amount: finalAmount,
-          currency: "INR",
-          status: "completed",
-          payment_method: finalAmount === 0 ? "coupon" : "pending",
-          metadata_json: {
-            checkout_timestamp: new Date().toISOString(),
-            plan_features: tier.features,
-            auto_coupon: couponCode === "FREE_100",
-          },
-        })
-        .select("id")
-        .single();
-
-      if (orderError) throw orderError;
-
-      // Update subscription to new plan
-      const { error: subError } = await supabase
-        .from("subscriptions")
-        .update({
-          plan_id: planId,
-          status: "active",
-          billing_cycle_start: new Date().toISOString().split("T")[0],
-          billing_cycle_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-          updated_at: new Date().toISOString(),
-        })
-        .eq("organization_id", profile.organization_id);
-
-      if (subError) throw subError;
-
-      setOrderId(order.id);
+      setOrderData(res.data);
       setOrderComplete(true);
       toast.success("Order completed successfully!");
     } catch (err: any) {
@@ -154,12 +106,17 @@ export default function Checkout() {
     }
   }
 
-  if (!tier || tier.name === "Free" || tier.name === "Enterprise") {
+  // Redirect if plan param is missing or invalid
+  if (!planSlug || !tier || tier.name === "Free" || tier.name === "Enterprise") {
     navigate("/pricing");
     return null;
   }
 
   if (orderComplete) {
+    const displayOrderId = orderData?._id
+      ? String(orderData._id).slice(0, 8).toUpperCase()
+      : "—";
+
     return (
       <PublicLayout>
         <section className="py-20 lg:py-28">
@@ -173,7 +130,7 @@ export default function Checkout() {
                 Your <span className="font-semibold text-foreground">{tier.name}</span> plan is now active.
               </p>
               <p className="text-xs text-muted-foreground mb-6 font-mono">
-                Order ID: {orderId.slice(0, 8).toUpperCase()}
+                Order ID: {displayOrderId}
               </p>
 
               <Card className="text-left mb-6">
@@ -281,6 +238,9 @@ export default function Checkout() {
                   {couponError && <p className="text-xs text-destructive">{couponError}</p>}
                   {couponApplied && (
                     <p className="text-xs text-green-600">🎉 {couponDiscount}% off applied with {couponCode}</p>
+                  )}
+                  {tier.name.toLowerCase() === "starter" && !couponApplied && !couponError && (
+                    <p className="text-xs text-muted-foreground">💡 Tip: Use coupon <span className="font-mono font-semibold">FREE_100</span> to get this plan for free!</p>
                   )}
                 </div>
 

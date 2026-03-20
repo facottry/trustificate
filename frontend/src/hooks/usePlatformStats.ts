@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/apiClient";
 
 interface PlatformStats {
   credentialsIssued: number;
@@ -20,17 +20,21 @@ export function usePlatformStats(): PlatformStats {
 
   useEffect(() => {
     async function fetchStats() {
-      const { data, error } = await supabase.rpc("get_platform_stats" as any);
-      if (!error && data) {
-        const d = data as any;
-        setStats({
-          credentialsIssued: d.credentials_issued ?? 0,
-          organizations: d.organizations ?? 0,
-          verifications: d.verifications ?? 0,
-          templates: d.templates ?? 0,
-          loading: false,
-        });
-      } else {
+      try {
+        const { data } = await apiClient<any>("/api/admin/platform-stats");
+        if (data) {
+          setStats({
+            credentialsIssued: data.credentialsIssued ?? data.credentials_issued ?? 0,
+            organizations: data.organizations ?? 0,
+            verifications: data.verifications ?? 0,
+            templates: data.templates ?? 0,
+            loading: false,
+          });
+        } else {
+          setStats((s) => ({ ...s, loading: false }));
+        }
+      } catch {
+        // Graceful fallback
         setStats((s) => ({ ...s, loading: false }));
       }
     }

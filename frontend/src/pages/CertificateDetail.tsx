@@ -9,8 +9,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { CertificateRenderer } from "@/components/CertificateRenderer";
 import { generatePDF, generatePNG } from "@/lib/pdf-generator";
 import { getTemplateFromCertificate } from "@/lib/certificate-snapshot";
-import { ArrowLeft, Download, ExternalLink, Ban, Clock, Image } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { ArrowLeft, Download, ExternalLink, Ban, Clock, Image, Trash2 } from "lucide-react";
+import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
@@ -27,57 +27,59 @@ export default function CertificateDetailPage() {
   useEffect(() => {
     if (!id) return;
     async function fetch() {
-      const { data: c } = await supabase
-        .from("certificates")
-        .select("*, certificate_templates(*)")
-        .eq("id", id)
-        .single();
-      if (!c) {
-        toast.error("Certificate not found");
-        navigate("/certificates");
-        return;
+      try {
+        const { data: c } = await apiClient<any>(`/api/certificates/${id}`);
+        if (!c) {
+          toast.error("Certificate not found");
+          navigate("/documents");
+          return;
+        }
+        setCert(c);
+        setTemplate(getTemplateFromCertificate(c));
+        setEvents([]);
+      } catch {
+        toast.error("Failed to load certificate");
+        navigate("/documents");
+      } finally {
+        setLoading(false);
       }
-      setCert(c);
-      setTemplate(getTemplateFromCertificate(c));
-
-      const { data: evts } = await supabase
-        .from("certificate_events")
-        .select("*")
-        .eq("certificate_id", id)
-        .order("created_at", { ascending: false });
-      setEvents(evts || []);
-      setLoading(false);
     }
     fetch();
   }, [id]);
 
   const handleRevoke = async () => {
     if (!cert) return;
-    const { error } = await supabase
-      .from("certificates")
-      .update({ status: "revoked" })
-      .eq("id", cert.id);
-    if (error) {
-      toast.error(error.message);
-      return;
+    try {
+      await apiClient(`/api/certificates/${cert._id || cert.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: 'revoked' }),
+      });
+      setCert({ ...cert, status: "revoked" });
+      toast.success("Certificate revoked");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to revoke");
     }
-    await supabase.from("certificate_events").insert({
-      certificate_id: cert.id,
-      event_type: "revoked",
-      actor_id: user?.id,
-    });
-    setCert({ ...cert, status: "revoked" });
-    toast.success("Certificate revoked");
+  };
+
+  const handleDelete = async () => {
+    if (!cert) return;
+    try {
+      await apiClient(`/api/certificates/${cert._id || cert.id}`, { method: 'DELETE' });
+      toast.success("Certificate deleted");
+      navigate("/documents");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete");
+    }
   };
 
   const handleDownload = async () => {
     if (!certRef.current) return;
-    await generatePDF(certRef.current, `${cert.certificate_number}.pdf`);
+    await generatePDF(certRef.current, `${cert.certificateNumber}.pdf`);
   };
 
   const handleDownloadPNG = async () => {
     if (!certRef.current) return;
-    await generatePNG(certRef.current, `${cert.certificate_number}.png`);
+    await generatePNG(certRef.current, `${cert.certificateNumber}.png`);
   };
 
   if (loading) {
@@ -100,17 +102,17 @@ export default function CertificateDetailPage() {
       <div className="space-y-6 animate-fade-in">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/certificates")}>
+            <Button variant="ghost" size="icon" onClick={() => navigate("/documents")}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold font-mono">{cert.certificate_number}</h1>
+                <h1 className="text-2xl font-bold font-mono">{cert.certificateNumber}</h1>
                 <Badge variant={cert.status === "issued" ? "default" : "destructive"}>
                   {cert.status}
                 </Badge>
               </div>
-              <p className="text-muted-foreground">{cert.recipient_name}</p>
+              <p className="text-muted-foreground">{cert.recipientName}</p>
             </div>
           </div>
           <div className="flex gap-2">
@@ -150,6 +152,26 @@ export default function CertificateDetailPage() {
                 </AlertDialogContent>
               </AlertDialog>
             )}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm">
+                  <Trash2 className="mr-1.5 h-4 w-4" />
+                  Delete
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Certificate?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete certificate {cert.certificateNumber}. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
 
@@ -164,17 +186,17 @@ export default function CertificateDetailPage() {
                 <CertificateRenderer
                   ref={certRef}
                   data={{
-                    recipientName: cert.recipient_name,
-                    courseName: cert.course_name,
-                    trainingName: cert.training_name,
-                    companyName: cert.company_name,
+                    recipientName: cert.recipientName,
+                    courseName: cert.courseName,
+                    trainingName: cert.trainingName,
+                    companyName: cert.companyName,
                     score: cert.score,
-                    issueDate: new Date(cert.issue_date).toLocaleDateString(),
-                    completionDate: cert.completion_date ? new Date(cert.completion_date).toLocaleDateString() : undefined,
-                    durationText: cert.duration_text,
-                    issuerName: cert.issuer_name,
-                    issuerTitle: cert.issuer_title,
-                    certificateNumber: cert.certificate_number,
+                    issueDate: new Date(cert.issueDate).toLocaleDateString(),
+                    completionDate: cert.completionDate ? new Date(cert.completionDate).toLocaleDateString() : undefined,
+                    durationText: cert.durationText,
+                    issuerName: cert.issuerName,
+                    issuerTitle: cert.issuerTitle,
+                    certificateNumber: cert.certificateNumber,
                     templateTitle: template.title,
                     templateSubtitle: template.subtitle,
                     bodyText: template.body_text,
@@ -198,27 +220,27 @@ export default function CertificateDetailPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Recipient</span>
-                  <span className="font-medium">{cert.recipient_name}</span>
+                  <span className="font-medium">{cert.recipientName}</span>
                 </div>
-                {cert.recipient_email && (
+                {cert.recipientEmail && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Email</span>
-                    <span>{cert.recipient_email}</span>
+                    <span>{cert.recipientEmail}</span>
                   </div>
                 )}
-                {cert.course_name && (
+                {cert.courseName && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Course</span>
-                    <span>{cert.course_name}</span>
+                    <span>{cert.courseName}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Issue Date</span>
-                  <span>{new Date(cert.issue_date).toLocaleDateString()}</span>
+                  <span>{new Date(cert.issueDate).toLocaleDateString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Issuer</span>
-                  <span>{cert.issuer_name}</span>
+                  <span>{cert.issuerName}</span>
                 </div>
               </CardContent>
             </Card>

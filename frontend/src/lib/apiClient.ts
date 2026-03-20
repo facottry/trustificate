@@ -1,4 +1,4 @@
-﻿export type ApiResponse<T> = {
+export type ApiResponse<T> = {
   success: boolean;
   data?: T;
   message?: string;
@@ -24,7 +24,7 @@ export const setAuthToken = (token: string | null) => {
   else localStorage.removeItem(TOKEN_KEY);
 };
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://trustificate.onrender.com';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
 export const apiClient = async <T = any>(
   input: RequestInfo,
