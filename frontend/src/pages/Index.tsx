@@ -48,8 +48,8 @@ export default function LandingPage() {
       <LaunchMarquee />
       <AnnouncementModal />
       {/* Hero */}
-      <section className="relative py-24 lg:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/20 pointer-events-none" />
+      <section className="relative py-24 lg:py-32 overflow-hidden bg-brand-hero">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/30 pointer-events-none" />
         <div className="container relative">
           <div className="mx-auto max-w-3xl text-center">
             <Mascot mood="proud" size="xl" showMessage={false} className="mb-6" />

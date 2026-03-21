@@ -52,7 +52,7 @@ export default function Contact() {
 
   return (
     <PublicLayout>
-      <section className="py-20 lg:py-28">
+      <section className="py-20 lg:py-28 bg-brand-hero">
         <div className="container">
           <div className="mx-auto max-w-2xl text-center mb-16">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl mb-4">

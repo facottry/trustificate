@@ -26,7 +26,7 @@ export default function NewsletterDetail() {
 
   return (
     <PublicLayout>
-      <section className="py-20 lg:py-28">
+      <section className="py-20 lg:py-28 bg-brand-hero">
         <div className="container max-w-3xl">
           <Link to="/newsletter" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-8">
             <ArrowLeft className="h-4 w-4" /> Back to Newsletter Archive

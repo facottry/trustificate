@@ -110,7 +110,7 @@ export default function Checkout() {
   if (planSlug === "enterprise" || tier?.name === "Enterprise") {
     return (
       <PublicLayout>
-        <section className="py-20 lg:py-28">
+        <section className="py-20 lg:py-28 bg-brand-hero">
           <div className="container">
             <div className="mx-auto max-w-md text-center">
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-6">
@@ -165,7 +165,7 @@ export default function Checkout() {
 
     return (
       <PublicLayout>
-        <section className="py-20 lg:py-28">
+        <section className="py-20 lg:py-28 bg-brand-hero">
           <div className="container">
             <div className="mx-auto max-w-md text-center">
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30 mb-6">
@@ -220,7 +220,7 @@ export default function Checkout() {
 
   return (
     <PublicLayout>
-      <section className="py-20 lg:py-28">
+      <section className="py-20 lg:py-28 bg-brand-hero">
         <div className="container">
           <div className="mx-auto max-w-lg">
             <Button variant="ghost" size="sm" className="mb-6" onClick={() => navigate("/pricing")}>

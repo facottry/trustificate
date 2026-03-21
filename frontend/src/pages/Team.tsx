@@ -7,7 +7,7 @@ import { posts } from "@/data/blogPosts";
 export default function Team() {
   return (
     <PublicLayout>
-      <section className="py-20 lg:py-28">
+      <section className="py-20 lg:py-28 bg-brand-hero">
         <div className="container max-w-4xl">
           <div className="mb-12 text-center">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl mb-4">Our Team</h1>

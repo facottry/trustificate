@@ -14,7 +14,7 @@ export default function NewsletterConfirm() {
 
   return (
     <PublicLayout>
-      <section className="py-20 lg:py-28">
+      <section className="py-20 lg:py-28 bg-brand-hero">
         <div className="container max-w-lg text-center">
           {status === 'success' && (
             <>

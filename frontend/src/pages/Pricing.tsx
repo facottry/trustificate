@@ -10,7 +10,7 @@ export default function Pricing() {
 
   return (
     <PublicLayout>
-      <section className="py-20 lg:py-28">
+      <section className="py-20 lg:py-28 bg-brand-hero">
         <div className="container">
           <div className="mx-auto max-w-2xl text-center mb-16">
             <Badge variant="secondary" className="mb-4 border border-primary/20 bg-primary/5 text-primary text-xs">

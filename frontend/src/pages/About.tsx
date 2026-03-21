@@ -16,7 +16,7 @@ export default function About() {
   return (
     <PublicLayout>
       {/* Hero */}
-      <section className="py-20 lg:py-28">
+      <section className="py-20 lg:py-28 bg-brand-hero">
         <div className="container">
           <div className="mx-auto max-w-2xl text-center">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl mb-6">

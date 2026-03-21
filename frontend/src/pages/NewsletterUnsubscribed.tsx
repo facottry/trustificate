@@ -11,7 +11,7 @@ export default function NewsletterUnsubscribed() {
 
   return (
     <PublicLayout>
-      <section className="py-20 lg:py-28">
+      <section className="py-20 lg:py-28 bg-brand-hero">
         <div className="container max-w-lg text-center">
           <MailX className="h-16 w-16 text-muted-foreground mx-auto mb-6" />
           <h1 className="text-3xl font-bold mb-4">You've been unsubscribed</h1>
