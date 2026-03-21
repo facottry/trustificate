@@ -4,6 +4,7 @@ const { seedSystemTemplates } = require('../modules/template/template.seed');
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
+      dbName: 'trustificate',
       maxPoolSize: 10,
       minPoolSize: 5,
       socketTimeoutMS: 45000,
