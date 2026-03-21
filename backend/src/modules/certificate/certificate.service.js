@@ -144,7 +144,12 @@ const getCertificateById = async (id) => {
 };
 
 const getCertificateBySlug = async (slug) => {
-  const cert = await Certificate.findOne({ slug }).populate('templateId').lean();
+  // Primary: find by slug field
+  let cert = await Certificate.findOne({ slug }).populate('templateId').lean();
+  if (!cert) {
+    // Fallback: slug is the lowercase cert number, try case-insensitive match on certificateNumber
+    cert = await Certificate.findOne({ certificateNumber: new RegExp(`^${slug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') }).populate('templateId').lean();
+  }
   if (!cert) throw new AppError('Certificate not found', 404);
   return cert;
 };
