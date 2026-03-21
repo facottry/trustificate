@@ -5,6 +5,8 @@ const Event = require('../event/event.schema');
 const { AppError } = require('../../middlewares/error.middleware');
 const usageService = require('../usage/usage.service');
 const { ensureBillingCycle } = require('../organization/organization.service');
+const { sendCertificateReceiverEmail, sendCertificateIssuerEmail } = require('../../services/emailService');
+const User = require('../user/user.schema');
 
 // Try to load uploadCertificate, but don't crash if unavailable
 let uploadCertificate;
@@ -110,6 +112,34 @@ const createCertificate = async (data, organizationId, userId) => {
     const org = await ensureBillingCycle(certificate.organizationId);
     if (org) {
       await usageService.incrementUsage(org._id, 'certificates_created', org.billingCycleStart, org.billingCycleEnd);
+    }
+
+    // Send email notifications (non-blocking)
+    const certLink = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/certificate/${certificate.slug}`;
+    const templateTitle = data.templateTitle || certificate.issuerName || 'Certificate';
+
+    if (certificate.recipientEmail) {
+      sendCertificateReceiverEmail(
+        certificate.recipientEmail,
+        certificate.recipientName,
+        certificate.issuerName || 'TRUSTIFICATE',
+        templateTitle,
+        certLink
+      ).catch(() => {});
+    }
+
+    // Notify the issuer
+    if (userId) {
+      User.findById(userId).select('email displayName').then((issuer) => {
+        if (issuer?.email) {
+          sendCertificateIssuerEmail(
+            issuer.email,
+            issuer.displayName || 'Issuer',
+            certificate.recipientName,
+            templateTitle
+          ).catch(() => {});
+        }
+      }).catch(() => {});
     }
   }
 

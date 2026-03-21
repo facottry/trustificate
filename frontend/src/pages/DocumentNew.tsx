@@ -178,6 +178,8 @@ export default function DocumentNewPage() {
   const theme = (selectedTemplate?.configuration?.color_theme as any) || {};
   const bgStyle = (selectedTemplate?.configuration?.background_style as any) || {};
   const sigConfig = (selectedTemplate?.configuration?.signature_config as any) || {};
+  const sealConfig = (selectedTemplate?.configuration?.seal_config as any) || {};
+  const logoConfig = (selectedTemplate?.configuration?.logo_config as any) || {};
 
   const steps = [
     { num: 1, label: "Select Template" },
@@ -358,6 +360,13 @@ export default function DocumentNewPage() {
                       sealImageUrl: ((selectedTemplate?.configuration?.seal_config as any) || {}).seal_image_url,
                       showCertNumber: sigConfig.show_cert_number !== false,
                       layout: selectedTemplate.layout,
+                      showQrCode: selectedTemplate?.configuration?.show_qr_code === true,
+                      verificationUrl: `${window.location.origin}/certificate/preview`,
+                      backdropImageUrl: selectedTemplate?.configuration?.backdrop_image_url || undefined,
+                      logoLayout: logoConfig.layout,
+                      logoAlignment: logoConfig.alignment,
+                      logoLeftUrl: logoConfig.left_url || undefined,
+                      logoRightUrls: Array.isArray(logoConfig.right_urls) ? logoConfig.right_urls : [],
                     }}
                   />
                 </div>

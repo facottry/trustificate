@@ -1,4 +1,5 @@
 ﻿import { forwardRef } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import mascotImg from "@/assets/mascot.png";
 
 interface CertificateData {
@@ -29,6 +30,14 @@ interface CertificateData {
   sealImageUrl?: string;
   showCertNumber?: boolean;
   layout?: "portrait" | "landscape";
+  // New fields
+  showQrCode?: boolean;
+  verificationUrl?: string;
+  backdropImageUrl?: string;
+  logoLayout?: "single" | "split";
+  logoAlignment?: "left" | "center" | "right";
+  logoLeftUrl?: string;
+  logoRightUrls?: string[];
 }
 
 function replacePlaceholders(text: string, data: CertificateData): string {
@@ -77,6 +86,72 @@ function getPatternStyle(pattern: string, secondaryColor: string): React.CSSProp
   }
 }
 
+function LogoHeader({
+  logoLayout,
+  logoAlignment,
+  logoLeftUrl,
+  logoRightUrls,
+  primaryColor,
+}: {
+  logoLayout?: "single" | "split";
+  logoAlignment?: "left" | "center" | "right";
+  logoLeftUrl?: string;
+  logoRightUrls?: string[];
+  primaryColor: string;
+}) {
+  const fallback = (
+    <div
+      style={{
+        width: "40px",
+        height: "40px",
+        borderRadius: "50%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "white",
+        fontWeight: "bold",
+        fontSize: "18px",
+        lineHeight: 1,
+        backgroundColor: primaryColor,
+      }}
+    >
+      D
+    </div>
+  );
+
+  if (logoLayout === "split") {
+    const rightLogos = (logoRightUrls || []).filter(Boolean).slice(0, 4);
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", marginBottom: "12px" }}>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          {logoLeftUrl ? (
+            <img src={logoLeftUrl} alt="Logo" style={{ height: "40px", maxWidth: "120px", objectFit: "contain" }} />
+          ) : fallback}
+        </div>
+        {rightLogos.length > 0 && (
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {rightLogos.map((url, i) => (
+              <img key={i} src={url} alt={`Partner logo ${i + 1}`} style={{ height: "36px", maxWidth: "80px", objectFit: "contain" }} />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Single logo mode
+  const alignMap: Record<string, string> = { left: "flex-start", center: "center", right: "flex-end" };
+  const justify = alignMap[logoAlignment || "center"] || "center";
+
+  return (
+    <div style={{ display: "flex", justifyContent: justify, marginBottom: "12px" }}>
+      {logoLeftUrl ? (
+        <img src={logoLeftUrl} alt="Logo" style={{ height: "40px", maxWidth: "140px", objectFit: "contain" }} />
+      ) : fallback}
+    </div>
+  );
+}
+
 export const CertificateRenderer = forwardRef<HTMLDivElement, { data: CertificateData }>(
   ({ data }, ref) => {
     const isLandscape = data.layout === "landscape";
@@ -91,6 +166,8 @@ export const CertificateRenderer = forwardRef<HTMLDivElement, { data: Certificat
 
     const processedBody = replacePlaceholders(data.bodyText, data);
     const patternStyle = getPatternStyle(pattern, secondaryColor);
+
+    const showQr = data.showQrCode && data.verificationUrl;
 
     return (
       <div
@@ -107,6 +184,23 @@ export const CertificateRenderer = forwardRef<HTMLDivElement, { data: Certificat
           ...patternStyle,
         }}
       >
+        {/* Backdrop image — behind everything */}
+        {data.backdropImageUrl && (
+          <img
+            src={data.backdropImageUrl}
+            alt=""
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              zIndex: 0,
+            }}
+          />
+        )}
+
         {/* Decorative border */}
         <div
           style={{
@@ -117,6 +211,7 @@ export const CertificateRenderer = forwardRef<HTMLDivElement, { data: Certificat
             left: "12px",
             border: `2px solid ${secondaryColor}`,
             borderRadius: "2px",
+            zIndex: 1,
           }}
         />
         <div
@@ -128,6 +223,7 @@ export const CertificateRenderer = forwardRef<HTMLDivElement, { data: Certificat
             left: "20px",
             border: `1px solid ${secondaryColor}55`,
             borderRadius: "2px",
+            zIndex: 1,
           }}
         />
 
@@ -149,6 +245,7 @@ export const CertificateRenderer = forwardRef<HTMLDivElement, { data: Certificat
               borderBottom: i >= 2 ? `3px solid ${secondaryColor}` : "none",
               borderLeft: i % 2 === 0 ? `3px solid ${secondaryColor}` : "none",
               borderRight: i % 2 !== 0 ? `3px solid ${secondaryColor}` : "none",
+              zIndex: 2,
             }}
           />
         ))}
@@ -166,59 +263,42 @@ export const CertificateRenderer = forwardRef<HTMLDivElement, { data: Certificat
             alignItems: "center",
             justifyContent: "space-between",
             padding: "48px",
+            zIndex: 2,
           }}
         >
-          {/* Header */}
-          <div style={{ textAlign: "center", paddingTop: "16px" }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                marginBottom: "12px",
-              }}
-            >
-              <div
+          {/* Header with logo */}
+          <div style={{ width: "100%", paddingTop: "16px" }}>
+            <LogoHeader
+              logoLayout={data.logoLayout}
+              logoAlignment={data.logoAlignment}
+              logoLeftUrl={data.logoLeftUrl}
+              logoRightUrls={data.logoRightUrls}
+              primaryColor={primaryColor}
+            />
+            <div style={{ textAlign: "center" }}>
+              <p
                 style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "50%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "white",
-                  fontWeight: "bold",
-                  fontSize: "18px",
-                  lineHeight: 1,
-                  backgroundColor: primaryColor,
+                  fontSize: "12px",
+                  letterSpacing: "0.3em",
+                  textTransform: "uppercase",
+                  color: secondaryColor,
+                  marginBottom: "4px",
                 }}
               >
-                D
-              </div>
+                {data.templateSubtitle || "Certificate of Completion"}
+              </p>
+              <h1
+                style={{
+                  fontSize: "24px",
+                  fontWeight: "bold",
+                  letterSpacing: "-0.025em",
+                  color: primaryColor,
+                  margin: 0,
+                }}
+              >
+                {data.templateTitle}
+              </h1>
             </div>
-            <p
-              style={{
-                fontSize: "12px",
-                letterSpacing: "0.3em",
-                textTransform: "uppercase",
-                color: secondaryColor,
-                marginBottom: "4px",
-              }}
-            >
-              {data.templateSubtitle || "Certificate of Completion"}
-            </p>
-            <h1
-              style={{
-                fontSize: "24px",
-                fontWeight: "bold",
-                letterSpacing: "-0.025em",
-                color: primaryColor,
-                margin: 0,
-              }}
-            >
-              {data.templateTitle}
-            </h1>
           </div>
 
           {/* Body */}
@@ -418,7 +498,7 @@ export const CertificateRenderer = forwardRef<HTMLDivElement, { data: Certificat
             style={{
               position: "absolute",
               bottom: "12px",
-              right: "32px",
+              right: showQr ? "80px" : "32px",
               display: "flex",
               alignItems: "center",
               gap: "4px",
@@ -442,6 +522,23 @@ export const CertificateRenderer = forwardRef<HTMLDivElement, { data: Certificat
               Verified by TRUSTIFICATE
             </span>
           </div>
+
+          {/* QR Code — bottom right */}
+          {showQr && (
+            <div
+              style={{
+                position: "absolute",
+                bottom: "28px",
+                right: "32px",
+                padding: "4px",
+                backgroundColor: "white",
+                borderRadius: "4px",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.15)",
+              }}
+            >
+              <QRCodeSVG value={data.verificationUrl!} size={52} />
+            </div>
+          )}
         </div>
       </div>
     );
@@ -449,4 +546,3 @@ export const CertificateRenderer = forwardRef<HTMLDivElement, { data: Certificat
 );
 
 CertificateRenderer.displayName = "CertificateRenderer";
-

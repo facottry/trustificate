@@ -127,7 +127,12 @@ export default function TemplatesPage() {
           </Card>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {templates.map((t) => {
+            {[...templates]
+              .sort((a, b) => {
+                if (a.isSystem !== b.isSystem) return a.isSystem ? -1 : 1;
+                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+              })
+              .map((t) => {
               const theme = (t.configuration?.color_theme as any) || {};
               const placeholders = Array.isArray(t.placeholders) ? t.placeholders : [];
               const count = certCounts[t.id || t._id] || 0;
@@ -224,7 +229,11 @@ export default function TemplatesPage() {
                           </Badge>
                         )}
                       </div>
-                      <span className="text-xs text-muted-foreground">{count} issued</span>
+                      <span className="text-xs text-muted-foreground">
+                        {t.createdAt ? new Date(t.createdAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : ""}
+                        {" · "}
+                        {count} issued
+                      </span>
                     </div>
                   </CardContent>
                 </Card>

@@ -1,10 +1,18 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const templateController = require('./template.controller');
 const { protect } = require('../../middlewares/auth.middleware');
 const { enforcePlanLimit } = require('../../middlewares/planEnforcement.middleware');
-// const multer = require('multer');
-// const upload = multer({ dest: 'uploads/' });
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) cb(null, true);
+    else cb(new Error('Only image files are allowed'));
+  },
+});
 
 /**
  * @swagger
@@ -70,13 +78,13 @@ router.delete('/:id', protect, templateController.deleteTemplate);
 
 /**
  * @swagger
- * /api/templates/upload:
+ * /api/templates/assets/upload:
  *   post:
- *     summary: Upload a template PDF
+ *     summary: Upload a template asset (signature or seal image) to R2
  *     tags: [Templates]
  *     security:
  *       - bearerAuth: []
  */
-// router.post('/upload', protect, upload.single('file'), templateController.uploadTemplate);
+router.post('/assets/upload', protect, upload.single('file'), templateController.uploadAsset);
 
 module.exports = router;

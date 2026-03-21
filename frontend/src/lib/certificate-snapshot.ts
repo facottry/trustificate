@@ -14,6 +14,9 @@ export interface TemplateSnapshot {
   background_style: Record<string, string> | null;
   signature_config: Record<string, unknown> | null;
   seal_config: Record<string, unknown> | null;
+  show_qr_code?: boolean;
+  backdrop_image_url?: string | null;
+  logo_config?: Record<string, unknown> | null;
 }
 
 export function buildTemplateSnapshot(template: any): any {
@@ -28,6 +31,9 @@ export function buildTemplateSnapshot(template: any): any {
     background_style: template.background_style ?? config.background_style ?? null,
     signature_config: template.signature_config ?? config.signature_config ?? null,
     seal_config: template.seal_config ?? config.seal_config ?? null,
+    show_qr_code: template.show_qr_code ?? config.show_qr_code ?? false,
+    backdrop_image_url: template.backdrop_image_url ?? config.backdrop_image_url ?? null,
+    logo_config: template.logo_config ?? config.logo_config ?? null,
   };
 }
 
@@ -56,6 +62,9 @@ export function getTemplateFromCertificate(cert: any): TemplateSnapshot | null {
       background_style: (joined.background_style ?? config.background_style ?? null) as any,
       signature_config: (joined.signature_config ?? config.signature_config ?? null) as any,
       seal_config: (joined.seal_config ?? config.seal_config ?? null) as any,
+      show_qr_code: joined.show_qr_code ?? config.show_qr_code ?? false,
+      backdrop_image_url: joined.backdrop_image_url ?? config.backdrop_image_url ?? null,
+      logo_config: (joined.logo_config ?? config.logo_config ?? null) as any,
     };
   }
 

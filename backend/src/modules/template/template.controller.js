@@ -2,6 +2,12 @@ const templateService = require('./template.service');
 const { asyncHandler } = require('../../middlewares/error.middleware');
 const { success } = require('../../utils/apiResponse');
 
+// Try to load R2 upload service
+let uploadCertificate;
+try {
+  uploadCertificate = require('../../services/cloudflareR2Service').uploadCertificate;
+} catch { uploadCertificate = null; }
+
 const createTemplate = asyncHandler(async (req, res) => {
   const { title, placeholders, isActive, layout, configuration } = req.body;
   const template = await templateService.createTemplate(
@@ -32,11 +38,16 @@ const deleteTemplate = asyncHandler(async (req, res) => {
   success(res, null, result.message);
 });
 
-// const uploadTemplate = asyncHandler(async (req, res) => {
-//   if (!req.file) throw new Error('No file uploaded');
-//   // For now, return a mock URL
-//   const url = `http://localhost:3000/uploads/${req.file.filename}`;
-//   success(res, { url }, 'File uploaded');
-// });
+const uploadAsset = asyncHandler(async (req, res) => {
+  if (!req.file) throw new Error('No file uploaded');
+  if (!uploadCertificate) throw new Error('Storage service not configured');
 
-module.exports = { createTemplate, listTemplates, getTemplate, updateTemplate, deleteTemplate };
+  const ext = req.file.originalname.split('.').pop() || 'png';
+  const folder = req.query.type === 'seal' ? 'seals' : 'signatures';
+  const fileName = `${folder}/${req.user.organizationId}-${Date.now()}.${ext}`;
+
+  const { url } = await uploadCertificate(req.file.buffer, fileName, req.file.mimetype);
+  success(res, { url }, 'Asset uploaded');
+});
+
+module.exports = { createTemplate, listTemplates, getTemplate, updateTemplate, deleteTemplate, uploadAsset };

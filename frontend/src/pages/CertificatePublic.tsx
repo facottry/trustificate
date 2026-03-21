@@ -120,6 +120,7 @@ export default function CertificatePublicPage() {
   const bgStyle = (template?.background_style as any) || {};
   const sigConfig = (template?.signature_config as any) || {};
   const sealConfig = (template?.seal_config as any) || {};
+  const logoConfig = (template?.logo_config as any) || {};
 
   const fmtDate = (d: any) => {
     if (!d) return "N/A";
@@ -235,6 +236,13 @@ export default function CertificatePublicPage() {
                         sealImageUrl: sealConfig.seal_image_url,
                         showCertNumber: sigConfig.show_cert_number !== false,
                         layout: template?.layout,
+                        showQrCode: template?.show_qr_code === true,
+                        verificationUrl,
+                        backdropImageUrl: template?.backdrop_image_url || undefined,
+                        logoLayout: logoConfig.layout,
+                        logoAlignment: logoConfig.alignment,
+                        logoLeftUrl: logoConfig.left_url || undefined,
+                        logoRightUrls: Array.isArray(logoConfig.right_urls) ? logoConfig.right_urls : [],
                       }}
                     />
                   </ScaledCertificate>
