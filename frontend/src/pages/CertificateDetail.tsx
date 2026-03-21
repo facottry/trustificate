@@ -73,6 +73,11 @@ export default function CertificateDetailPage() {
   };
 
   const handleDownload = async () => {
+    // Prefer CDN PDF if available
+    if (cert.pdfUrl) {
+      window.open(cert.pdfUrl, "_blank");
+      return;
+    }
     if (!certRef.current) return;
     await generatePDF(certRef.current, `${cert.certificateNumber}.pdf`);
   };

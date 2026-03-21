@@ -12,9 +12,16 @@ export default defineConfig(() => ({
   },
   server: {
     host: "::",
-    port: 8080,
+    port: parseInt(process.env.PORT || "8080", 10),
     hmr: {
       overlay: false,
+    },
+    proxy: {
+      "/api": {
+        target: process.env.VITE_API_BASE_URL || "http://api.trustificate.localhost",
+        changeOrigin: true,
+        ws: true,
+      },
     },
   },
   plugins: [react()],

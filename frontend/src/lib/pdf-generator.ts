@@ -2,6 +2,77 @@
 import jsPDF from "jspdf";
 
 /**
+ * Convert all external <img> elements inside a container to inline base64
+ * data URIs so html2canvas can render them without cross-origin issues.
+ * Returns a cleanup function that restores the original src values.
+ */
+async function inlineExternalImages(
+  container: HTMLElement,
+): Promise<() => void> {
+  const imgs = Array.from(container.querySelectorAll("img")) as HTMLImageElement[];
+  const originals: { img: HTMLImageElement; src: string }[] = [];
+
+  const baseUrl = (import.meta as any).env?.VITE_API_BASE_URL || "";
+  const token = localStorage.getItem("TRUSTIFICATE:token");
+
+  await Promise.all(
+    imgs.map(async (img) => {
+      const src = img.src;
+      // Skip already-inlined, empty, or same-origin images
+      if (!src || src.startsWith("data:")) return;
+      try {
+        const url = new URL(src, window.location.href);
+        if (url.origin === window.location.origin) return;
+      } catch {
+        return;
+      }
+
+      // Strategy 1: direct CORS fetch
+      try {
+        const resp = await fetch(src, { mode: "cors" });
+        if (resp.ok) {
+          const blob = await resp.blob();
+          const dataUrl = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(blob);
+          });
+          originals.push({ img, src });
+          img.src = dataUrl;
+          return;
+        }
+      } catch {
+        // CORS blocked — fall through to proxy
+      }
+
+      // Strategy 2: backend proxy
+      try {
+        const proxyUrl = `${baseUrl}/api/templates/assets/proxy?url=${encodeURIComponent(src)}`;
+        const resp = await fetch(proxyUrl, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (resp.ok) {
+          const json = await resp.json();
+          if (json.data?.dataUri) {
+            originals.push({ img, src });
+            img.src = json.data.dataUri;
+            return;
+          }
+        }
+      } catch {
+        // Proxy also failed — leave image as-is
+      }
+    }),
+  );
+
+  return () => {
+    for (const { img, src } of originals) {
+      img.src = src;
+    }
+  };
+}
+
+/**
  * Finds the nearest ancestor (starting from parent) that has a CSS scale
  * transform applied, either via Tailwind class or inline style.
  */
@@ -49,6 +120,7 @@ async function captureAtFullSize(
   scale: number,
 ): Promise<HTMLCanvasElement> {
   const saved: SavedState[] = [];
+  let restoreImages: (() => void) | null = null;
 
   // Find the scale wrapper and its parent chain
   const scaleWrapper = findScaleAncestor(element);
@@ -95,6 +167,12 @@ async function captureAtFullSize(
     await new Promise((r) => requestAnimationFrame(r));
     await new Promise((r) => requestAnimationFrame(r));
 
+    // Convert external images to base64 so html2canvas can render them
+    restoreImages = await inlineExternalImages(element);
+
+    // Wait one more frame for the inlined images to settle
+    await new Promise((r) => requestAnimationFrame(r));
+
     // The CertificateRenderer has explicit width/height in its style attribute
     // (595px or 842px). scrollWidth/scrollHeight reflect these regardless of
     // CSS transforms, so they're always the true layout dimensions.
@@ -122,6 +200,9 @@ async function captureAtFullSize(
 
     return canvas;
   } finally {
+    // Restore inlined images to their original URLs
+    if (restoreImages) restoreImages();
+
     // Restore all modified elements in reverse order
     for (let i = saved.length - 1; i >= 0; i--) {
       const s = saved[i];
@@ -163,6 +244,35 @@ export async function generatePDF(
 
   pdf.addImage(imgData, "PNG", 0, 0, pageWidthMm, pageHeightMm);
   pdf.save(filename);
+}
+
+export async function generatePDFBlob(
+  element: HTMLElement,
+  filename: string = "certificate.pdf",
+): Promise<Blob> {
+  const scale = 3;
+  const canvas = await captureAtFullSize(element, scale);
+  const imgData = canvas.toDataURL("image/png", 1.0);
+
+  const pxToMm = 25.4 / 96;
+  const pageWidthMm = element.scrollWidth * pxToMm;
+  const pageHeightMm = element.scrollHeight * pxToMm;
+  const isLandscape = element.scrollWidth > element.scrollHeight;
+
+  const pdf = new jsPDF({
+    orientation: isLandscape ? "landscape" : "portrait",
+    unit: "mm",
+    format: [pageWidthMm, pageHeightMm],
+    compress: true,
+  });
+
+  pdf.setProperties({
+    title: filename.replace(".pdf", ""),
+    creator: "TRUSTIFICATE",
+  });
+
+  pdf.addImage(imgData, "PNG", 0, 0, pageWidthMm, pageHeightMm);
+  return pdf.output("blob");
 }
 
 export async function generatePNG(

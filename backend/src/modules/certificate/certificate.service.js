@@ -114,24 +114,15 @@ const createCertificate = async (data, organizationId, userId) => {
       await usageService.incrementUsage(org._id, 'certificates_created', org.billingCycleStart, org.billingCycleEnd);
     }
 
-    // Send email notifications (non-blocking)
-    const certLink = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/certificate/${certificate.slug}`;
+    // NOTE: Recipient email with PDF attachment is sent AFTER PDF upload
+    // (see certificate.controller.js uploadPdf). Here we only notify the issuer.
+    const certLink = `${process.env.FRONTEND_URL || 'https://trustificate.clicktory.in'}/certificate/${certificate.slug}`;
     const templateTitle = data.templateTitle || certificate.issuerName || 'Certificate';
 
-    if (certificate.recipientEmail) {
-      sendTransactional(
-        certificate.recipientEmail,
-        'certificate-receiver',
-        { recipientName: certificate.recipientName, issuerName: certificate.issuerName || 'TRUSTIFICATE', certificateTitle: templateTitle, certificateLink: certLink },
-        'Your Certificate is Ready'
-      ).catch(() => {});
-    }
-
-    // Notify the issuer
     if (userId) {
       User.findById(userId).select('email displayName').then((issuer) => {
         if (issuer?.email) {
-          const issuanceLogLink = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/documents`;
+          const issuanceLogLink = `${process.env.FRONTEND_URL || 'https://trustificate.clicktory.in'}/documents`;
           sendTransactional(
             issuer.email,
             'certificate-issuer',

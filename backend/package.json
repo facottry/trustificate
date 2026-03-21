@@ -6,7 +6,8 @@
   "scripts": {
     "killport": "npx kill-port 3000",
     "start": "node src/server.js",
-    "dev": "npm run killport && nodemon src/server.js",
+    "dev": "portless run --name api.trustificate nodemon src/server.js",
+    "dev:local": "nodemon src/server.js",
     "generate-sitemap": "node src/scripts/generate-sitemap.js",
     "test": "jest"
   },

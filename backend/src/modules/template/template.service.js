@@ -3,11 +3,13 @@ const { AppError } = require('../../middlewares/error.middleware');
 const usageService = require('../usage/usage.service');
 const { ensureBillingCycle } = require('../organization/organization.service');
 
-const createTemplate = async ({ title, placeholders, isActive, layout, configuration }, organizationId, userId) => {
+const createTemplate = async ({ name, title, placeholders, isActive, layout, numberPrefix, configuration }, organizationId, userId) => {
   if (!organizationId) throw new AppError('Organization context missing', 400);
   const template = await Template.create({
+    name,
     title,
     placeholders,
+    numberPrefix: numberPrefix || 'CERT',
     isActive: isActive !== false,
     layout,
     configuration,
@@ -50,7 +52,14 @@ const updateTemplate = async (id, data, organizationId) => {
   if (!existing) throw new AppError('Template not found', 404);
   if (existing.isSystem) throw new AppError('Cannot modify built-in template', 403);
 
-  const template = await Template.findOneAndUpdate({ _id: id, organizationId }, data, {
+  // Only allow known schema fields
+  const allowed = {};
+  const fields = ['name', 'title', 'placeholders', 'numberPrefix', 'isActive', 'layout', 'configuration'];
+  for (const f of fields) {
+    if (data[f] !== undefined) allowed[f] = data[f];
+  }
+
+  const template = await Template.findOneAndUpdate({ _id: id, organizationId }, allowed, {
     new: true,
     runValidators: true,
   });

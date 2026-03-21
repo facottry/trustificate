@@ -81,7 +81,7 @@ const createInvite = async (email, organizationId, invitedBy, role = 'user') => 
   // Fetch inviter name for email
   const inviter = await User.findById(invitedBy).select('displayName');
   const inviterName = inviter?.displayName || 'A team member';
-  const joinLink = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/accept-invite?token=${token}`;
+  const joinLink = `${process.env.FRONTEND_URL || 'https://trustificate.clicktory.in'}/accept-invite?token=${token}`;
 
   // Send invite email (non-blocking — don't fail invite creation if email fails)
   sendTransactional(normalizedEmail, 'team-invite', { orgName: org.name, inviterName, joinLink }, "You've Been Invited").catch(() => {});

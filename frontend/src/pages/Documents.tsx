@@ -156,6 +156,7 @@ export default function DocumentsPage() {
                       <TableHead>Status</TableHead>
                       <TableHead>Issue Date</TableHead>
                       <TableHead className="w-10"></TableHead>
+                      <TableHead className="w-10"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -180,6 +181,15 @@ export default function DocumentsPage() {
                         </TableCell>
                         <TableCell className="text-muted-foreground text-sm">
                           {new Date(c.issueDate).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          {c.pdfUrl ? (
+                            <a href={c.pdfUrl} target="_blank" rel="noopener noreferrer">
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-primary hover:text-primary">
+                                <Download className="h-3.5 w-3.5" />
+                              </Button>
+                            </a>
+                          ) : null}
                         </TableCell>
                         <TableCell>
                           <AlertDialog>

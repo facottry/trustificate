@@ -26,7 +26,7 @@ const register = async ({ displayName, email, password }) => {
 
   // Send verification email with confirmation link
   const { sendTransactional } = require('../../services/emailService');
-  const verificationLink = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/confirm-email?token=${verificationToken}`;
+  const verificationLink = `${process.env.FRONTEND_URL || 'https://trustificate.clicktory.in'}/confirm-email?token=${verificationToken}`;
   await sendTransactional(email.toLowerCase(), 'email-verification-link', { userName: user.displayName, verificationLink }, 'Verify Your Email');
 
   // Do NOT return token on registration - user must verify email first
@@ -112,7 +112,7 @@ const forgotPassword = async (email) => {
 
   // Send email with both options
   const { sendTransactional } = require('../../services/emailService');
-  const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/reset-password?token=${token}&email=${email}`;
+  const resetLink = `${process.env.FRONTEND_URL || 'https://trustificate.clicktory.in'}/reset-password?token=${token}&email=${email}`;
   await sendTransactional(email, 'forgot-password', { userName: user.displayName, otp, resetLink }, 'Reset Your Password');
 };
 
@@ -243,7 +243,7 @@ const resendVerificationLink = async (email) => {
 
   // Send new verification email
   const { sendTransactional } = require('../../services/emailService');
-  const verificationLink = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/confirm-email?token=${verificationToken}`;
+  const verificationLink = `${process.env.FRONTEND_URL || 'https://trustificate.clicktory.in'}/confirm-email?token=${verificationToken}`;
   await sendTransactional(email.toLowerCase(), 'email-verification-link', { userName: user.displayName, verificationLink }, 'Verify Your Email');
 
   return {
@@ -313,7 +313,7 @@ const forgotPasswordOtp = async (email) => {
   await user.save();
 
   const { sendTransactional } = require('../../services/emailService');
-  await sendTransactional(email, 'forgot-password', { userName: user.displayName || 'User', otp, resetLink: `${process.env.FRONTEND_URL || 'http://localhost:8080'}/reset-password` }, 'Reset Your Password');
+  await sendTransactional(email, 'forgot-password', { userName: user.displayName || 'User', otp, resetLink: `${process.env.FRONTEND_URL || 'https://trustificate.clicktory.in'}/reset-password` }, 'Reset Your Password');
 };
 
 const resetPasswordOtp = async (email, otp, newPassword) => {

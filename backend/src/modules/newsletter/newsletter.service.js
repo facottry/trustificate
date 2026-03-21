@@ -5,7 +5,7 @@ const openaiService = require('../../services/openaiService');
 const { sendTransactional } = require('../../services/emailService');
 const logger = require('../../utils/logger');
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:8080';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://trustificate.clicktory.in';
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3000';
 const BATCH_SIZE = 50;
 

@@ -33,17 +33,27 @@ Two independent apps in a single repo: `backend/` and `frontend/`. No shared wor
 - Linting: ESLint 9 (flat config) with react-hooks and react-refresh plugins
 - Formatting: Prettier
 
+## Local Dev (Portless)
+- Install: `npm install -g portless` (global, not a project dependency)
+- Proxy: `portless proxy start -p 80` (run once from Admin terminal)
+- Backend URL: `http://api.trustificate.localhost`
+- Frontend URL: `http://trustificate.localhost`
+- Portless auto-assigns a random port via `PORT` env var; Express and Vite both respect it
+- CORS allows any `*.localhost` origin for portless dev URLs
+- Vite proxies `/api` requests to the backend portless URL with `changeOrigin: true`
+- To bypass portless: `PORTLESS=0 npm run dev`
+
 ## Common Commands
 
 ### Backend (`backend/`)
 ```bash
-npm run dev          # Start dev server with nodemon (port 3000)
-npm start            # Start production server
+npm run dev          # Start via portless → http://api.trustificate.localhost
+npm start            # Start production server (no portless)
 ```
 
 ### Frontend (`frontend/`)
 ```bash
-npm run dev          # Start Vite dev server
+npm run dev          # Start via portless → http://trustificate.localhost
 npm run build        # Production build
 npm run lint         # ESLint check
 npm run test         # Run tests once (vitest run)

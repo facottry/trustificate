@@ -49,10 +49,10 @@ export default function CertificateNewPage() {
   }, [profile?.organizationId]);
 
   const handleTemplateChange = (templateId: string) => {
-    const t = templates.find((t) => t.id === templateId);
+    const t = templates.find((t) => (t.id || t._id) === templateId);
     setSelectedTemplate(t);
     if (t) {
-      const sig = (t.signature_config as any) || {};
+      const sig = (t.configuration?.signature_config as any) || {};
       setIssuerName(sig.issuer_name || "");
       setIssuerTitle(sig.issuer_title || "");
     }
@@ -87,7 +87,7 @@ export default function CertificateNewPage() {
       }>(`/api/certificates/issue`, {
         method: "POST",
         body: JSON.stringify({
-          templateId: selectedTemplate.id,
+          templateId: selectedTemplate.id || selectedTemplate._id,
           recipientDetails: {
             name: recipientName.trim(),
             email: recipientEmail.trim() || null,
@@ -141,8 +141,8 @@ export default function CertificateNewPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {templates.map((t) => (
-                    <SelectItem key={t.id} value={t.id}>
-                      {t.title} ({t.number_prefix})
+                    <SelectItem key={t.id || t._id} value={t.id || t._id}>
+                      {t.title} ({t.numberPrefix || t.number_prefix})
                     </SelectItem>
                   ))}
                 </SelectContent>

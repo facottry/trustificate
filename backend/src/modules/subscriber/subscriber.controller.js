@@ -2,7 +2,7 @@ const { asyncHandler } = require('../../middlewares/error.middleware');
 const { success, error } = require('../../utils/apiResponse');
 const subscriberService = require('./subscriber.service');
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:8080';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://trustificate.clicktory.in';
 
 /** POST /api/public/newsletter/subscribe */
 const subscribe = asyncHandler(async (req, res) => {

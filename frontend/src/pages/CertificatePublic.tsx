@@ -80,6 +80,9 @@ export default function CertificatePublicPage() {
   const handleDownload = async () => {
     if ((cert?.isExternal || cert?.is_external) && (cert?.externalPdfUrl || cert?.external_pdf_url)) {
       window.open(cert.externalPdfUrl || cert.external_pdf_url, "_blank");
+    } else if (cert?.pdfUrl) {
+      // Serve from CDN
+      window.open(cert.pdfUrl, "_blank");
     } else if (certRef.current && cert) {
       await generatePDF(certRef.current, `${cert.certificateNumber || cert.certificate_number}.pdf`);
     }

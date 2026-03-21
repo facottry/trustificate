@@ -56,6 +56,8 @@ app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
     if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+    // Allow any *.localhost origin (portless dev URLs)
+    if (/^https?:\/\/[a-z0-9.-]+\.localhost(:\d+)?$/.test(origin)) return callback(null, true);
     callback(new Error(`CORS: origin ${origin} not allowed`));
   },
   credentials: true,
@@ -71,7 +73,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // ── Rate Limiting ─────────────────────────────────────────
 app.use('/api', rateLimit({
-  windowMs: 15 * 60 * 1000, max: 100,
+  windowMs: 15 * 60 * 1000, max: 1000,
   standardHeaders: true, legacyHeaders: false,
   message: { success: false, message: 'Too many requests. Try again later.' },
   keyGenerator: (req) => req.ip,

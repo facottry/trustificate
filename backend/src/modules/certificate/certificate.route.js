@@ -1,8 +1,18 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const certificateController = require('./certificate.controller');
 const { protect } = require('../../middlewares/auth.middleware');
 const { enforcePlanLimit } = require('../../middlewares/planEnforcement.middleware');
+
+const pdfUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype === 'application/pdf') cb(null, true);
+    else cb(new Error('Only PDF files are allowed'));
+  },
+});
 
 /**
  * @swagger
@@ -61,6 +71,17 @@ router.get('/slug/:slug', certificateController.getCertificateBySlug);
  *     tags: [Certificates]
  */
 router.get('/public/verify/:certificateNumber', certificateController.verifyCertificate);
+
+/**
+ * @swagger
+ * /api/certificates/{id}/upload-pdf:
+ *   post:
+ *     summary: Upload rendered PDF for a certificate
+ *     tags: [Certificates]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post('/:id/upload-pdf', protect, pdfUpload.single('file'), certificateController.uploadPdf);
 
 /**
  * @swagger

@@ -23,6 +23,28 @@ const upload = multer({
 
 /**
  * @swagger
+ * /api/templates/assets/upload:
+ *   post:
+ *     summary: Upload a template asset (signature or seal image) to R2
+ *     tags: [Templates]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post('/assets/upload', protect, upload.single('file'), templateController.uploadAsset);
+
+/**
+ * @swagger
+ * /api/templates/assets/proxy:
+ *   get:
+ *     summary: Proxy an R2 image as base64 data URI (for PDF generation)
+ *     tags: [Templates]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get('/assets/proxy', protect, templateController.proxyImageAsBase64);
+
+/**
+ * @swagger
  * /api/templates:
  *   post:
  *     summary: Create a new template
@@ -75,16 +97,5 @@ router.put('/:id', protect, templateController.updateTemplate);
  *       - bearerAuth: []
  */
 router.delete('/:id', protect, templateController.deleteTemplate);
-
-/**
- * @swagger
- * /api/templates/assets/upload:
- *   post:
- *     summary: Upload a template asset (signature or seal image) to R2
- *     tags: [Templates]
- *     security:
- *       - bearerAuth: []
- */
-router.post('/assets/upload', protect, upload.single('file'), templateController.uploadAsset);
 
 module.exports = router;

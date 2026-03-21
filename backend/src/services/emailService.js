@@ -51,15 +51,19 @@ const compileTemplate = (templateName, data) => {
 // ---------------------------------------------------------------------------
 // sendTransactional(to, templateName, data, subject) → Promise<void>
 // ---------------------------------------------------------------------------
-const sendTransactional = async (to, templateName, data, subject) => {
+const sendTransactional = async (to, templateName, data, subject, attachments) => {
   try {
     const html = compileTemplate(templateName, data);
-    await transporter.sendMail({
+    const mailOptions = {
       from: process.env.FROM_EMAIL || 'noreply@trustificate.com',
       to,
       subject,
       html,
-    });
+    };
+    if (attachments && attachments.length) {
+      mailOptions.attachments = attachments;
+    }
+    await transporter.sendMail(mailOptions);
   } catch (err) {
     logger.error('Transactional email error:', err);
     throw new AppError('Failed to send email: ' + err.message, 500);

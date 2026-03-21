@@ -9,9 +9,9 @@ try {
 } catch { uploadCertificate = null; }
 
 const createTemplate = asyncHandler(async (req, res) => {
-  const { title, placeholders, isActive, layout, configuration } = req.body;
+  const { name, title, placeholders, isActive, layout, numberPrefix, configuration } = req.body;
   const template = await templateService.createTemplate(
-    { title, placeholders, isActive, layout, configuration },
+    { name, title, placeholders, isActive, layout, numberPrefix, configuration },
     req.user.organizationId,
     req.user.id
   );
@@ -50,4 +50,37 @@ const uploadAsset = asyncHandler(async (req, res) => {
   success(res, { url }, 'Asset uploaded');
 });
 
-module.exports = { createTemplate, listTemplates, getTemplate, updateTemplate, deleteTemplate, uploadAsset };
+/**
+ * Proxy-fetch an image URL through the backend to avoid CORS issues.
+ * Returns a data-URI string so the frontend can inline it for html2canvas.
+ */
+const proxyImageAsBase64 = asyncHandler(async (req, res) => {
+  const { url } = req.query;
+  if (!url || typeof url !== 'string') {
+    return res.status(400).json({ success: false, message: 'url query param required' });
+  }
+  // Only allow proxying from our own R2 bucket domain for security
+  const R2_PUBLIC_BASE_URL = process.env.R2_PUBLIC_BASE_URL || '';
+  if (R2_PUBLIC_BASE_URL && !url.startsWith(R2_PUBLIC_BASE_URL)) {
+    return res.status(403).json({ success: false, message: 'URL not allowed' });
+  }
+
+  const https = require('https');
+  const http = require('http');
+  const client = url.startsWith('https') ? https : http;
+
+  const buffer = await new Promise((resolve, reject) => {
+    client.get(url, (upstream) => {
+      if (upstream.statusCode !== 200) return reject(new Error('Upstream ' + upstream.statusCode));
+      const chunks = [];
+      upstream.on('data', (c) => chunks.push(c));
+      upstream.on('end', () => resolve({ buf: Buffer.concat(chunks), ct: upstream.headers['content-type'] || 'image/png' }));
+      upstream.on('error', reject);
+    }).on('error', reject);
+  });
+
+  const dataUri = `data:${buffer.ct};base64,${buffer.buf.toString('base64')}`;
+  success(res, { dataUri });
+});
+
+module.exports = { createTemplate, listTemplates, getTemplate, updateTemplate, deleteTemplate, uploadAsset, proxyImageAsBase64 };

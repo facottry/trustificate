@@ -205,36 +205,37 @@ export default function TemplateFormPage() {
     apiClient(`/api/templates/${id}`)
       .then((response) => {
         const data = response.data;
+        const cfg = (data.configuration as any) || {};
         setTemplateName(data.name || data.title || "");
         if (data.name) setNameManuallyEdited(true);
-        setTitle(data.title);
-        setSubtitle(data.subtitle || "");
-        setBodyText(data.bodyText);
-        setLayout(data.layout);
-        setNumberPrefix(data.numberPrefix);
-        const theme = (data.colorTheme as any) || {};
+        setTitle(data.title || "");
+        setSubtitle(cfg.subtitle || "");
+        setBodyText(cfg.body_text || "");
+        setLayout(data.layout || "landscape");
+        setNumberPrefix(data.numberPrefix || "CERT");
+        const theme = cfg.color_theme || {};
         setPrimaryColor(theme.primary || "#0a4f5c");
         setSecondaryColor(theme.secondary || "#d4a853");
         setBackgroundColor(theme.background || "#fffdf5");
         setFontColor(theme.fontColor || "#374151");
         setFontFamily(theme.fontFamily || "'Plus Jakarta Sans', sans-serif");
-        const bgStyle = (data.backgroundStyle as any) || {};
+        const bgStyle = cfg.background_style || {};
         setBackgroundPattern(bgStyle.pattern || "none");
         setSelectedPlaceholders(Array.isArray(data.placeholders) ? data.placeholders as string[] : []);
-        const sig = (data.signatureConfig as any) || {};
-        setIssuerName(sig.issuerName || "");
-        setIssuerTitle(sig.issuerTitle || "");
-        setSignatureImageUrl(sig.signatureImageUrl || "");
-        setShowCertNumber(sig.showCertNumber !== false);
-        const seal = (data.sealConfig as any) || {};
-        setSealImageUrl(seal.sealImageUrl || "");
-        const logoConfig = (data.logoConfig as any) || {};
-        setShowQrCode(data.showQrCode === true);
-        setBackdropImageUrl(data.backdropImageUrl || "");
-        setLogoLayout(logoConfig.layout || "single");
-        setLogoAlignment(logoConfig.alignment || "center");
-        setLogoLeftUrl(logoConfig.leftUrl || "");
-        setLogoRightUrls(Array.isArray(logoConfig.rightUrls) ? logoConfig.rightUrls : []);
+        const sig = cfg.signature_config || {};
+        setIssuerName(sig.issuer_name || "");
+        setIssuerTitle(sig.issuer_title || "");
+        setSignatureImageUrl(sig.signature_image_url || "");
+        setShowCertNumber(sig.show_cert_number !== false);
+        const seal = cfg.seal_config || {};
+        setSealImageUrl(seal.seal_image_url || "");
+        setShowQrCode(cfg.show_qr_code === true);
+        setBackdropImageUrl(cfg.backdrop_image_url || "");
+        const logoConf = cfg.logo_config || {};
+        setLogoLayout(logoConf.layout || "single");
+        setLogoAlignment(logoConf.alignment || "center");
+        setLogoLeftUrl(logoConf.left_url || "");
+        setLogoRightUrls(Array.isArray(logoConf.right_urls) ? logoConf.right_urls : []);
         setLoading(false);
       })
       .catch(() => { toast.error("Template not found"); navigate("/templates"); });
@@ -248,21 +249,21 @@ export default function TemplateFormPage() {
   const buildPayload = (isDraft: boolean) => ({
     name: templateName.trim() || title.trim(),
     title: title.trim(),
-    subtitle: subtitle.trim() || null,
-    body_text: bodyText.trim() || "Draft — body text pending",
     layout,
-    number_prefix: numberPrefix.toUpperCase(),
+    numberPrefix: numberPrefix.toUpperCase(),
     placeholders: selectedPlaceholders,
-    color_theme: { primary: primaryColor, secondary: secondaryColor, background: backgroundColor, fontColor, fontFamily },
-    background_style: { pattern: backgroundPattern },
-    signature_config: { issuer_name: issuerName, issuer_title: issuerTitle, signature_image_url: signatureImageUrl || null, show_cert_number: showCertNumber },
-    seal_config: { seal_image_url: sealImageUrl || null },
-    show_qr_code: showQrCode,
-    backdrop_image_url: backdropImageUrl || null,
-    logo_config: { layout: logoLayout, alignment: logoAlignment, left_url: logoLeftUrl || null, right_urls: logoRightUrls.filter(Boolean) },
-    organization_id: profile!.organization_id,
-    created_by: user?.id,
-    is_active: !isDraft,
+    isActive: !isDraft,
+    configuration: {
+      subtitle: subtitle.trim() || null,
+      body_text: bodyText.trim() || "Draft — body text pending",
+      color_theme: { primary: primaryColor, secondary: secondaryColor, background: backgroundColor, fontColor, fontFamily },
+      background_style: { pattern: backgroundPattern },
+      signature_config: { issuer_name: issuerName, issuer_title: issuerTitle, signature_image_url: signatureImageUrl || null, show_cert_number: showCertNumber },
+      seal_config: { seal_image_url: sealImageUrl || null },
+      show_qr_code: showQrCode,
+      backdrop_image_url: backdropImageUrl || null,
+      logo_config: { layout: logoLayout, alignment: logoAlignment, left_url: logoLeftUrl || null, right_urls: logoRightUrls.filter(Boolean) },
+    },
   });
 
   const handleSave = async (e: React.FormEvent) => {

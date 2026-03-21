@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { buildTemplateSnapshot } from "@/lib/certificate-snapshot";
+import { generatePDFBlob } from "@/lib/pdf-generator";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -40,6 +41,9 @@ export default function DocumentNewPage() {
   const [completionDate, setCompletionDate] = useState("");
   const [saving, setSaving] = useState(false);
   const [generatedCert, setGeneratedCert] = useState<any>(null);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [pdfUploading, setPdfUploading] = useState(false);
+  const certRef = useRef<HTMLDivElement>(null);
   const { loading: aiLoading, getDocumentSuggestions } = useAIAssist();
 
   const handleAISuggest = async () => {
@@ -174,6 +178,41 @@ export default function DocumentNewPage() {
 
   const handleGenerate = () => handleSaveOrGenerate(false);
   const handleSaveDraft = () => handleSaveOrGenerate(true);
+
+  // When step 4 is reached, render PDF → upload to R2 → store CDN URL
+  useEffect(() => {
+    if (step !== 4 || !generatedCert || pdfUrl || pdfUploading) return;
+    const uploadPdf = async () => {
+      // Wait for the hidden renderer to mount
+      await new Promise((r) => setTimeout(r, 500));
+      const el = certRef.current;
+      if (!el) return;
+      setPdfUploading(true);
+      try {
+        const certNum = generatedCert.certificateNumber || generatedCert.certificate_number;
+        const blob = await generatePDFBlob(el, `${certNum}.pdf`);
+        const formData = new FormData();
+        formData.append("file", blob, `${certNum}.pdf`);
+        const certId = generatedCert._id || generatedCert.id;
+        const token = localStorage.getItem("TRUSTIFICATE:token");
+        const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
+        const res = await fetch(`${baseUrl}/api/certificates/${certId}/upload-pdf`, {
+          method: "POST",
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          body: formData,
+        });
+        const json = await res.json();
+        if (json.data?.pdfUrl) {
+          setPdfUrl(json.data.pdfUrl);
+        }
+      } catch (err) {
+        console.error("PDF upload failed:", err);
+      } finally {
+        setPdfUploading(false);
+      }
+    };
+    uploadPdf();
+  }, [step, generatedCert]);
 
   const theme = (selectedTemplate?.configuration?.color_theme as any) || {};
   const bgStyle = (selectedTemplate?.configuration?.background_style as any) || {};
@@ -388,45 +427,89 @@ export default function DocumentNewPage() {
 
         {/* Step 4: Generated */}
         {step === 4 && generatedCert && (
-          <Card className="border-primary/30 bg-primary/5">
-            <CardContent className="flex flex-col items-center gap-4 py-8 text-center">
-              <Mascot mood="success" size="xl" message="Certificate stamped and ready!" />
-              <h2 className="text-xl font-bold">Document Generated!</h2>
-              <div className="space-y-2 text-sm">
-                <p>
-                  Certificate Number:{" "}
-                  <span className="font-mono font-bold text-primary">{generatedCert.certificateNumber || generatedCert.certificate_number}</span>
-                </p>
-                <p className="text-muted-foreground">
-                  Verification URL: {PUBLIC_URL}/certificate/{generatedCert.slug}
-                </p>
-              </div>
-              <div className="flex gap-2 mt-2">
-                <Button variant="outline" onClick={() => {
-                  navigator.clipboard.writeText(`${PUBLIC_URL}/certificate/${generatedCert.slug}`);
-                  toast.success("Link copied!");
+          <>
+            {/* Hidden renderer for PDF capture */}
+            <div style={{ position: "absolute", left: "-9999px", top: 0 }}>
+              <CertificateRenderer
+                ref={certRef}
+                data={{
+                  recipientName, courseName, trainingName, companyName, score,
+                  issueDate: new Date(issueDate).toLocaleDateString(),
+                  completionDate: completionDate ? new Date(completionDate).toLocaleDateString() : undefined,
+                  durationText, issuerName: issuerName || "TRUSTIFICATE", issuerTitle,
+                  certificateNumber: generatedCert.certificateNumber || generatedCert.certificate_number,
+                  templateTitle: selectedTemplate?.title || "",
+                  templateSubtitle: selectedTemplate?.configuration?.subtitle,
+                  bodyText: selectedTemplate?.configuration?.body_text || "",
+                  colorTheme: theme,
+                  backgroundPattern: bgStyle.pattern,
+                  signatureImageUrl: sigConfig.signature_image_url,
+                  sealImageUrl: sealConfig.seal_image_url,
+                  showCertNumber: sigConfig.show_cert_number !== false,
+                  layout: selectedTemplate?.layout,
+                  showQrCode: selectedTemplate?.configuration?.show_qr_code === true,
+                  verificationUrl: `${PUBLIC_URL}/certificate/${generatedCert.slug}`,
+                  backdropImageUrl: selectedTemplate?.configuration?.backdrop_image_url || undefined,
+                  logoLayout: logoConfig.layout,
+                  logoAlignment: logoConfig.alignment,
+                  logoLeftUrl: logoConfig.left_url || undefined,
+                  logoRightUrls: Array.isArray(logoConfig.right_urls) ? logoConfig.right_urls : [],
+                }}
+              />
+            </div>
+            <Card className="border-primary/30 bg-primary/5">
+              <CardContent className="flex flex-col items-center gap-4 py-8 text-center">
+                <Mascot mood="success" size="xl" message="Certificate stamped and ready!" />
+                <h2 className="text-xl font-bold">Document Generated!</h2>
+                <div className="space-y-2 text-sm">
+                  <p>
+                    Certificate Number:{" "}
+                    <span className="font-mono font-bold text-primary">{generatedCert.certificateNumber || generatedCert.certificate_number}</span>
+                  </p>
+                  <p className="text-muted-foreground">
+                    Verification URL: {PUBLIC_URL}/certificate/{generatedCert.slug}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-2 justify-center">
+                  <Button variant="outline" onClick={() => {
+                    navigator.clipboard.writeText(`${PUBLIC_URL}/certificate/${generatedCert.slug}`);
+                    toast.success("Link copied!");
+                  }}>
+                    Copy Link
+                  </Button>
+                  {pdfUrl ? (
+                    <Button asChild>
+                      <a href={pdfUrl} target="_blank" rel="noopener noreferrer" download>
+                        Download PDF
+                      </a>
+                    </Button>
+                  ) : pdfUploading ? (
+                    <Button disabled>
+                      <span className="mr-1.5 h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent inline-block" />
+                      Generating PDF...
+                    </Button>
+                  ) : null}
+                  <Button variant="secondary" asChild>
+                    <a href={`/certificate/${generatedCert.slug}`} target="_blank">
+                      View Certificate
+                    </a>
+                  </Button>
+                </div>
+                <Button variant="ghost" className="mt-2" onClick={() => {
+                  setStep(1);
+                  setSelectedTemplate(null);
+                  setRecipientName("");
+                  setRecipientEmail("");
+                  setCourseName("");
+                  setScore("");
+                  setGeneratedCert(null);
+                  setPdfUrl(null);
                 }}>
-                  Copy Link
+                  Issue Another
                 </Button>
-                <Button asChild>
-                  <a href={`/certificate/${generatedCert.slug}`} target="_blank">
-                    View Certificate
-                  </a>
-                </Button>
-              </div>
-              <Button variant="ghost" className="mt-2" onClick={() => {
-                setStep(1);
-                setSelectedTemplate(null);
-                setRecipientName("");
-                setRecipientEmail("");
-                setCourseName("");
-                setScore("");
-                setGeneratedCert(null);
-              }}>
-                Issue Another
-              </Button>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </>
         )}
       </div>
     </AdminLayout>

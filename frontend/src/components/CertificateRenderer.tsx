@@ -418,16 +418,16 @@ export const CertificateRenderer = forwardRef<HTMLDivElement, { data: Certificat
                   style={{
                     display: "block",
                     margin: "0 auto 4px",
-                    height: "56px",
-                    width: "56px",
+                    maxHeight: "72px",
+                    maxWidth: "100px",
                     objectFit: "contain",
                   }}
                 />
               ) : (
                 <div
                   style={{
-                    width: "56px",
-                    height: "56px",
+                    width: "64px",
+                    height: "64px",
                     borderRadius: "50%",
                     border: `2px solid ${secondaryColor}`,
                     display: "flex",
