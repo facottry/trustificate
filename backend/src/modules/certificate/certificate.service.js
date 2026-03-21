@@ -5,7 +5,7 @@ const Event = require('../event/event.schema');
 const { AppError } = require('../../middlewares/error.middleware');
 const usageService = require('../usage/usage.service');
 const { ensureBillingCycle } = require('../organization/organization.service');
-const { sendCertificateReceiverEmail, sendCertificateIssuerEmail } = require('../../services/emailService');
+const { sendTransactional } = require('../../services/emailService');
 const User = require('../user/user.schema');
 
 // Try to load uploadCertificate, but don't crash if unavailable
@@ -119,12 +119,11 @@ const createCertificate = async (data, organizationId, userId) => {
     const templateTitle = data.templateTitle || certificate.issuerName || 'Certificate';
 
     if (certificate.recipientEmail) {
-      sendCertificateReceiverEmail(
+      sendTransactional(
         certificate.recipientEmail,
-        certificate.recipientName,
-        certificate.issuerName || 'TRUSTIFICATE',
-        templateTitle,
-        certLink
+        'certificate-receiver',
+        { recipientName: certificate.recipientName, issuerName: certificate.issuerName || 'TRUSTIFICATE', certificateTitle: templateTitle, certificateLink: certLink },
+        'Your Certificate is Ready'
       ).catch(() => {});
     }
 
@@ -132,11 +131,12 @@ const createCertificate = async (data, organizationId, userId) => {
     if (userId) {
       User.findById(userId).select('email displayName').then((issuer) => {
         if (issuer?.email) {
-          sendCertificateIssuerEmail(
+          const issuanceLogLink = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/documents`;
+          sendTransactional(
             issuer.email,
-            issuer.displayName || 'Issuer',
-            certificate.recipientName,
-            templateTitle
+            'certificate-issuer',
+            { issuerName: issuer.displayName || 'Issuer', recipientName: certificate.recipientName, certificateTitle: templateTitle, issuanceLogLink },
+            'Certificate Issued Successfully'
           ).catch(() => {});
         }
       }).catch(() => {});

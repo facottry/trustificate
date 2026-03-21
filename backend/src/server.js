@@ -2,7 +2,6 @@ require('dotenv').config();
 const http = require('http');
 const app = require('./app');
 
-
 // ── Env validation (fail fast) ─────────────────────────────
 const REQUIRED_ENV = ['JWT_SECRET', 'MONGO_URI'];
 const missing = REQUIRED_ENV.filter((key) => !process.env[key]);
@@ -23,7 +22,6 @@ server.listen(PORT, async () => {
   console.log(`  📄  Swagger:  http://localhost:${PORT}/api-docs`);
   console.log('');
 
-  // Seed default coupons on startup
   try {
     await seedDefaultCoupons();
   } catch (err) {
@@ -36,8 +34,8 @@ const shutdown = async (signal) => {
   console.log(`\n  ⚡  ${signal} received — shutting down gracefully...`);
   server.close(async () => {
     try {
-      
-    const mongoose = require('mongoose'); await mongoose.connection.close();
+      const mongoose = require('mongoose');
+      await mongoose.connection.close();
       console.log('  ✅  Clean shutdown complete');
       process.exit(0);
     } catch (err) {
@@ -45,7 +43,6 @@ const shutdown = async (signal) => {
       process.exit(1);
     }
   });
-  // Force-kill if graceful exit takes more than 10s
   setTimeout(() => { console.error('  ⚠️  Forced exit after timeout'); process.exit(1); }, 10_000);
 };
 

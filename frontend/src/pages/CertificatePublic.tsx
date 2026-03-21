@@ -11,7 +11,7 @@ import { generatePDF, generatePNG } from "@/lib/pdf-generator";
 import { getTemplateFromCertificate } from "@/lib/certificate-snapshot";
 import { CheckCircle, XCircle, Download, Award, Globe, Copy, ExternalLink, Clock, Image } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
-import { apiClient } from "@/lib/apiClient";
+import { apiClient, PUBLIC_URL } from "@/lib/apiClient";
 import { toast } from "sonner";
 import { Mascot, VerificationBadge } from "@/components/Mascot";
 
@@ -92,11 +92,11 @@ export default function CertificatePublicPage() {
   };
 
   const copyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText(verificationUrl);
     toast.success("Verification link copied");
   };
 
-  const verificationUrl = window.location.href;
+  const verificationUrl = `${PUBLIC_URL}/certificate/${slug}`;
   const isValid = cert?.status === "issued";
   const isExternal = cert?.isExternal || cert?.is_external;
 

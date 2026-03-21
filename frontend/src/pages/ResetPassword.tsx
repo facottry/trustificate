@@ -1,6 +1,7 @@
 ﻿import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { apiClient, setAuthToken } from "@/lib/apiClient";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ import { Logo } from "@/components/Logo";
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
+  const { refresh } = useAuth();
   const [searchParams] = useSearchParams();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -73,10 +75,12 @@ export default function ResetPasswordPage() {
 
     setLoading(true);
     try {
-      await apiClient("/api/auth/reset-password", {
+      const { data } = await apiClient<{ token: string; user: any }>("/api/auth/reset-password", {
         method: "POST",
         body: JSON.stringify({ email, newPassword: password, otp, token }),
       });
+      setAuthToken(data.token);
+      await refresh();
       toast.success("Password updated successfully!");
       navigate("/dashboard");
     } catch (error: any) {

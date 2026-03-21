@@ -4,6 +4,10 @@ const certificateService = require('../certificate/certificate.service');
 const Certificate = require('../certificate/certificate.schema');
 const Organization = require('../organization/organization.schema');
 const Template = require('../template/template.schema');
+const subscriberRoutes = require('../subscriber/subscriber.route');
+
+// Mount newsletter/subscriber public routes
+router.use('/newsletter', subscriberRoutes);
 
 /**
  * @swagger

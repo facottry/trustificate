@@ -56,7 +56,12 @@ import SuperAdminPlans from "./pages/super-admin/Plans";
 import SuperAdminCertificates from "./pages/super-admin/Certificates";
 import SuperAdminTemplates from "./pages/super-admin/Templates";
 import SuperAdminAuditLogs from "./pages/super-admin/AuditLogs";
+import SuperAdminNewsletter from "./pages/super-admin/Newsletter";
 import SuperAdminAuth from "./pages/SuperAdminAuth";
+import NewsletterArchive from "./pages/NewsletterArchive";
+import NewsletterDetail from "./pages/NewsletterDetail";
+import NewsletterConfirm from "./pages/NewsletterConfirm";
+import NewsletterUnsubscribed from "./pages/NewsletterUnsubscribed";
 import Playground from "./pages/Playground";
 import AcceptInvite from "./pages/AcceptInvite";
 
@@ -99,6 +104,10 @@ const App = () => (
             <Route path="/verify-certificate-online" element={<OptionalProtectedRoute><VerifyCertificateOnline /></OptionalProtectedRoute>} />
             <Route path="/careers" element={<OptionalProtectedRoute><Careers /></OptionalProtectedRoute>} />
             <Route path="/checkout" element={<OptionalProtectedRoute><Checkout /></OptionalProtectedRoute>} />
+            <Route path="/newsletter" element={<OptionalProtectedRoute><NewsletterArchive /></OptionalProtectedRoute>} />
+            <Route path="/newsletter/confirm" element={<OptionalProtectedRoute><NewsletterConfirm /></OptionalProtectedRoute>} />
+            <Route path="/newsletter/unsubscribed" element={<OptionalProtectedRoute><NewsletterUnsubscribed /></OptionalProtectedRoute>} />
+            <Route path="/newsletter/:slug" element={<OptionalProtectedRoute><NewsletterDetail /></OptionalProtectedRoute>} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
@@ -145,6 +154,7 @@ const App = () => (
             <Route path="/super-admin/certificates" element={<ProtectedRoute><SuperAdminGuard><SuperAdminCertificates /></SuperAdminGuard></ProtectedRoute>} />
             <Route path="/super-admin/templates" element={<ProtectedRoute><SuperAdminGuard><SuperAdminTemplates /></SuperAdminGuard></ProtectedRoute>} />
             <Route path="/super-admin/audit-logs" element={<ProtectedRoute><SuperAdminGuard><SuperAdminAuditLogs /></SuperAdminGuard></ProtectedRoute>} />
+            <Route path="/super-admin/newsletter" element={<ProtectedRoute><SuperAdminGuard><SuperAdminNewsletter /></SuperAdminGuard></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { CertificateRenderer } from "@/components/CertificateRenderer";
 import { toast } from "sonner";
-import { apiClient } from "@/lib/apiClient";
+import { apiClient, PUBLIC_URL } from "@/lib/apiClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useAIAssist } from "@/hooks/useAIAssist";
 import { usePlanGuard } from "@/hooks/usePlanGuard";
@@ -340,7 +340,7 @@ export default function TemplateFormPage() {
     showCertNumber,
     layout,
     showQrCode,
-    verificationUrl: showQrCode ? `${window.location.origin}/certificate/preview` : undefined,
+    verificationUrl: showQrCode ? `${PUBLIC_URL}/certificate/preview` : undefined,
     backdropImageUrl: backdropImageUrl || undefined,
     logoLayout,
     logoAlignment,

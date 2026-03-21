@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, Users, Building2, CreditCard, Package,
-  Award, ScrollText, Shield, Menu, ChevronLeft, FileText
+  Award, ScrollText, Shield, Menu, ChevronLeft, FileText, Mail
 } from "lucide-react";
 
 const navGroups = [
@@ -22,6 +22,7 @@ const navGroups = [
       { title: "Organizations", url: "/super-admin/organizations", icon: Building2 },
       { title: "Certificates", url: "/super-admin/certificates", icon: Award },
       { title: "Templates", url: "/super-admin/templates", icon: FileText },
+      { title: "Newsletter", url: "/super-admin/newsletter", icon: Mail },
     ],
   },
   {

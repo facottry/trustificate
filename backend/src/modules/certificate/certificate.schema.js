@@ -35,7 +35,5 @@ const certificateSchema = new mongoose.Schema(
 );
 
 certificateSchema.index({ organizationId: 1, createdAt: -1 });
-certificateSchema.index({ slug: 1 });
-certificateSchema.index({ certificateNumber: 1 });
 
 module.exports = mongoose.model('Certificate', certificateSchema);

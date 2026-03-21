@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiClient } from "@/lib/apiClient";
+import { PLATFORM_STATS } from "@/data/platformStats";
 
 interface PlatformStats {
   credentialsIssued: number;
@@ -9,12 +10,12 @@ interface PlatformStats {
   loading: boolean;
 }
 
-// SEO-friendly hardcoded fallback values shown when API is unavailable
+// SEO-friendly fallback values from the central PLATFORM_STATS enum
 const FALLBACK_STATS: Omit<PlatformStats, "loading"> = {
-  credentialsIssued: 10000,
-  organizations: 500,
-  verifications: 50000,
-  templates: 1200,
+  credentialsIssued: PLATFORM_STATS.CERTIFICATES_ISSUED,
+  organizations: PLATFORM_STATS.ORGANIZATIONS,
+  verifications: PLATFORM_STATS.VERIFICATIONS,
+  templates: PLATFORM_STATS.TEMPLATES,
 };
 
 export function usePlatformStats(): PlatformStats {

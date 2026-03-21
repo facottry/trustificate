@@ -1,6 +1,8 @@
 ﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PublicLayout } from "@/components/PublicLayout";
+import NewsletterCTA from "@/components/NewsletterCTA"; // newsletter subscription CTA
+import { PLATFORM_STATS } from "@/data/platformStats";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -84,7 +86,7 @@ export default function LandingPage() {
             {[
               { value: fmt(stats.credentialsIssued), label: "Credentials Issued" },
               { value: fmt(stats.organizations), label: "Organizations" },
-              { value: "99.9%", label: "Uptime SLA" },
+              { value: PLATFORM_STATS.UPTIME_SLA, label: "Uptime SLA" },
               { value: fmt(stats.verifications), label: "Verifications" },
             ].map((s) => (
               <div key={s.label} className="text-center">
@@ -201,6 +203,17 @@ export default function LandingPage() {
                 View Pricing
               </Button>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter CTA */}
+      <section className="py-16 lg:py-20">
+        <div className="container max-w-2xl text-center">
+          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl mb-3">Stay in the loop</h2>
+          <p className="text-muted-foreground mb-6">Get the latest updates from Trustificate delivered to your inbox.</p>
+          <div className="flex justify-center">
+            <NewsletterCTA />
           </div>
         </div>
       </section>

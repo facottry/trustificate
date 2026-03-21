@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema(
     resetExpiry: { type: Date, default: null },
     emailVerificationToken: { type: String, default: null },
     emailVerificationExpiry: { type: Date, default: null },
+    newsletterSubscribed: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

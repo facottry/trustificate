@@ -5,9 +5,10 @@ import { posts } from "@/data/blogPosts";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Twitter, Linkedin, Link as LinkIcon } from "lucide-react";
 import { toast } from "sonner";
+import { PUBLIC_URL } from "@/lib/apiClient";
 
 function BlogJsonLd({ post }: { post: typeof posts[0] }) {
-  const url = typeof window !== "undefined" ? window.location.href : "";
+  const url = `${PUBLIC_URL}/blog/${post.slug}`;
   const schema = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -70,7 +71,7 @@ export default function BlogPost() {
   }
 
   const related = posts.filter((p) => p.slug !== slug && p.category === post.category).slice(0, 3);
-  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+  const shareUrl = `${PUBLIC_URL}/blog/${slug}`;
 
   const copyLink = () => {
     navigator.clipboard.writeText(shareUrl);

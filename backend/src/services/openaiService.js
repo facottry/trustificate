@@ -87,6 +87,34 @@ Respond with a JSON object containing these fields.`;
       throw new Error('Failed to generate template suggestions');
     }
   }
+
+  async polishNewsletter(draft) {
+    if (!openai) {
+      throw new Error('OpenAI API key not configured');
+    }
+
+    try {
+      const response = await openai.chat.completions.create({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are a professional copywriter for Trustificate. Rewrite the following draft in a calm, institutional, and trustworthy tone. Return only the rewritten text, no commentary.',
+          },
+          { role: 'user', content: draft },
+        ],
+        temperature: 0.7,
+        max_tokens: 1024,
+      });
+
+      return response.choices[0].message.content;
+    } catch (error) {
+      console.error('OpenAI polish newsletter error:', error);
+      throw new Error('Failed to polish newsletter draft');
+    }
+  }
+
 }
 
 module.exports = new OpenAIService();

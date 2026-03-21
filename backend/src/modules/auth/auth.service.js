@@ -25,8 +25,9 @@ const register = async ({ displayName, email, password }) => {
   await user.save({ validateBeforeSave: false });
 
   // Send verification email with confirmation link
-  const { sendVerificationLinkEmail } = require('../../services/emailService');
-  await sendVerificationLinkEmail(email.toLowerCase(), verificationToken, user.displayName);
+  const { sendTransactional } = require('../../services/emailService');
+  const verificationLink = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/confirm-email?token=${verificationToken}`;
+  await sendTransactional(email.toLowerCase(), 'email-verification-link', { userName: user.displayName, verificationLink }, 'Verify Your Email');
 
   // Do NOT return token on registration - user must verify email first
   return {
@@ -110,8 +111,9 @@ const forgotPassword = async (email) => {
   await user.save({ validateBeforeSave: false });
 
   // Send email with both options
-  const { sendPasswordResetEmail } = require('../../services/emailService');
-  await sendPasswordResetEmail(email, otp, token, user.displayName);
+  const { sendTransactional } = require('../../services/emailService');
+  const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/reset-password?token=${token}&email=${email}`;
+  await sendTransactional(email, 'forgot-password', { userName: user.displayName, otp, resetLink }, 'Reset Your Password');
 };
 
 const validateResetCredential = (user, otp, token) => {
@@ -167,7 +169,21 @@ const resetPassword = async (email, newPassword, otp, token) => {
   user.resetOtp = undefined;
   user.resetToken = undefined;
   user.resetExpiry = undefined;
+  user.lastLoginAt = new Date();
   await user.save();
+
+  const jwtToken = signToken({ id: user._id, role: user.role, organizationId: user.organizationId });
+  return {
+    token: jwtToken,
+    user: {
+      id: user._id,
+      displayName: user.displayName,
+      email: user.email,
+      role: user.role,
+      organizationId: user.organizationId,
+      isEmailVerified: user.isEmailVerified,
+    },
+  };
 };
 
 const verifyEmailLink = async (token) => {
@@ -226,8 +242,9 @@ const resendVerificationLink = async (email) => {
   await user.save({ validateBeforeSave: false });
 
   // Send new verification email
-  const { sendVerificationLinkEmail } = require('../../services/emailService');
-  await sendVerificationLinkEmail(email.toLowerCase(), verificationToken, user.displayName);
+  const { sendTransactional } = require('../../services/emailService');
+  const verificationLink = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/confirm-email?token=${verificationToken}`;
+  await sendTransactional(email.toLowerCase(), 'email-verification-link', { userName: user.displayName, verificationLink }, 'Verify Your Email');
 
   return {
     message: 'Verification link sent successfully',
@@ -259,8 +276,8 @@ const sendVerificationOtp = async (email) => {
   user.otpExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
   await user.save();
 
-  const { sendVerificationEmail } = require('../../services/emailService');
-  await sendVerificationEmail(email, otp);
+  const { sendTransactional } = require('../../services/emailService');
+  await sendTransactional(email, 'email-verification-otp', { userName: user.displayName || 'User', otp }, 'Verify Your Email');
 };
 
 const verifyEmailOtp = async (email, otp) => {
@@ -295,8 +312,8 @@ const forgotPasswordOtp = async (email) => {
   user.otpExpiry = new Date(Date.now() + 15 * 60 * 1000);
   await user.save();
 
-  const { sendPasswordResetEmail } = require('../../services/emailService');
-  await sendPasswordResetEmail(email, otp);
+  const { sendTransactional } = require('../../services/emailService');
+  await sendTransactional(email, 'forgot-password', { userName: user.displayName || 'User', otp, resetLink: `${process.env.FRONTEND_URL || 'http://localhost:8080'}/reset-password` }, 'Reset Your Password');
 };
 
 const resetPasswordOtp = async (email, otp, newPassword) => {

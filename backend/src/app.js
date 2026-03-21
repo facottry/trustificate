@@ -1,3 +1,5 @@
+'use strict';
+
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -17,36 +19,41 @@ const publicRoutes = require('./modules/public/public.route');
 const adminRoutes = require('./modules/admin/admin.route');
 const planRoutes = require('./modules/plan/plan.route');
 const inviteRoutes = require('./modules/invite/invite.route');
+const newsletterRoutes = require('./modules/newsletter/newsletter.route');
 const { requireEmailVerified } = require('./middlewares/emailVerification.middleware');
 
 const app = express();
 
-// ── Database ──────────────────────────────────────────────
+// ── Database ───────────────────────────────────────────────
 connectDB();
 
-// ── Request ID (correlation ID for log tracing) ────────────
+// ── Request ID ────────────────────────────────────────────
 app.use((req, _res, next) => {
   req.id = req.headers['x-request-id'] || randomUUID();
   next();
 });
 
-// ── Environment variables ─────────────────────────────────
-const FRONTEND_URL = process.env.FRONTEND_URL;
+// ── App Version header ────────────────────────────────────
+const { version: APP_VERSION } = require('../package.json');
+app.use((_req, res, next) => {
+  res.setHeader('X-App-Version', APP_VERSION);
+  next();
+});
 
-// ── Security ───────────────────────────────────────────────
+// ── Security ──────────────────────────────────────────────
 app.use(helmet());
+
 const ALLOWED_ORIGINS = [
   'http://localhost:8080',
   'http://localhost:5173',
   'http://localhost:3000',
   'https://trustificate.vercel.app',
   'https://trustificate.clicktory.in',
-  FRONTEND_URL,
+  process.env.FRONTEND_URL,
 ].filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, server-to-server)
     if (!origin) return callback(null, true);
     if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
     callback(new Error(`CORS: origin ${origin} not allowed`));
@@ -54,62 +61,47 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['X-App-Version'],
 }));
-
-// Ensure OPTIONS preflight is handled before any other middleware
 app.options('*', cors());
 
-// ── Body Parsing ───────────────────────────────────────────
+// ── Body Parsing ──────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// ── Rate Limiting — General API ────────────────────────────
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
+// ── Rate Limiting ─────────────────────────────────────────
+app.use('/api', rateLimit({
+  windowMs: 15 * 60 * 1000, max: 100,
+  standardHeaders: true, legacyHeaders: false,
   message: { success: false, message: 'Too many requests. Try again later.' },
   keyGenerator: (req) => req.ip,
-});
-app.use('/api', apiLimiter);
+}));
 
-// ── Rate Limiting — Auth routes (brute-force protection) ───
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100000,
-  standardHeaders: true,
-  legacyHeaders: false,
+app.use('/api/auth', rateLimit({
+  windowMs: 15 * 60 * 1000, max: 100000,
+  standardHeaders: true, legacyHeaders: false,
   message: { success: false, message: 'Too many auth attempts. Try again in 15 minutes.' },
   keyGenerator: (req) => req.ip,
-});
+}));
 
-// ── Rate Limiting — AI routes (prevent abuse) ─────────────
 const aiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50, // 50 AI requests per 15 minutes per user
-  standardHeaders: true,
-  legacyHeaders: false,
+  windowMs: 15 * 60 * 1000, max: 50,
+  standardHeaders: true, legacyHeaders: false,
   message: { success: false, message: 'AI request limit exceeded. Try again later.' },
-  keyGenerator: (req) => req.user?.id || req.ip, // Rate limit by user ID if authenticated
+  keyGenerator: (req) => req.user?.id || req.ip,
 });
-app.use('/api/auth', authLimiter);
 
-// ── Swagger Docs ───────────────────────────────────────────
+// ── Swagger Docs ──────────────────────────────────────────
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customSiteTitle: 'trustificate API Docs',
 }));
 
-// ── Root Route ─────────────────────────────────────────────
-app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Trustificate backend server is up and running!', 
-    timestamp: new Date(),
-    version: '1.3.16'
-  });
+// ── Root ──────────────────────────────────────────────────
+app.get('/', (_req, res) => {
+  res.json({ message: 'Trustificate backend server is up and running!', timestamp: new Date(), version: APP_VERSION });
 });
 
-// ── Routes ─────────────────────────────────────────────────
+// ── Routes ────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/users', requireEmailVerified, userRoutes);
 app.use('/api/organizations', requireEmailVerified, organizationRoutes);
@@ -120,12 +112,12 @@ app.use('/api/certificates', requireEmailVerified, certificateRoutes);
 app.use('/api/ai', requireEmailVerified, aiLimiter, aiRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/admin', requireEmailVerified, adminRoutes);
+app.use('/api/newsletter', requireEmailVerified, newsletterRoutes);
 app.use('/api', requireEmailVerified, planRoutes);
 
-// ── Health Check (pings DB + Redis) ────────────────────────
+// ── Health Check ──────────────────────────────────────────
 app.get('/health', async (_req, res) => {
   try {
-    
     const { readyState } = require('mongoose').connection;
     if (readyState !== 1) throw new Error('MongoDB not ready');
     res.status(200).json({ success: true, project: 'trustificate', status: 'ok', timestamp: new Date() });
@@ -134,16 +126,15 @@ app.get('/health', async (_req, res) => {
   }
 });
 
-// ── 404 Handler ────────────────────────────────────────────
+// ── 404 ───────────────────────────────────────────────────
 app.use((_req, res) => {
   res.status(404).json({ success: false, message: 'Route not found' });
 });
 
-// ── Global Error Handler ───────────────────────────────────
+// ── Global Error Handler ──────────────────────────────────
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, _next) => {
   const status = err.status || 500;
-  // Don't leak stack traces in production
   if (process.env.NODE_ENV !== 'production') console.error(err.stack);
   res.status(status).json({
     success: false,

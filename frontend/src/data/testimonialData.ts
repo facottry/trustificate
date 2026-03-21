@@ -526,16 +526,18 @@ export const testimonialPages: TestimonialPage[] = [
   },
 ];
 
+import { PLATFORM_STATS } from "@/data/platformStats";
+
 export const testimonialOverview = {
   metaTitle: "Customer Testimonials | TRUSTIFICATE Certificate Platform",
   metaDescription: "Read real stories from organizations using TRUSTIFICATE to automate certificate generation and verification. Trusted by course creators, HR teams, universities, and more.",
   heroHeading: "Trusted by Organizations Worldwide",
   heroSubheading: "From startups to universities, see how teams use TRUSTIFICATE to issue professional, verifiable certificates at scale.",
   stats: {
-    totalCertificates: "500,000+",
-    organizations: "2,000+",
-    verificationRate: "99.9%",
-    countriesServed: "45+",
+    totalCertificates: PLATFORM_STATS.CERTIFICATES_ISSUED_LABEL,
+    organizations: PLATFORM_STATS.ORGANIZATIONS_LABEL,
+    verificationRate: PLATFORM_STATS.VERIFICATION_RATE,
+    countriesServed: PLATFORM_STATS.COUNTRIES_SERVED_LABEL,
   },
 };
 

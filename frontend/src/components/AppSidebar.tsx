@@ -1,9 +1,11 @@
-﻿import { LayoutDashboard, FileText, Award, LogOut, ShieldCheck, Settings, BookOpen } from "lucide-react";
+﻿import { LayoutDashboard, FileText, Award, LogOut, ShieldCheck, Settings, BookOpen, AlertTriangle } from "lucide-react";
 import { Logo, LogoIcon } from "@/components/Logo";
 import { MascotInline } from "@/components/Mascot";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { getBackendVersion } from "@/lib/apiClient";
+import { useEffect, useState } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -35,6 +37,18 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const { profile, signOut } = useAuth();
+  const [backendVersion, setBackendVersion] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Poll sessionStorage for backend version (set by apiClient after first request)
+    const check = () => setBackendVersion(getBackendVersion());
+    check();
+    const id = setInterval(check, 2000);
+    return () => clearInterval(id);
+  }, []);
+
+  const frontendVersion = __APP_VERSION__;
+  const versionMismatch = backendVersion !== null && backendVersion !== frontendVersion;
 
   const isActive = (path: string) =>
     location.pathname === path || location.pathname.startsWith(path + "/");
@@ -111,6 +125,33 @@ export function AppSidebar() {
           <p className="mt-1 truncate px-2 text-xs text-muted-foreground">
             {profile.display_name}
           </p>
+        )}
+        {!collapsed && (
+          <div className="mt-1.5 px-2 space-y-0.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-muted-foreground/50">Frontend</span>
+              <span className="text-[10px] tabular-nums text-muted-foreground/50">v{frontendVersion}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-muted-foreground/50">Backend</span>
+              <span className="text-[10px] tabular-nums text-muted-foreground/50">
+                {backendVersion ? `v${backendVersion}` : "—"}
+              </span>
+            </div>
+            {versionMismatch && (
+              <div className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-1 mt-1">
+                <AlertTriangle className="h-3 w-3 text-amber-500 shrink-0" />
+                <span className="text-[10px] text-amber-600 dark:text-amber-400 leading-tight">
+                  Version mismatch
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+        {collapsed && versionMismatch && (
+          <div className="flex justify-center mt-1" title={`Frontend v${frontendVersion} · Backend v${backendVersion}`}>
+            <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+          </div>
         )}
       </SidebarFooter>
     </Sidebar>

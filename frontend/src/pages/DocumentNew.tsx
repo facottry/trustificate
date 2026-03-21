@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CertificateRenderer } from "@/components/CertificateRenderer";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { apiClient } from "@/lib/apiClient";
+import { apiClient, PUBLIC_URL } from "@/lib/apiClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useAIAssist } from "@/hooks/useAIAssist";
 import { usePlanGuard } from "@/hooks/usePlanGuard";
@@ -361,7 +361,7 @@ export default function DocumentNewPage() {
                       showCertNumber: sigConfig.show_cert_number !== false,
                       layout: selectedTemplate.layout,
                       showQrCode: selectedTemplate?.configuration?.show_qr_code === true,
-                      verificationUrl: `${window.location.origin}/certificate/preview`,
+                      verificationUrl: `${PUBLIC_URL}/certificate/preview`,
                       backdropImageUrl: selectedTemplate?.configuration?.backdrop_image_url || undefined,
                       logoLayout: logoConfig.layout,
                       logoAlignment: logoConfig.alignment,
@@ -398,12 +398,12 @@ export default function DocumentNewPage() {
                   <span className="font-mono font-bold text-primary">{generatedCert.certificateNumber || generatedCert.certificate_number}</span>
                 </p>
                 <p className="text-muted-foreground">
-                  Verification URL: {window.location.origin}/certificate/{generatedCert.slug}
+                  Verification URL: {PUBLIC_URL}/certificate/{generatedCert.slug}
                 </p>
               </div>
               <div className="flex gap-2 mt-2">
                 <Button variant="outline" onClick={() => {
-                  navigator.clipboard.writeText(`${window.location.origin}/certificate/${generatedCert.slug}`);
+                  navigator.clipboard.writeText(`${PUBLIC_URL}/certificate/${generatedCert.slug}`);
                   toast.success("Link copied!");
                 }}>
                   Copy Link

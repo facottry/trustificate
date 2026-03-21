@@ -7,7 +7,7 @@ const usageService = require('../usage/usage.service');
 const { ensureBillingCycle } = require('../organization/organization.service');
 const { getPlan, isUnlimited } = require('../../utils/planConfig');
 const { AppError } = require('../../middlewares/error.middleware');
-const { sendTeamInviteEmail } = require('../../services/emailService');
+const { sendTransactional } = require('../../services/emailService');
 
 /**
  * Verify the org is on the enterprise plan.
@@ -84,7 +84,7 @@ const createInvite = async (email, organizationId, invitedBy, role = 'user') => 
   const joinLink = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/accept-invite?token=${token}`;
 
   // Send invite email (non-blocking — don't fail invite creation if email fails)
-  sendTeamInviteEmail(normalizedEmail, org.name, inviterName, joinLink).catch(() => {});
+  sendTransactional(normalizedEmail, 'team-invite', { orgName: org.name, inviterName, joinLink }, "You've Been Invited").catch(() => {});
 
   return invite;
 };
