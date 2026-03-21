@@ -35,12 +35,29 @@ const FRONTEND_URL = process.env.FRONTEND_URL;
 
 // ── Security ───────────────────────────────────────────────
 app.use(helmet());
+const ALLOWED_ORIGINS = [
+  'http://localhost:8080',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://trustificate.vercel.app',
+  'https://trustificate.clicktory.in',
+  FRONTEND_URL,
+].filter(Boolean);
+
 app.use(cors({
-  origin: ['http://localhost:8080', 'http://localhost:5173', 'http://localhost:3000', 'https://trustificate.vercel.app', FRONTEND_URL],
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, server-to-server)
+    if (!origin) return callback(null, true);
+    if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS: origin ${origin} not allowed`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
+// Ensure OPTIONS preflight is handled before any other middleware
+app.options('*', cors());
 
 // ── Body Parsing ───────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
