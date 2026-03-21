@@ -34,7 +34,7 @@ async function generateSitemap() {
 
   try {
     // Connect to database
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGO_URI, { dbName: 'trustificate' });
     console.log('✅ Connected to MongoDB');
 
     // Build XML sitemap

@@ -48,6 +48,7 @@ const ALLOWED_ORIGINS = [
   'http://localhost:5173',
   'http://localhost:3000',
   'https://trustificate.vercel.app',
+  'https://trustificate-47l9u2l2n-facottrys-projects.vercel.app',
   'https://trustificate.clicktory.in',
   process.env.FRONTEND_URL,
 ].filter(Boolean);

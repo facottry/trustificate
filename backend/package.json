@@ -1,6 +1,6 @@
 {
   "name": "trustificate",
-  "version": "1.3.22",
+  "version": "1.3.22.1",
   "description": "trustificate — modular Node.js backend",
   "main": "src/server.js",
   "scripts": {
