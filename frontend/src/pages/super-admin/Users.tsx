@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { SuperAdminLayout } from "@/components/SuperAdminLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,73 +7,37 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
-  DropdownMenuSeparator, DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import { supabase } from "@/integrations/supabase/client";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { apiClient } from "@/lib/apiClient";
 import { Search, MoreHorizontal, Shield, ShieldAlert, Download } from "lucide-react";
 import { toast } from "sonner";
 
 export default function SuperAdminUsers() {
-  const [users, setUsers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const qc = useQueryClient();
   const [search, setSearch] = useState("");
 
-  async function loadUsers() {
-    const { data } = await supabase.rpc("get_admin_users");
-    setUsers(Array.isArray(data) ? data : []);
-    setLoading(false);
-  }
+  const { data: users = [], isLoading } = useQuery({
+    queryKey: ["sa-users"],
+    queryFn: () => apiClient<any[]>("/api/admin/super/users").then((r) => r.data ?? []),
+  });
 
-  useEffect(() => { loadUsers(); }, []);
-
-  const filtered = users.filter((u) => {
+  const filtered = users.filter((u: any) => {
     const q = search.toLowerCase();
-    return (
-      !q ||
-      u.display_name?.toLowerCase().includes(q) ||
-      u.email?.toLowerCase().includes(q) ||
-      u.org_name?.toLowerCase().includes(q)
-    );
+    return !q || u.display_name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q) || u.org_name?.toLowerCase().includes(q);
   });
 
   async function handleRoleChange(userId: string, role: string) {
-    const { error } = await supabase.from("user_roles").insert({ user_id: userId, role } as any);
-    if (error) {
-      if (error.message.includes("duplicate")) toast.info("User already has this role");
-      else toast.error(error.message);
-      return;
+    try {
+      await apiClient(`/api/admin/super/users/${userId}/role`, { method: "PATCH", body: JSON.stringify({ role }) });
+      toast.success(`Role updated to "${role}"`);
+      qc.invalidateQueries({ queryKey: ["sa-users"] });
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to update role");
     }
-    toast.success(`Role "${role}" granted`);
-    await supabase.rpc("log_admin_action", {
-      _action: "grant_role",
-      _target_type: "user",
-      _target_id: userId,
-      _details: `Granted ${role}`,
-    });
-    loadUsers();
-  }
-
-  async function handleRemoveRole(userId: string, role: string) {
-    const { error } = await supabase
-      .from("user_roles")
-      .delete()
-      .eq("user_id", userId)
-      .eq("role", role as any);
-    if (error) { toast.error(error.message); return; }
-    toast.success(`Role "${role}" removed`);
-    await supabase.rpc("log_admin_action", {
-      _action: "remove_role",
-      _target_type: "user",
-      _target_id: userId,
-      _details: `Removed ${role}`,
-    });
-    loadUsers();
   }
 
   function exportCSV() {
-    const rows = filtered.map((u) => ({
+    const rows = filtered.map((u: any) => ({
       name: u.display_name || "",
       email: u.email || "",
       organization: u.org_name || "",
@@ -81,7 +46,7 @@ export default function SuperAdminUsers() {
       created: u.created_at || "",
     }));
     const header = Object.keys(rows[0] || {}).join(",");
-    const csv = [header, ...rows.map((r) => Object.values(r).map(v => `"${v}"`).join(","))].join("\n");
+    const csv = [header, ...rows.map((r: any) => Object.values(r).map((v) => `"${v}"`).join(","))].join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -102,22 +67,13 @@ export default function SuperAdminUsers() {
       <div className="space-y-4">
         <div className="relative max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by name, email, or organization..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 h-9"
-          />
+          <Input placeholder="Search by name, email, or organization..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 h-9" />
         </div>
 
         <Card>
           <CardContent className="p-0">
-            {loading ? (
-              <div className="p-6 space-y-3">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <Skeleton key={i} className="h-10 w-full" />
-                ))}
-              </div>
+            {isLoading ? (
+              <div className="p-6 space-y-3">{Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
             ) : filtered.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-10">No users found</p>
             ) : (
@@ -128,75 +84,47 @@ export default function SuperAdminUsers() {
                       <TableHead className="text-xs">Name</TableHead>
                       <TableHead className="text-xs">Email</TableHead>
                       <TableHead className="text-xs hidden md:table-cell">Organization</TableHead>
-                      <TableHead className="text-xs hidden sm:table-cell">Roles</TableHead>
+                      <TableHead className="text-xs hidden sm:table-cell">Role</TableHead>
                       <TableHead className="text-xs hidden lg:table-cell">Last Sign In</TableHead>
                       <TableHead className="text-xs hidden md:table-cell">Joined</TableHead>
                       <TableHead className="text-xs w-10"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filtered.map((u) => (
-                      <TableRow key={u.id}>
-                        <TableCell className="text-sm font-medium">
-                          {u.display_name || "—"}
-                        </TableCell>
-                        <TableCell className="text-xs text-muted-foreground">
-                          {u.email}
-                        </TableCell>
-                        <TableCell className="text-xs hidden md:table-cell">
-                          {u.org_name || "—"}
-                        </TableCell>
+                    {filtered.map((u: any) => (
+                      <TableRow key={String(u.id)}>
+                        <TableCell className="text-sm font-medium">{u.display_name || "—"}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{u.email}</TableCell>
+                        <TableCell className="text-xs hidden md:table-cell">{u.org_name || "—"}</TableCell>
                         <TableCell className="hidden sm:table-cell">
                           <div className="flex gap-1 flex-wrap">
                             {(u.roles || []).map((r: string) => (
-                              <Badge
-                                key={r}
-                                variant={
-                                  r === "super_admin"
-                                    ? "destructive"
-                                    : r === "admin"
-                                    ? "default"
-                                    : "secondary"
-                                }
-                                className="text-[10px]"
-                              >
-                                {r}
-                              </Badge>
+                              <Badge key={r} variant={r === "super_admin" ? "destructive" : r === "admin" ? "default" : "secondary"} className="text-[10px]">{r}</Badge>
                             ))}
                           </div>
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground hidden lg:table-cell">
-                          {u.last_sign_in_at
-                            ? new Date(u.last_sign_in_at).toLocaleDateString()
-                            : "Never"}
+                          {u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString() : "Never"}
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground hidden md:table-cell">
-                          {new Date(u.created_at).toLocaleDateString()}
+                          {u.created_at ? new Date(u.created_at).toLocaleDateString() : "—"}
                         </TableCell>
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-7 w-7">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
+                              <Button variant="ghost" size="icon" className="h-7 w-7"><MoreHorizontal className="h-4 w-4" /></Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleRoleChange(u.user_id, "admin")}>
+                              <DropdownMenuItem onClick={() => handleRoleChange(String(u.id), "admin")}>
                                 <Shield className="mr-2 h-3.5 w-3.5" /> Grant Admin
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleRoleChange(u.user_id, "super_admin")}>
+                              <DropdownMenuItem onClick={() => handleRoleChange(String(u.id), "super_admin")}>
                                 <ShieldAlert className="mr-2 h-3.5 w-3.5" /> Grant Super Admin
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
-                              {(u.roles || []).map((r: string) => (
-                                <DropdownMenuItem
-                                  key={r}
-                                  className="text-destructive"
-                                  onClick={() => handleRemoveRole(u.user_id, r)}
-                                >
-                                  Remove "{r}" role
-                                </DropdownMenuItem>
-                              ))}
+                              <DropdownMenuItem onClick={() => handleRoleChange(String(u.id), "user")}>
+                                Remove Admin Role
+                              </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>

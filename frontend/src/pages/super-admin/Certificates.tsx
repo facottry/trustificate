@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { SuperAdminLayout } from "@/components/SuperAdminLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,105 +7,47 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
-  DropdownMenuSeparator, DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel,
-  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
-  AlertDialogHeader, AlertDialogTitle
-} from "@/components/ui/alert-dialog";
-import { supabase } from "@/integrations/supabase/client";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { apiClient } from "@/lib/apiClient";
 import { Search, MoreHorizontal, Download, ShieldX, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 export default function SuperAdminCertificates() {
-  const [certs, setCerts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [revokeTarget, setRevokeTarget] = useState<any | null>(null);
 
-  async function loadCerts() {
-    const { data } = await supabase
-      .from("certificates")
-      .select("id, certificate_number, recipient_name, recipient_email, status, issue_date, is_external, created_at, organizations(name), certificate_templates(title)")
-      .order("created_at", { ascending: false })
-      .limit(500);
-    setCerts(data || []);
-    setLoading(false);
-  }
-
-  useEffect(() => { loadCerts(); }, []);
-
-  const filtered = certs.filter((c) => {
-    const q = search.toLowerCase();
-    return (
-      !q ||
-      c.certificate_number?.toLowerCase().includes(q) ||
-      c.recipient_name?.toLowerCase().includes(q) ||
-      c.recipient_email?.toLowerCase().includes(q) ||
-      (c.organizations as any)?.name?.toLowerCase().includes(q)
-    );
+  const { data: certs = [], isLoading } = useQuery({
+    queryKey: ["sa-certs"],
+    queryFn: () => apiClient<any[]>("/api/admin/super/certificates").then((r) => r.data ?? []),
   });
 
-  async function handleRevoke(cert: any) {
-    const { error } = await supabase
-      .from("certificates")
-      .update({ status: "revoked" })
-      .eq("id", cert.id);
-    if (error) { toast.error(error.message); return; }
+  const filtered = certs.filter((c: any) => {
+    const q = search.toLowerCase();
+    return !q || c.certificate_number?.toLowerCase().includes(q) || c.recipient_name?.toLowerCase().includes(q) || c.recipient_email?.toLowerCase().includes(q) || c.org_name?.toLowerCase().includes(q);
+  });
 
-    // Log event
-    await supabase.from("certificate_events").insert({
-      certificate_id: cert.id,
-      event_type: "revoked",
-      actor_id: (await supabase.auth.getUser()).data.user?.id,
-    } as any);
-
-    await supabase.rpc("log_admin_action", {
-      _action: "certificate_revoked",
-      _target_type: "certificate",
-      _target_id: cert.id,
-      _details: `Revoked ${cert.certificate_number}`,
-    });
-
-    toast.success(`Certificate ${cert.certificate_number} revoked`);
-    setRevokeTarget(null);
-    loadCerts();
-  }
-
-  async function handleRestore(cert: any) {
-    const { error } = await supabase
-      .from("certificates")
-      .update({ status: "issued" })
-      .eq("id", cert.id);
-    if (error) { toast.error(error.message); return; }
-
-    await supabase.rpc("log_admin_action", {
-      _action: "certificate_restored",
-      _target_type: "certificate",
-      _target_id: cert.id,
-      _details: `Restored ${cert.certificate_number}`,
-    });
-
-    toast.success(`Certificate ${cert.certificate_number} restored`);
-    loadCerts();
+  async function setCertStatus(certId: string, status: string) {
+    try {
+      await apiClient(`/api/admin/super/certificates/${certId}/status`, { method: "PATCH", body: JSON.stringify({ status }) });
+      toast.success(`Certificate ${status}`);
+      qc.invalidateQueries({ queryKey: ["sa-certs"] });
+      qc.invalidateQueries({ queryKey: ["sa-certs-recent"] });
+      qc.invalidateQueries({ queryKey: ["sa-stats"] });
+    } catch (err: any) {
+      toast.error(err?.message || "Failed");
+    }
   }
 
   function exportCSV() {
-    const rows = filtered.map((c) => ({
-      number: c.certificate_number,
-      recipient: c.recipient_name,
-      email: c.recipient_email || "",
-      issuer: (c.organizations as any)?.name || "",
-      template: (c.certificate_templates as any)?.title || "",
-      status: c.status,
-      issue_date: c.issue_date,
-      type: c.is_external ? "External" : "Internal",
+    const rows = filtered.map((c: any) => ({
+      number: c.certificate_number, recipient: c.recipient_name, email: c.recipient_email || "",
+      issuer: c.org_name || "", template: c.template_title || "", status: c.status,
+      issue_date: c.issue_date, type: c.is_external ? "External" : "Internal",
     }));
     const header = Object.keys(rows[0] || {}).join(",");
-    const csv = [header, ...rows.map((r) => Object.values(r).map(v => `"${v}"`).join(","))].join("\n");
+    const csv = [header, ...rows.map((r: any) => Object.values(r).map((v) => `"${v}"`).join(","))].join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -112,18 +55,14 @@ export default function SuperAdminCertificates() {
     a.click();
   }
 
-  const issuedCount = certs.filter((c) => c.status === "issued").length;
-  const revokedCount = certs.filter((c) => c.status === "revoked").length;
+  const issuedCount = certs.filter((c: any) => c.status === "issued").length;
+  const revokedCount = certs.filter((c: any) => c.status === "revoked").length;
 
   return (
     <SuperAdminLayout
       title="Certificates"
       subtitle={`${certs.length} total · ${issuedCount} active · ${revokedCount} revoked`}
-      actions={
-        <Button variant="outline" size="sm" className="text-xs" onClick={exportCSV}>
-          <Download className="mr-1 h-3.5 w-3.5" /> Export CSV
-        </Button>
-      }
+      actions={<Button variant="outline" size="sm" className="text-xs" onClick={exportCSV}><Download className="mr-1 h-3.5 w-3.5" /> Export CSV</Button>}
     >
       <div className="space-y-4">
         <div className="relative max-w-sm">
@@ -133,7 +72,7 @@ export default function SuperAdminCertificates() {
 
         <Card>
           <CardContent className="p-0">
-            {loading ? (
+            {isLoading ? (
               <div className="p-6 space-y-3">{Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
             ) : filtered.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-10">No certificates found</p>
@@ -153,8 +92,8 @@ export default function SuperAdminCertificates() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filtered.map((c) => (
-                      <TableRow key={c.id}>
+                    {filtered.map((c: any) => (
+                      <TableRow key={String(c.id)}>
                         <TableCell className="font-mono text-xs">{c.certificate_number?.slice(0, 20)}</TableCell>
                         <TableCell>
                           <div>
@@ -162,17 +101,17 @@ export default function SuperAdminCertificates() {
                             {c.recipient_email && <p className="text-[10px] text-muted-foreground">{c.recipient_email}</p>}
                           </div>
                         </TableCell>
-                        <TableCell className="text-xs hidden md:table-cell">{(c.organizations as any)?.name || "—"}</TableCell>
-                        <TableCell className="text-xs text-muted-foreground hidden lg:table-cell">{(c.certificate_templates as any)?.title || "—"}</TableCell>
+                        <TableCell className="text-xs hidden md:table-cell">{c.org_name || "—"}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground hidden lg:table-cell">{c.template_title || "—"}</TableCell>
                         <TableCell>
-                          <Badge variant={c.status === "issued" ? "default" : c.status === "revoked" ? "destructive" : "secondary"} className="text-[10px]">
-                            {c.status}
-                          </Badge>
+                          <Badge variant={c.status === "issued" ? "default" : c.status === "revoked" ? "destructive" : "secondary"} className="text-[10px]">{c.status}</Badge>
                         </TableCell>
                         <TableCell className="hidden sm:table-cell">
                           <Badge variant="outline" className="text-[10px]">{c.is_external ? "External" : "Internal"}</Badge>
                         </TableCell>
-                        <TableCell className="text-xs text-muted-foreground hidden md:table-cell">{new Date(c.issue_date).toLocaleDateString()}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground hidden md:table-cell">
+                          {c.issue_date ? new Date(c.issue_date).toLocaleDateString() : "—"}
+                        </TableCell>
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -181,11 +120,11 @@ export default function SuperAdminCertificates() {
                             <DropdownMenuContent align="end">
                               {c.status === "issued" ? (
                                 <DropdownMenuItem className="text-destructive" onClick={() => setRevokeTarget(c)}>
-                                  <ShieldX className="mr-2 h-3.5 w-3.5" /> Revoke Certificate
+                                  <ShieldX className="mr-2 h-3.5 w-3.5" /> Revoke
                                 </DropdownMenuItem>
                               ) : c.status === "revoked" ? (
-                                <DropdownMenuItem onClick={() => handleRestore(c)}>
-                                  <ShieldCheck className="mr-2 h-3.5 w-3.5" /> Restore Certificate
+                                <DropdownMenuItem onClick={() => setCertStatus(String(c.id), "issued")}>
+                                  <ShieldCheck className="mr-2 h-3.5 w-3.5" /> Restore
                                 </DropdownMenuItem>
                               ) : null}
                             </DropdownMenuContent>
@@ -200,18 +139,17 @@ export default function SuperAdminCertificates() {
           </CardContent>
         </Card>
 
-        {/* Revoke Confirmation */}
         <AlertDialog open={!!revokeTarget} onOpenChange={(open) => !open && setRevokeTarget(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Revoke Certificate?</AlertDialogTitle>
               <AlertDialogDescription>
-                This will revoke certificate <span className="font-mono font-semibold">{revokeTarget?.certificate_number}</span> issued to <span className="font-semibold">{revokeTarget?.recipient_name}</span>. This action is logged and can be reversed.
+                This will revoke <span className="font-mono font-semibold">{revokeTarget?.certificate_number}</span> issued to <span className="font-semibold">{revokeTarget?.recipient_name}</span>. This can be reversed.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => revokeTarget && handleRevoke(revokeTarget)}>
+              <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => { setCertStatus(String(revokeTarget?.id), "revoked"); setRevokeTarget(null); }}>
                 Revoke
               </AlertDialogAction>
             </AlertDialogFooter>

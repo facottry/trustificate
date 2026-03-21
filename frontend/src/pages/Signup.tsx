@@ -1,5 +1,5 @@
 ﻿import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { apiClient, setAuthToken } from "@/lib/apiClient";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,8 @@ import { Mascot } from "@/components/Mascot";
 
 export default function SignupPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const inviteToken = searchParams.get("invite") || "";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,7 +39,11 @@ export default function SignupPage() {
       toast.success('Account created! Please check your email for verification.');
       // Store pending verification email for reference
       localStorage.setItem('TRUSTIFICATE:pendingVerificationEmail', email);
-      navigate('/verify-email-link', { state: { email, displayName: name } });
+      // If coming from an invite link, store the token so AcceptInvite can pick it up after verification
+      if (inviteToken) {
+        localStorage.setItem('TRUSTIFICATE:pendingInviteToken', inviteToken);
+      }
+      navigate('/verify-email-link', { state: { email, displayName: name, inviteToken: inviteToken || undefined } });
     } catch (err: any) {
       toast.error(err.message || 'Signup failed');
     } finally {
@@ -62,7 +68,11 @@ export default function SignupPage() {
         <Card>
           <CardHeader className="text-center">
             <CardTitle>Create your account</CardTitle>
-            <CardDescription>Start issuing verifiable credentials in minutes</CardDescription>
+            <CardDescription>
+              {inviteToken
+                ? "Create an account to accept your team invite"
+                : "Start issuing verifiable credentials in minutes"}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Button variant="outline" className="w-full" onClick={handleGoogleSignup} disabled={googleLoading}>

@@ -106,8 +106,54 @@ export default function Checkout() {
     }
   }
 
-  // Redirect if plan param is missing or invalid
-  if (!planSlug || !tier || tier.name === "Free" || tier.name === "Enterprise") {
+  // Enterprise plan — show contact sales screen
+  if (planSlug === "enterprise" || tier?.name === "Enterprise") {
+    return (
+      <PublicLayout>
+        <section className="py-20 lg:py-28">
+          <div className="container">
+            <div className="mx-auto max-w-md text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-6">
+                <ShieldCheck className="h-8 w-8 text-primary" />
+              </div>
+              <h1 className="text-2xl font-bold mb-2">Enterprise Plan</h1>
+              <p className="text-muted-foreground mb-6">
+                Enterprise pricing is custom. Get unlimited certificates, dedicated support, SSO, and a tailored onboarding experience.
+              </p>
+              <Card className="text-left mb-6">
+                <CardContent className="pt-4 space-y-2 text-sm">
+                  {[
+                    "Unlimited certificates & templates",
+                    "Team collaboration (unlimited members)",
+                    "Priority support & SLA",
+                    "Custom branding & white-label",
+                    "API access & webhooks",
+                    "Audit logs & compliance exports",
+                  ].map((f) => (
+                    <div key={f} className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                      <span>{f}</span>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+              <div className="flex flex-col gap-3">
+                <Button className="w-full h-11" asChild>
+                  <a href="mailto:sales@trustificate.com?subject=Enterprise Plan Inquiry">Contact Sales</a>
+                </Button>
+                <Button variant="outline" onClick={() => navigate("/pricing")}>
+                  <ArrowLeft className="mr-1 h-4 w-4" /> Back to Pricing
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </PublicLayout>
+    );
+  }
+
+  // Redirect if plan param is missing or invalid (Free plan has no checkout)
+  if (!planSlug || !tier || tier.name === "Free") {
     navigate("/pricing");
     return null;
   }

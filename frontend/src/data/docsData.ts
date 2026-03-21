@@ -55,7 +55,7 @@ Content-Type: application/json
 | Free       | 10          | 50                  |
 | Starter    | 60          | 500                 |
 | Pro        | 300         | 5,000               |
-| Enterprise | Custom      | Unlimited           |
+| Enterprise | Custom      | 10,000+             |
 
 ## Need Help?
 

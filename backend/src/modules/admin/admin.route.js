@@ -1,57 +1,25 @@
 const express = require('express');
 const router = express.Router();
-const adminController = require('./admin.controller');
-const { protect } = require('../../middlewares/auth.middleware');
+const c = require('./admin.controller');
+const { protect, restrictTo } = require('../../middlewares/auth.middleware');
 
-/**
- * @swagger
- * tags:
- *   name: Admin
- *   description: Admin operations
- */
+// SuperAdminGuard on frontend checks role === 'admin'; accept both admin and super_admin
+const sa = [protect, restrictTo('admin', 'super_admin')];
 
-/**
- * @swagger
- * /api/admin/users:
- *   get:
- *     summary: Get admin users
- *     tags: [Admin]
- *     security:
- *       - bearerAuth: []
- */
-router.get('/users', protect, adminController.getAdminUsers);
+router.get('/super/stats',           ...sa, c.getSuperStats);
+router.get('/super/users',           ...sa, c.getSuperUsers);
+router.patch('/super/users/:userId/role', ...sa, c.assignRole);
+router.get('/super/organizations',   ...sa, c.getSuperOrgs);
+router.patch('/super/organizations/:orgId/plan', ...sa, c.changeOrgPlan);
+router.get('/super/certificates',    ...sa, c.getSuperCerts);
+router.patch('/super/certificates/:certId/status', ...sa, c.setCertStatus);
+router.get('/super/templates',       ...sa, c.getSuperTemplates);
+router.get('/super/billing',         ...sa, c.getSuperBilling);
+router.get('/super/plans',           ...sa, c.getSuperPlans);
+router.get('/super/audit-logs',      ...sa, c.getAuditLogs);
 
-/**
- * @swagger
- * /api/admin/log:
- *   post:
- *     summary: Log admin action
- *     tags: [Admin]
- *     security:
- *       - bearerAuth: []
- */
-router.post('/log', protect, adminController.logAdminAction);
-
-/**
- * @swagger
- * /api/admin/user-roles:
- *   post:
- *     summary: Assign user role
- *     tags: [Admin]
- *     security:
- *       - bearerAuth: []
- */
-router.post('/user-roles', protect, adminController.assignUserRole);
-
-/**
- * @swagger
- * /api/admin/user-roles:
- *   get:
- *     summary: List user roles
- *     tags: [Admin]
- *     security:
- *       - bearerAuth: []
- */
-router.get('/user-roles', protect, adminController.listUserRoles);
+// Legacy
+router.post('/log',        protect, c.logAdminAction);
+router.get('/user-roles',  protect, c.listUserRoles);
 
 module.exports = router;

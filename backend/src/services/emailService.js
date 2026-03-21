@@ -188,6 +188,19 @@ const sendVerificationLinkEmail = async (email, token, userName) => {
   await transporter.sendMail(mailOptions);
 };
 
+const sendTeamInviteEmail = async (email, orgName, inviterName, joinLink) => {
+  const html = compileTemplate('team-invite', { orgName, inviterName, joinLink });
+
+  const mailOptions = {
+    from: process.env.FROM_EMAIL || 'noreply@trustificate.com',
+    to: email,
+    subject: `You've been invited to join ${orgName} on Trustificate`,
+    html,
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
 module.exports = {
   sendVerificationEmail,
   sendVerificationLinkEmail,
@@ -196,4 +209,5 @@ module.exports = {
   sendCertificateReceiverEmail,
   sendCertificateIssuerEmail,
   sendPasswordChangedEmail,
+  sendTeamInviteEmail,
 };

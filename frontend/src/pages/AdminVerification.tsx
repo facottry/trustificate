@@ -8,11 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search, ShieldCheck, ShieldX, AlertCircle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { apiClient } from "@/lib/apiClient";
 
 export default function AdminVerificationPage() {
-  const { profile } = useAuth();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -24,14 +22,12 @@ export default function AdminVerificationPage() {
     setLoading(true);
     setSearched(true);
 
-    const { data } = await supabase
-      .from("certificates")
-      .select("*, certificate_templates(title)")
-      .or(`certificate_number.ilike.%${query.trim()}%,recipient_name.ilike.%${query.trim()}%,recipient_email.ilike.%${query.trim()}%`)
-      .order("created_at", { ascending: false })
-      .limit(20);
-
-    setResults(data || []);
+    try {
+      const { data } = await apiClient<any[]>(`/api/certificates?search=${encodeURIComponent(query.trim())}&limit=20`);
+      setResults(data || []);
+    } catch {
+      setResults([]);
+    }
     setLoading(false);
   };
 
@@ -81,13 +77,13 @@ export default function AdminVerificationPage() {
                   </TableHeader>
                   <TableBody>
                     {results.map((c) => (
-                      <TableRow key={c.id}>
+                      <TableRow key={c._id || c.id}>
                         <TableCell>
                           <Link to={`/certificate/${c.slug}`} target="_blank" className="font-mono text-sm text-primary hover:underline">
-                            {c.certificate_number}
+                            {c.certificateNumber || c.certificate_number}
                           </Link>
                         </TableCell>
-                        <TableCell className="font-medium">{c.recipient_name}</TableCell>
+                        <TableCell className="font-medium">{c.recipientName || c.recipient_name}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1.5">
                             {c.status === "issued" ? (
@@ -101,10 +97,10 @@ export default function AdminVerificationPage() {
                           </div>
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">
-                          {c.is_external ? "External" : (c.certificate_templates as any)?.title || "Platform"}
+                          {(c.isExternal || c.is_external) ? "External" : (c.templateId?.title || "Platform")}
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">
-                          {new Date(c.issue_date).toLocaleDateString()}
+                          {new Date(c.issueDate || c.issue_date).toLocaleDateString()}
                         </TableCell>
                       </TableRow>
                     ))}

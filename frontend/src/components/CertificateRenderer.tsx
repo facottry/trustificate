@@ -190,6 +190,7 @@ export const CertificateRenderer = forwardRef<HTMLDivElement, { data: Certificat
                   color: "white",
                   fontWeight: "bold",
                   fontSize: "18px",
+                  lineHeight: 1,
                   backgroundColor: primaryColor,
                 }}
               >
@@ -283,7 +284,7 @@ export const CertificateRenderer = forwardRef<HTMLDivElement, { data: Certificat
               paddingTop: "16px",
             }}
           >
-            <div style={{ textAlign: "center" }}>
+            <div style={{ textAlign: "center", flex: 1 }}>
               {data.signatureImageUrl ? (
                 <img
                   src={data.signatureImageUrl}
@@ -301,6 +302,7 @@ export const CertificateRenderer = forwardRef<HTMLDivElement, { data: Certificat
                   style={{
                     marginBottom: "4px",
                     width: "128px",
+                    margin: "0 auto 4px",
                     borderTop: `1px solid ${primaryColor}`,
                   }}
                 />
@@ -328,14 +330,14 @@ export const CertificateRenderer = forwardRef<HTMLDivElement, { data: Certificat
               )}
             </div>
 
-            <div style={{ textAlign: "center" }}>
+            <div style={{ textAlign: "center", flex: 1 }}>
               {data.sealImageUrl ? (
                 <img
                   src={data.sealImageUrl}
                   alt="Seal"
                   style={{
                     display: "block",
-                    margin: "0 auto 8px",
+                    margin: "0 auto 4px",
                     height: "56px",
                     width: "56px",
                     objectFit: "contain",
@@ -351,13 +353,14 @@ export const CertificateRenderer = forwardRef<HTMLDivElement, { data: Certificat
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    margin: "0 auto 8px",
+                    margin: "0 auto 4px",
                   }}
                 >
                   <span
                     style={{
                       fontSize: "12px",
                       fontWeight: "bold",
+                      lineHeight: 1,
                       color: secondaryColor,
                     }}
                   >
@@ -377,11 +380,12 @@ export const CertificateRenderer = forwardRef<HTMLDivElement, { data: Certificat
             </div>
 
             {showCertNum && (
-              <div style={{ textAlign: "center" }}>
+              <div style={{ textAlign: "center", flex: 1 }}>
                 <div
                   style={{
                     marginBottom: "4px",
                     width: "128px",
+                    margin: "0 auto 4px",
                     borderTop: `1px solid ${primaryColor}`,
                   }}
                 />

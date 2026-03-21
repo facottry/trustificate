@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "@/hooks/useAuth";
 import { ArrowLeft, Globe, Upload } from "lucide-react";
 
@@ -43,30 +43,32 @@ export default function ExternalCertNewPage() {
 
     const slug = `ext-${certNumber.toLowerCase().replace(/[^a-z0-9]/g, "-")}-${Date.now().toString(36)}`;
 
-    const { error } = await supabase.from("certificates").insert({
-      certificate_number: certNumber.trim(),
-      slug,
-      recipient_name: recipientName.trim(),
-      recipient_email: recipientEmail.trim() || null,
-      issuer_name: title.trim(),
-      original_issuer: originalIssuer.trim() || null,
-      issue_date: issueDate,
-      external_pdf_url: externalPdfUrl,
-      external_verification_url: verificationUrl.trim() || null,
-      notes: notes.trim() || null,
-      is_external: true,
-      status: "issued",
-      organization_id: profile?.organization_id,
-      uploaded_by: user?.id,
-      created_by: user?.id,
-    });
-
-    setSaving(false);
-    if (error) {
-      toast.error(error.message);
-    } else {
+    try {
+      await apiClient('/api/certificates', {
+        method: 'POST',
+        body: JSON.stringify({
+          certificateNumber: certNumber.trim(),
+          slug,
+          recipientName: recipientName.trim(),
+          recipientEmail: recipientEmail.trim() || null,
+          issuerName: title.trim(),
+          originalIssuer: originalIssuer.trim() || null,
+          issueDate,
+          externalPdfUrl: externalPdfUrl,
+          externalVerificationUrl: verificationUrl.trim() || null,
+          notes: notes.trim() || null,
+          isExternal: true,
+          status: "issued",
+          organizationId: profile?.organization_id,
+          createdBy: user?.id,
+        }),
+      });
+      setSaving(false);
       toast.success("External certificate registered!");
       navigate("/registry");
+    } catch (err: any) {
+      setSaving(false);
+      toast.error(err?.message || "Failed to register certificate");
     }
   };
 

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/apiClient";
 import { Search, Download } from "lucide-react";
 
 export default function SuperAdminTemplates() {
@@ -15,32 +15,29 @@ export default function SuperAdminTemplates() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    supabase
-      .from("certificate_templates")
-      .select("id, title, subtitle, number_prefix, layout, is_active, created_at, organizations(name)")
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        setTemplates(data || []);
-        setLoading(false);
-      });
+    apiClient("/api/admin/super/templates")
+      .then((res) => setTemplates(res.data || []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   const filtered = templates.filter((t) => {
     const q = search.toLowerCase();
-    return !q || t.title?.toLowerCase().includes(q) || (t.organizations as any)?.name?.toLowerCase().includes(q);
+    return !q || t.title?.toLowerCase().includes(q) || t.org_name?.toLowerCase().includes(q);
   });
 
   function exportCSV() {
     const rows = filtered.map((t) => ({
       title: t.title,
-      prefix: t.number_prefix,
-      layout: t.layout,
+      subtitle: t.subtitle || "",
+      prefix: t.number_prefix || "",
+      layout: t.layout || "",
       active: t.is_active ? "Yes" : "No",
-      organization: (t.organizations as any)?.name || "",
+      organization: t.org_name || "",
       created: t.created_at,
     }));
     const header = Object.keys(rows[0] || {}).join(",");
-    const csv = [header, ...rows.map((r) => Object.values(r).map(v => `"${v}"`).join(","))].join("\n");
+    const csv = [header, ...rows.map((r) => Object.values(r).map((v) => `"${v}"`).join(","))].join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -61,13 +58,20 @@ export default function SuperAdminTemplates() {
       <div className="space-y-4">
         <div className="relative max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search templates..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 h-9" />
+          <Input
+            placeholder="Search templates..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 h-9"
+          />
         </div>
 
         <Card>
           <CardContent className="p-0">
             {loading ? (
-              <div className="p-6 space-y-3">{Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
+              <div className="p-6 space-y-3">
+                {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
+              </div>
             ) : filtered.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-10">No templates found</p>
             ) : (
@@ -86,20 +90,22 @@ export default function SuperAdminTemplates() {
                   </TableHeader>
                   <TableBody>
                     {filtered.map((t) => (
-                      <TableRow key={t.id}>
+                      <TableRow key={t.id || t._id}>
                         <TableCell className="text-sm font-medium">{t.title}</TableCell>
                         <TableCell className="text-xs text-muted-foreground hidden sm:table-cell">{t.subtitle || "—"}</TableCell>
-                        <TableCell className="text-xs hidden md:table-cell">{(t.organizations as any)?.name || "—"}</TableCell>
-                        <TableCell className="font-mono text-xs">{t.number_prefix}</TableCell>
+                        <TableCell className="text-xs hidden md:table-cell">{t.org_name || "—"}</TableCell>
+                        <TableCell className="font-mono text-xs">{t.number_prefix || "—"}</TableCell>
                         <TableCell className="hidden sm:table-cell">
-                          <Badge variant="outline" className="text-[10px] capitalize">{t.layout}</Badge>
+                          <Badge variant="outline" className="text-[10px] capitalize">{t.layout || "—"}</Badge>
                         </TableCell>
                         <TableCell>
                           <Badge variant={t.is_active ? "default" : "secondary"} className="text-[10px]">
                             {t.is_active ? "Active" : "Inactive"}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-xs text-muted-foreground hidden md:table-cell">{new Date(t.created_at).toLocaleDateString()}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground hidden md:table-cell">
+                          {t.created_at ? new Date(t.created_at).toLocaleDateString() : "—"}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

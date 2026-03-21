@@ -16,6 +16,7 @@ const aiRoutes = require('./modules/ai/ai.route');
 const publicRoutes = require('./modules/public/public.route');
 const adminRoutes = require('./modules/admin/admin.route');
 const planRoutes = require('./modules/plan/plan.route');
+const inviteRoutes = require('./modules/invite/invite.route');
 const { requireEmailVerified } = require('./middlewares/emailVerification.middleware');
 
 const app = express();
@@ -95,6 +96,8 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', requireEmailVerified, userRoutes);
 app.use('/api/organizations', requireEmailVerified, organizationRoutes);
+app.use('/api/organizations/:orgId/invites', requireEmailVerified, inviteRoutes.orgRouter);
+app.use('/api/invites', inviteRoutes.publicRouter);
 app.use('/api/templates', requireEmailVerified, templateRoutes);
 app.use('/api/certificates', requireEmailVerified, certificateRoutes);
 app.use('/api/ai', requireEmailVerified, aiLimiter, aiRoutes);

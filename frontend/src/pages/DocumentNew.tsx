@@ -386,7 +386,7 @@ export default function DocumentNewPage() {
               <div className="space-y-2 text-sm">
                 <p>
                   Certificate Number:{" "}
-                  <span className="font-mono font-bold text-primary">{generatedCert.certificate_number}</span>
+                  <span className="font-mono font-bold text-primary">{generatedCert.certificateNumber || generatedCert.certificate_number}</span>
                 </p>
                 <p className="text-muted-foreground">
                   Verification URL: {window.location.origin}/certificate/{generatedCert.slug}

@@ -15,6 +15,39 @@ import { apiClient } from "@/lib/apiClient";
 import { toast } from "sonner";
 import { Mascot, VerificationBadge } from "@/components/Mascot";
 
+// Scales the certificate to fill its container width responsively
+function ScaledCertificate({ children, layout }: { children: React.ReactNode; layout?: string }) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0.75);
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    // landscape cert is 1056px wide, portrait is 748px wide
+    const certW = layout === "portrait" ? 748 : 1056;
+    const update = () => {
+      const available = el.clientWidth;
+      setScale(Math.min(1, available / certW));
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [layout]);
+
+  // landscape cert is 748px tall, portrait is 1056px tall
+  const certH = layout === "portrait" ? 1056 : 748;
+  const certW = layout === "portrait" ? 748 : 1056;
+
+  return (
+    <div ref={wrapRef} className="w-full" style={{ height: certH * scale }}>
+      <div style={{ transform: `scale(${scale})`, transformOrigin: "top left", width: certW, height: certH }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export default function CertificatePublicPage() {
   const { slug } = useParams();
   const certRef = useRef<HTMLDivElement>(null);
@@ -45,16 +78,16 @@ export default function CertificatePublicPage() {
   }, [slug]);
 
   const handleDownload = async () => {
-    if (cert?.is_external && cert?.external_pdf_url) {
-      window.open(cert.external_pdf_url, "_blank");
+    if ((cert?.isExternal || cert?.is_external) && (cert?.externalPdfUrl || cert?.external_pdf_url)) {
+      window.open(cert.externalPdfUrl || cert.external_pdf_url, "_blank");
     } else if (certRef.current && cert) {
-      await generatePDF(certRef.current, `${cert.certificate_number}.pdf`);
+      await generatePDF(certRef.current, `${cert.certificateNumber || cert.certificate_number}.pdf`);
     }
   };
 
   const handleDownloadPNG = async () => {
     if (certRef.current && cert) {
-      await generatePNG(certRef.current, `${cert.certificate_number}.png`);
+      await generatePNG(certRef.current, `${cert.certificateNumber || cert.certificate_number}.png`);
     }
   };
 
@@ -65,11 +98,34 @@ export default function CertificatePublicPage() {
 
   const verificationUrl = window.location.href;
   const isValid = cert?.status === "issued";
-  const isExternal = cert?.is_external;
+  const isExternal = cert?.isExternal || cert?.is_external;
+
+  // Normalize field access — backend returns camelCase, some legacy code used snake_case
+  const certNum = cert?.certificateNumber || cert?.certificate_number || "";
+  const recipientName = cert?.recipientName || cert?.recipient_name || "";
+  const courseName = cert?.courseName || cert?.course_name || "";
+  const trainingName = cert?.trainingName || cert?.training_name || "";
+  const companyName = cert?.companyName || cert?.company_name || "";
+  const score = cert?.score || "";
+  const issueDate = cert?.issueDate || cert?.issue_date;
+  const completionDate = cert?.completionDate || cert?.completion_date;
+  const durationText = cert?.durationText || cert?.duration_text || "";
+  const issuerName = cert?.issuerName || cert?.issuer_name || "";
+  const issuerTitle = cert?.issuerTitle || cert?.issuer_title || "";
+  const originalIssuer = cert?.originalIssuer || cert?.original_issuer || "";
+  const externalVerificationUrl = cert?.externalVerificationUrl || cert?.external_verification_url || "";
+  const notes = cert?.notes || "";
+
   const theme = (template?.color_theme as any) || {};
   const bgStyle = (template?.background_style as any) || {};
   const sigConfig = (template?.signature_config as any) || {};
   const sealConfig = (template?.seal_config as any) || {};
+
+  const fmtDate = (d: any) => {
+    if (!d) return "N/A";
+    const parsed = new Date(d);
+    return isNaN(parsed.getTime()) ? "N/A" : parsed.toLocaleDateString();
+  };
 
   if (loading) {
     return (
@@ -100,10 +156,10 @@ export default function CertificatePublicPage() {
 
   return (
     <PublicLayout>
-      <div className="container py-8 lg:py-12">
-        <div className="mx-auto max-w-4xl space-y-6">
+      <div className="container max-w-6xl py-4 lg:py-6">
+        <div className="space-y-4">
           {/* Verification Banner */}
-          <div className={`flex items-center gap-3 rounded-lg border p-4 ${
+          <div className={`flex items-center gap-3 rounded-lg border px-4 py-3 ${
             isValid
               ? "border-success/30 bg-success/5"
               : "border-destructive/30 bg-destructive/5"
@@ -126,125 +182,69 @@ export default function CertificatePublicPage() {
             )}
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-3">
+          <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
             {/* Certificate Preview */}
-            <div className="lg:col-span-2">
-              <Card>
-                <CardContent className="p-6">
-                  {isExternal ? (
-                    <div className="flex flex-col items-center gap-3 py-8 text-center">
-                      <Globe className="h-10 w-10 text-muted-foreground/20" />
-                      <div>
-                        <h3 className="text-base font-medium">{cert.issuer_name}</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">Externally Registered Certificate</p>
-                      </div>
-                      {cert.original_issuer && (
-                        <p className="text-sm">
-                          Original Issuer: <span className="font-medium">{cert.original_issuer}</span>
-                        </p>
-                      )}
-                      {cert.external_verification_url && (
-                        <Button variant="outline" size="sm" asChild>
-                          <a href={cert.external_verification_url} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
-                            Original Verification
-                          </a>
-                        </Button>
-                      )}
-                      {cert.notes && (
-                        <p className="text-xs text-muted-foreground max-w-md">{cert.notes}</p>
-                      )}
+            <Card className="overflow-hidden">
+              <CardContent className="p-3">
+                {isExternal ? (
+                  <div className="flex flex-col items-center gap-3 py-8 text-center">
+                    <Globe className="h-10 w-10 text-muted-foreground/20" />
+                    <div>
+                      <h3 className="text-base font-medium">{issuerName}</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">Externally Registered Certificate</p>
                     </div>
-                  ) : (
-                    <div className="flex justify-center overflow-auto">
-                      <div className="scale-[0.55] origin-top">
-                        <CertificateRenderer
-                          ref={certRef}
-                          data={{
-                            recipientName: cert.recipient_name,
-                            courseName: cert.course_name,
-                            trainingName: cert.training_name,
-                            companyName: cert.company_name,
-                            score: cert.score,
-                            issueDate: new Date(cert.issue_date).toLocaleDateString(),
-                            completionDate: cert.completion_date ? new Date(cert.completion_date).toLocaleDateString() : undefined,
-                            durationText: cert.duration_text,
-                            issuerName: cert.issuer_name,
-                            issuerTitle: cert.issuer_title,
-                            certificateNumber: cert.certificate_number,
-                            templateTitle: template?.title || "",
-                            templateSubtitle: template?.subtitle,
-                            bodyText: template?.body_text || "",
-                            colorTheme: theme,
-                            backgroundPattern: bgStyle.pattern,
-                            signatureImageUrl: sigConfig.signature_image_url,
-                            sealImageUrl: sealConfig.seal_image_url,
-                            showCertNumber: sigConfig.show_cert_number !== false,
-                            layout: template?.layout,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+                    {originalIssuer && (
+                      <p className="text-sm">
+                        Original Issuer: <span className="font-medium">{originalIssuer}</span>
+                      </p>
+                    )}
+                    {externalVerificationUrl && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a href={externalVerificationUrl} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+                          Original Verification
+                        </a>
+                      </Button>
+                    )}
+                    {notes && (
+                      <p className="text-xs text-muted-foreground max-w-md">{notes}</p>
+                    )}
+                  </div>
+                ) : (
+                  <ScaledCertificate layout={template?.layout}>
+                    <CertificateRenderer
+                      ref={certRef}
+                      data={{
+                        recipientName,
+                        courseName,
+                        trainingName,
+                        companyName,
+                        score,
+                        issueDate: fmtDate(issueDate),
+                        completionDate: completionDate ? fmtDate(completionDate) : undefined,
+                        durationText,
+                        issuerName,
+                        issuerTitle,
+                        certificateNumber: certNum,
+                        templateTitle: template?.title || "",
+                        templateSubtitle: template?.subtitle,
+                        bodyText: template?.body_text || "",
+                        colorTheme: theme,
+                        backgroundPattern: bgStyle.pattern,
+                        signatureImageUrl: sigConfig.signature_image_url,
+                        sealImageUrl: sealConfig.seal_image_url,
+                        showCertNumber: sigConfig.show_cert_number !== false,
+                        layout: template?.layout,
+                      }}
+                    />
+                  </ScaledCertificate>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Details Sidebar */}
-            <div className="space-y-4">
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium">Document Details</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm">
-                  <div>
-                    <p className="text-xs text-muted-foreground">Certificate Number</p>
-                    <p className="font-mono text-xs font-medium mt-0.5">{cert.certificate_number}</p>
-                  </div>
-                  <Separator />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Recipient</p>
-                    <p className="text-sm font-medium mt-0.5">{cert.recipient_name}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Type</p>
-                    <p className="text-sm mt-0.5">{isExternal ? "External Registration" : template?.title}</p>
-                  </div>
-                  {cert.course_name && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">Course</p>
-                      <p className="text-sm mt-0.5">{cert.course_name}</p>
-                    </div>
-                  )}
-                  <div>
-                    <p className="text-xs text-muted-foreground">Issue Date</p>
-                    <p className="text-sm mt-0.5">{new Date(cert.issue_date).toLocaleDateString()}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Issued By</p>
-                    <p className="text-sm mt-0.5">{isExternal ? cert.original_issuer || cert.issuer_name : cert.issuer_name}</p>
-                  </div>
-                  {isExternal && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">Registered By</p>
-                      <p className="text-sm mt-0.5">TRUSTIFICATE Platform</p>
-                    </div>
-                  )}
-                  <Separator />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Status</p>
-                    <Badge variant={isValid ? "default" : "destructive"} className="text-[10px] mt-1">
-                      {isValid ? "Verified" : "Revoked"}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                    <Clock className="h-3 w-3" />
-                    Verified {new Date().toLocaleString()}
-                  </div>
-                  <VerificationBadge status={isValid ? "verified" : "revoked"} className="mt-2" />
-                </CardContent>
-              </Card>
-
+            <div className="flex flex-col gap-3">
+              {/* Download buttons */}
               <div className="flex gap-2">
                 <Button onClick={handleDownload} className="flex-1" size="sm" disabled={!isValid}>
                   <Download className="mr-1.5 h-3.5 w-3.5" />
@@ -259,12 +259,65 @@ export default function CertificatePublicPage() {
                 </Button>
               </div>
 
+              <Card>
+                <CardHeader className="px-4 pt-4 pb-2">
+                  <CardTitle className="text-sm font-medium">Document Details</CardTitle>
+                </CardHeader>
+                <CardContent className="px-4 pb-4 space-y-2.5 text-sm">
+                  <div>
+                    <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Certificate #</p>
+                    <p className="font-mono text-xs font-medium mt-0.5 break-all">{certNum}</p>
+                  </div>
+                  <Separator />
+                  <div>
+                    <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Recipient</p>
+                    <p className="text-sm font-medium mt-0.5">{recipientName}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Type</p>
+                    <p className="text-sm mt-0.5">{isExternal ? "External Registration" : template?.title}</p>
+                  </div>
+                  {courseName && (
+                    <div>
+                      <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Course</p>
+                      <p className="text-sm mt-0.5">{courseName}</p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Issue Date</p>
+                    <p className="text-sm mt-0.5">{fmtDate(issueDate)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Issued By</p>
+                    <p className="text-sm mt-0.5">{isExternal ? originalIssuer || issuerName : issuerName}</p>
+                  </div>
+                  {isExternal && (
+                    <div>
+                      <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Registered By</p>
+                      <p className="text-sm mt-0.5">TRUSTIFICATE Platform</p>
+                    </div>
+                  )}
+                  <Separator />
+                  <div className="flex items-center justify-between">
+                    <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Status</p>
+                    <Badge variant={isValid ? "default" : "destructive"} className="text-[10px]">
+                      {isValid ? "Verified" : "Revoked"}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <Clock className="h-3 w-3 shrink-0" />
+                    {new Date().toLocaleString()}
+                  </div>
+                  <VerificationBadge status={isValid ? "verified" : "revoked"} className="mt-1" />
+                </CardContent>
+              </Card>
+
               {/* QR Code */}
               <Card>
-                <CardContent className="flex flex-col items-center gap-2 pt-5 pb-4">
+                <CardContent className="flex flex-col items-center gap-2 py-4 px-4">
                   <p className="text-xs font-medium text-muted-foreground">Scan to Verify</p>
-                  <QRCodeSVG value={verificationUrl} size={120} />
-                  <p className="text-[10px] text-muted-foreground text-center break-all max-w-[140px]">
+                  <QRCodeSVG value={verificationUrl} size={140} />
+                  <p className="text-[10px] text-muted-foreground text-center break-all">
                     {verificationUrl}
                   </p>
                 </CardContent>

@@ -4,6 +4,7 @@ const PLANS = {
     limits: {
       certificates_created: 10,
       templates_created: 1,
+      team_members: 1,
     },
     features: {
       bulk_import: false,
@@ -20,6 +21,7 @@ const PLANS = {
     limits: {
       certificates_created: 500,
       templates_created: 10,
+      team_members: 3,
     },
     features: {
       bulk_import: true,
@@ -36,6 +38,7 @@ const PLANS = {
     limits: {
       certificates_created: -1,
       templates_created: -1,
+      team_members: 10,
     },
     features: {
       bulk_import: true,
@@ -52,6 +55,7 @@ const PLANS = {
     limits: {
       certificates_created: -1,
       templates_created: -1,
+      team_members: -1,
     },
     features: {
       bulk_import: true,

@@ -28,8 +28,8 @@ const PLAN_HIGHLIGHTS: Record<string, { price: string; features: string[] }> = {
   Pro: {
     price: "₹3,499/mo",
     features: [
-      "Unlimited credentials",
-      "Unlimited templates",
+      "10,000+ credentials/month",
+      "10,000+ templates",
       "AI-powered assistance",
       "Webhook integrations",
       "Priority support",

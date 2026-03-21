@@ -59,8 +59,8 @@ export const pricingTiers = [
     popular: true,
     discount: "50% OFF",
     features: [
-      "Unlimited credentials",
-      "Unlimited templates",
+      "10,000+ credentials/month",
+      "10,000+ templates",
       "Custom branding & domain",
       "Bulk issuance (CSV import)",
       "AI-powered form assistance",

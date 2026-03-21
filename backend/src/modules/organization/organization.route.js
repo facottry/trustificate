@@ -1,7 +1,20 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const orgController = require('./organization.controller');
 const { protect } = require('../../middlewares/auth.middleware');
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  fileFilter: (_req, file, cb) => {
+    if (['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'].includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PNG, JPEG, WebP and SVG images are allowed'));
+    }
+  },
+});
 
 /**
  * @swagger
@@ -109,5 +122,38 @@ router.get('/:id/usage', protect, orgController.getUsage);
  *       - bearerAuth: []
  */
 router.post('/:id/usage', protect, orgController.incrementUsage);
+
+/**
+ * @swagger
+ * /api/organizations/{id}/logo:
+ *   post:
+ *     summary: Upload organization logo
+ *     tags: [Organizations]
+ *     security:
+ *       - bearerAuth: []
+ *     consumes:
+ *       - multipart/form-data
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               logo:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Logo uploaded
+ */
+router.post('/:id/logo', protect, upload.single('logo'), orgController.uploadLogo);
+
+router.get('/:id/members', protect, orgController.getTeamMembers);
 
 module.exports = router;

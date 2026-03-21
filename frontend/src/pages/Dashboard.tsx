@@ -193,7 +193,7 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">{u.label}</span>
                       <span className="font-medium">
-                        {u.used} / {u.limit}
+                        {u.used} / {u.limit === -1 ? "10,000+" : u.limit}
                       </span>
                     </div>
                     <Progress

@@ -77,7 +77,7 @@ export default function BulkCertificateGeneratorPage() {
                 Single Certificate →
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">Free during beta · Unlimited bulk issuance on Pro plan</p>
+            <p className="text-xs text-muted-foreground">Free during beta · 10,000+ bulk issuance on Pro plan</p>
           </div>
         </div>
       </section>

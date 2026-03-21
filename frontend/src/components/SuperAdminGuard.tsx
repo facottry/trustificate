@@ -27,7 +27,7 @@ export function SuperAdminGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (status === "denied") return <Navigate to="/dashboard" replace />;
+  if (status === "denied") return <Navigate to="/super-admin/login" replace />;
 
   return <>{children}</>;
 }
