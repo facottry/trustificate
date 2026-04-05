@@ -122,31 +122,49 @@ const resetPasswordOtp = asyncHandler(async (req, res) => {
 
 /** POST /api/auth/social/google */
 const googleLogin = asyncHandler(async (req, res) => {
-  const { credential } = req.body;
-  if (!credential) throw new AppError('Google credential is required', 400);
+  const { credential, accessToken, profile: clientProfile } = req.body;
 
-  // Verify the Google ID token
-  const { OAuth2Client } = require('google-auth-library');
-  const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-  let payload;
-  try {
-    const ticket = await client.verifyIdToken({
-      idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    payload = ticket.getPayload();
-  } catch {
-    throw new AppError('Invalid Google credential', 401);
+  let email, displayName, providerId, avatarUrl;
+
+  if (credential) {
+    // Flow 1: ID token from One Tap / renderButton
+    const { OAuth2Client } = require('google-auth-library');
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    let payload;
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken: credential,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      payload = ticket.getPayload();
+    } catch {
+      throw new AppError('Invalid Google credential', 401);
+    }
+    email = payload.email;
+    displayName = payload.name || payload.email.split('@')[0];
+    providerId = payload.sub;
+    avatarUrl = payload.picture || null;
+  } else if (accessToken && clientProfile) {
+    // Flow 2: Access token from OAuth popup (initTokenClient)
+    // Verify the access token by calling Google's tokeninfo endpoint
+    const tokenInfoRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${accessToken}`);
+    if (!tokenInfoRes.ok) throw new AppError('Invalid Google access token', 401);
+    const tokenInfo = await tokenInfoRes.json();
+    // Ensure the token was issued for our client
+    if (tokenInfo.aud !== process.env.GOOGLE_CLIENT_ID) {
+      throw new AppError('Google token audience mismatch', 401);
+    }
+    email = clientProfile.email || tokenInfo.email;
+    displayName = clientProfile.name || email.split('@')[0];
+    providerId = clientProfile.sub || tokenInfo.sub;
+    avatarUrl = clientProfile.picture || null;
+  } else {
+    throw new AppError('Google credential or access token is required', 400);
   }
 
-  if (!payload.email) throw new AppError('Google account has no email', 400);
+  if (!email) throw new AppError('Google account has no email', 400);
 
-  const data = await authService.socialLogin('google', {
-    email: payload.email,
-    displayName: payload.name || payload.email.split('@')[0],
-    providerId: payload.sub,
-    avatarUrl: payload.picture || null,
-  });
+  const data = await authService.socialLogin('google', { email, displayName, providerId, avatarUrl });
   success(res, data, 'Google login successful');
 });
 

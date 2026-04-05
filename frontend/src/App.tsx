@@ -65,6 +65,7 @@ import NewsletterUnsubscribed from "./pages/NewsletterUnsubscribed";
 import Playground from "./pages/Playground";
 import AcceptInvite from "./pages/AcceptInvite";
 import GitHubCallback from "./pages/GitHubCallback";
+import { GoogleOneTap } from "./components/GoogleOneTap";
 
 const queryClient = new QueryClient();
 
@@ -82,6 +83,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
+          <GoogleOneTap />
           <Routes>
             {/* Public routes - accessible by both authenticated and unauthenticated users */}
             <Route path="/" element={<Index />} />

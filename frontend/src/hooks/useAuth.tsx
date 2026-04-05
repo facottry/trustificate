@@ -9,6 +9,7 @@ export interface AuthUser {
   organizationId?: string | null;
   isEmailVerified?: boolean;
   newsletterSubscribed?: boolean;
+  avatarUrl?: string | null;
 }
 
 export interface Profile {
@@ -42,16 +43,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchMe = async () => {
     try {
-      const res = await apiClient<{ id: string; displayName: string; email: string; role: string; organizationId?: string }>('/api/auth/me');
-      const authUser = res.data ?? null;
-      setUser(authUser);
+      const res = await apiClient<{ id?: string; _id?: string; displayName: string; email: string; role: string; organizationId?: string; avatarUrl?: string }>('/api/auth/me');
+      const raw = res.data ?? null;
+      const authUser = raw ? { ...raw, id: raw.id || raw._id || "" } : null;
+      setUser(authUser as any);
       setProfile(
         authUser
           ? {
               id: authUser.id,
               user_id: authUser.id,
               display_name: authUser.displayName,
-              avatar_url: null,
+              avatar_url: authUser.avatarUrl || null,
               organization_id: authUser.organizationId || null,
             }
           : null

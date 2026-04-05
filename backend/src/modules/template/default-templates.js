@@ -1,5 +1,7 @@
 // Default system templates available to all organizations.
 // These templates are read-only (isSystem: true). Users can clone them to customize.
+//
+// Categories: Professional, Academic, Sports, Participation, Achievement, Corporate, Creative, Government
 
 module.exports = [
   {
@@ -9,6 +11,9 @@ module.exports = [
     isActive: true,
     isSystem: true,
     layout: "modern",
+    categories: ["Professional", "Corporate"],
+    description: "Clean, contemporary design with gradient backgrounds. Perfect for professional development courses and corporate training programs.",
+    colorTheme: "blue",
     configuration: {
       subtitle: "Certificate of Achievement",
       body_text: "This certifies that {{recipient_name}} has successfully completed the {{course_name}} course on {{issue_date}}.",
@@ -24,6 +29,9 @@ module.exports = [
     isActive: true,
     isSystem: true,
     layout: "elegant",
+    categories: ["Academic", "Professional"],
+    description: "Sophisticated diploma layout with decorative patterns. Ideal for universities, academies, and formal educational programs.",
+    colorTheme: "purple",
     configuration: {
       subtitle: "Diploma of Completion",
       body_text: "Presented to {{recipient_name}} for completing the {{course_name}} program. Issued on {{issue_date}}.",
@@ -39,6 +47,9 @@ module.exports = [
     isActive: true,
     isSystem: true,
     layout: "minimal",
+    categories: ["Achievement", "Creative"],
+    description: "Ultra-clean whitespace design that lets the content shine. Great for design-forward brands and creative awards.",
+    colorTheme: "green",
     configuration: {
       subtitle: "Award of Excellence",
       body_text: "Awarded to {{recipient_name}} for exceptional performance in {{course_name}}.",
@@ -54,6 +65,9 @@ module.exports = [
     isActive: true,
     isSystem: true,
     layout: "classic",
+    categories: ["Professional", "Participation", "Corporate"],
+    description: "Timeless parchment-style certificate with warm tones. The go-to choice for workshops, seminars, and participation records.",
+    colorTheme: "amber",
     configuration: {
       subtitle: "Certificate of Recognition",
       body_text: "This is to certify that {{recipient_name}} has successfully earned the {{course_name}} certificate.",
@@ -69,6 +83,9 @@ module.exports = [
     isActive: true,
     isSystem: true,
     layout: "badge",
+    categories: ["Professional", "Achievement", "Corporate"],
+    description: "Dark-themed tech certification badge with neon accents. Built for developer bootcamps, IT certifications, and tech skills.",
+    colorTheme: "cyan",
     configuration: {
       subtitle: "Certification Badge",
       body_text: "{{recipient_name}} has successfully completed the {{course_name}} certification.",
@@ -84,6 +101,9 @@ module.exports = [
     isActive: true,
     isSystem: true,
     layout: "seal",
+    categories: ["Corporate", "Government"],
+    description: "Executive-grade certificate with embossed seal styling. Designed for board-level certifications and official government documents.",
+    colorTheme: "rose",
     configuration: {
       subtitle: "Seal of Completion",
       body_text: "Presented to {{recipient_name}} for completing the {{course_name}} program on {{issue_date}}.",
@@ -99,6 +119,9 @@ module.exports = [
     isActive: true,
     isSystem: true,
     layout: "modern-minimal",
+    categories: ["Creative", "Professional"],
+    description: "Sleek and minimal with a modern edge. Perfect for startups, design agencies, and forward-thinking organizations.",
+    colorTheme: "slate",
     configuration: {
       subtitle: "Certificate",
       body_text: "This certifies that {{recipient_name}} has completed {{course_name}}.",
@@ -114,6 +137,9 @@ module.exports = [
     isActive: true,
     isSystem: true,
     layout: "stylish",
+    categories: ["Achievement", "Academic"],
+    description: "Vibrant gradient design celebrating outstanding achievement. Ideal for honor rolls, dean's lists, and excellence awards.",
+    colorTheme: "violet",
     configuration: {
       subtitle: "Achievement Certificate",
       body_text: "Awarded to {{recipient_name}} for outstanding achievement in {{course_name}}.",
@@ -129,6 +155,9 @@ module.exports = [
     isActive: true,
     isSystem: true,
     layout: "bold",
+    categories: ["Participation", "Sports", "Achievement"],
+    description: "High-energy bold design with dot patterns. Great for sports events, hackathons, competitions, and team recognition.",
+    colorTheme: "red",
     configuration: {
       subtitle: "Certificate of Recognition",
       body_text: "Recognizing {{recipient_name}} for completion of {{course_name}}.",
@@ -144,12 +173,51 @@ module.exports = [
     isActive: true,
     isSystem: true,
     layout: "ribbon",
+    categories: ["Participation", "Academic", "Government"],
+    description: "Traditional ribbon-accented certificate with formal styling. Suited for government ceremonies, school graduations, and civic awards.",
+    colorTheme: "indigo",
     configuration: {
       subtitle: "Certificate of Honor",
       body_text: "This certifies that {{recipient_name}} completed {{course_name}}.",
       color_theme: { primary: "#1e3a8a", secondary: "#f97316", accent: "#22c55e" },
       background_style: { type: "solid", color: "#f3f4f6" },
       signature_config: { issuer_name: "Board of Directors", issuer_title: "Chair" },
+    },
+  },
+  {
+    title: "Sports Champion",
+    numberPrefix: "SPT",
+    placeholders: ["recipient_name", "course_name", "issue_date", "score"],
+    isActive: true,
+    isSystem: true,
+    layout: "bold",
+    categories: ["Sports", "Achievement"],
+    description: "Dynamic sports-themed certificate with energetic colors. Built for tournaments, marathons, leagues, and athletic achievements.",
+    colorTheme: "orange",
+    configuration: {
+      subtitle: "Champion Certificate",
+      body_text: "Awarded to {{recipient_name}} for outstanding performance in {{course_name}}. Score: {{score}}.",
+      color_theme: { primary: "#7c2d12", secondary: "#f97316", accent: "#fbbf24" },
+      background_style: { type: "gradient", colors: ["#fff7ed", "#fed7aa"] },
+      signature_config: { issuer_name: "Sports Director", issuer_title: "Head Coach" },
+    },
+  },
+  {
+    title: "Volunteer Appreciation",
+    numberPrefix: "VOL",
+    placeholders: ["recipient_name", "course_name", "issue_date", "duration_text"],
+    isActive: true,
+    isSystem: true,
+    layout: "modern",
+    categories: ["Participation", "Creative"],
+    description: "Warm, heartfelt design for recognizing volunteer contributions. Perfect for NGOs, community service, and social impact programs.",
+    colorTheme: "emerald",
+    configuration: {
+      subtitle: "Certificate of Appreciation",
+      body_text: "With gratitude to {{recipient_name}} for {{duration_text}} of dedicated service in {{course_name}}.",
+      color_theme: { primary: "#064e3b", secondary: "#10b981", accent: "#34d399" },
+      background_style: { type: "gradient", colors: ["#ecfdf5", "#d1fae5"] },
+      signature_config: { issuer_name: "Program Coordinator", issuer_title: "Community Lead" },
     },
   },
 ];

@@ -1,6 +1,6 @@
 ﻿import { forwardRef } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import mascotImg from "@/assets/mascot.png";
+import mascotImg from "@/assets/mascot_verified.png";
 
 interface CertificateData {
   recipientName: string;

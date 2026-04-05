@@ -46,6 +46,7 @@ export default function SettingsPage() {
   const [displayName, setDisplayName] = useState(profile?.display_name || "");
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || "");
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   // Org state
   const [orgName, setOrgName] = useState("");
@@ -124,6 +125,44 @@ export default function SettingsPage() {
       toast.error(err?.message || "Failed to save profile");
     }
     setSaving(false);
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error("File too large. Max 5 MB."); return; }
+    setUploadingAvatar(true);
+    try {
+      const formData = new FormData();
+      formData.append("avatar", file);
+      const token = localStorage.getItem("TRUSTIFICATE:token");
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
+      const res = await fetch(`${baseUrl}/api/users/avatar`, {
+        method: "POST",
+        headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: formData,
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.message || "Upload failed");
+      setAvatarUrl(json.data?.avatarUrl || "");
+      toast.success("Avatar uploaded!");
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to upload avatar");
+    }
+    setUploadingAvatar(false);
+    e.target.value = "";
+  };
+
+  const handleRemoveAvatar = async () => {
+    setUploadingAvatar(true);
+    try {
+      await apiClient("/api/users/avatar", { method: "DELETE" });
+      setAvatarUrl("");
+      toast.success("Avatar removed");
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to remove avatar");
+    }
+    setUploadingAvatar(false);
   };
 
   const handleSaveOrg = async () => {
@@ -267,26 +306,55 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-4 mb-2">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-lg">
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt="Avatar" className="h-14 w-14 rounded-full object-cover" />
-                ) : initials}
+              <div className="relative group">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-lg overflow-hidden">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="Avatar" className="h-16 w-16 rounded-full object-cover" />
+                  ) : (
+                    <span className="text-xl">{initials}</span>
+                  )}
+                </div>
+                <label className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                  <Upload className="h-4 w-4 text-white" />
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    className="hidden"
+                    onChange={handleAvatarUpload}
+                    disabled={uploadingAvatar}
+                  />
+                </label>
               </div>
-              <div>
+              <div className="flex-1">
                 <p className="font-medium">{displayName || "Unnamed"}</p>
                 <p className="text-sm text-muted-foreground">{user?.email}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <label className="text-xs text-primary hover:underline cursor-pointer">
+                    {uploadingAvatar ? "Uploading..." : "Change photo"}
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      className="hidden"
+                      onChange={handleAvatarUpload}
+                      disabled={uploadingAvatar}
+                    />
+                  </label>
+                  {avatarUrl && (
+                    <button
+                      onClick={handleRemoveAvatar}
+                      disabled={uploadingAvatar}
+                      className="text-xs text-destructive hover:underline"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
             <Separator />
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Display Name</Label>
-                <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Your name" />
-              </div>
-              <div className="space-y-2">
-                <Label>Avatar URL</Label>
-                <Input value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} placeholder="https://..." />
-              </div>
+            <div className="space-y-2">
+              <Label>Display Name</Label>
+              <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Your name" />
             </div>
             <div className="space-y-2">
               <Label>Email</Label>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trustificate — Force Deploy</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 2rem; max-width: 400px; width: 100%; text-align: center; }
+    h1 { font-size: 1.25rem; margin-bottom: .25rem; }
+    p { font-size: .8rem; color: #94a3b8; margin-bottom: 1.5rem; }
+    button { background: #3b82f6; color: #fff; border: none; padding: .75rem 2rem; border-radius: 8px; font-size: .9rem; font-weight: 600; cursor: pointer; width: 100%; transition: background .2s; }
+    button:hover { background: #2563eb; }
+    button:disabled { background: #475569; cursor: not-allowed; }
+    #status { margin-top: 1rem; font-size: .8rem; min-height: 1.2rem; }
+    .ok { color: #4ade80; }
+    .err { color: #f87171; }
+    .spin { color: #facc15; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🚀 Trustificate Deploy</h1>
+    <p>Trigger a manual redeploy on Render</p>
+    <button id="btn" onclick="deploy()">Force Deploy</button>
+    <div id="status"></div>
+  </div>
+  <script>
+    const URL = "https://api.render.com/deploy/srv-d6rrmvkr85hc73ejj850?key=8Bq1QVlvNlU";
+    const btn = document.getElementById("btn");
+    const status = document.getElementById("status");
+
+    async function deploy() {
+      btn.disabled = true;
+      btn.textContent = "Deploying…";
+      status.className = "spin";
+      status.textContent = "⏳ Sending deploy hook…";
+      try {
+        const res = await fetch(URL, { method: "GET", mode: "no-cors" });
+        status.className = "ok";
+        status.textContent = "✅ Deploy triggered! Check Render dashboard for progress.";
+      } catch (e) {
+        status.className = "err";
+        status.textContent = "❌ Failed: " + e.message;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Force Deploy";
+      }
+    }
+  </script>
+</body>
+</html>

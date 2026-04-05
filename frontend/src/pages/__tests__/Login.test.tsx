@@ -26,13 +26,12 @@ vi.mock("sonner", () => ({
 }));
 
 // Mock mascot assets
-vi.mock("@/assets/mascot-idle.png", () => ({ default: "" }));
-vi.mock("@/assets/mascot-working.png", () => ({ default: "" }));
-vi.mock("@/assets/mascot-success.png", () => ({ default: "" }));
-vi.mock("@/assets/mascot-error.png", () => ({ default: "" }));
-vi.mock("@/assets/mascot-verified.png", () => ({ default: "" }));
-vi.mock("@/assets/mascot-search.png", () => ({ default: "" }));
-vi.mock("@/assets/mascot.png", () => ({ default: "" }));
+vi.mock("@/assets/mascot_idle.png", () => ({ default: "" }));
+vi.mock("@/assets/mascot_working.png", () => ({ default: "" }));
+vi.mock("@/assets/mascot_success.png", () => ({ default: "" }));
+vi.mock("@/assets/mascot_proud.png", () => ({ default: "" }));
+vi.mock("@/assets/mascot_verified.png", () => ({ default: "" }));
+vi.mock("@/assets/mascot_search.png", () => ({ default: "" }));
 
 import { apiClient, setAuthToken } from "@/lib/apiClient";
 import { toast } from "sonner";

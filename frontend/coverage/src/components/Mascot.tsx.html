@@ -846,34 +846,34 @@ export type MascotMood =
 // ─── Emotion-driven animation classes ───────────────────────────────
 // Each mood gets a primary animation + a subtle secondary layer
 const moodAnimations: Record&lt;MascotMood, string&gt; = {
-  idle: "animate-tifi-breathe",
-  working: "animate-tifi-float",
-  success: "animate-tifi-celebrate",
-  error: "animate-tifi-sad-droop",
-  empty: "animate-tifi-curious-tilt opacity-80",
-  loading: "animate-tifi-float",
-  verified: "animate-tifi-heartbeat",
-  notFound: "animate-tifi-sad-droop",
-  proud: "animate-tifi-celebrate",
-  greeting: "animate-tifi-entrance",
-  search: "animate-tifi-curious-tilt",
-  warning: "animate-tifi-squish",
+  idle: "animate-rusti-breathe",
+  working: "animate-rusti-float",
+  success: "animate-rusti-celebrate",
+  error: "animate-rusti-sad-droop",
+  empty: "animate-rusti-curious-tilt opacity-80",
+  loading: "animate-rusti-float",
+  verified: "animate-rusti-heartbeat",
+  notFound: "animate-rusti-sad-droop",
+  proud: "animate-rusti-celebrate",
+  greeting: "animate-rusti-entrance",
+  search: "animate-rusti-curious-tilt",
+  warning: "animate-rusti-squish",
 };
 &nbsp;
 // Hover reactions — Ti-Fi responds when you interact
 const moodHoverAnimations: Record&lt;MascotMood, string&gt; = {
-  idle: "group-hover:animate-tifi-wiggle group-hover:scale-110",
-  working: "group-hover:animate-tifi-nod",
-  success: "group-hover:animate-tifi-spin-pop",
-  error: "group-hover:animate-tifi-wiggle group-hover:brightness-110",
-  empty: "group-hover:animate-tifi-peek group-hover:opacity-100",
-  loading: "group-hover:animate-tifi-nod",
-  verified: "group-hover:animate-tifi-celebrate",
-  notFound: "group-hover:animate-tifi-wiggle group-hover:brightness-110",
-  proud: "group-hover:animate-tifi-spin-pop",
-  greeting: "group-hover:animate-tifi-wiggle",
-  search: "group-hover:animate-tifi-wiggle group-hover:scale-110",
-  warning: "group-hover:animate-tifi-wiggle",
+  idle: "group-hover:animate-rusti-wiggle group-hover:scale-110",
+  working: "group-hover:animate-rusti-nod",
+  success: "group-hover:animate-rusti-spin-pop",
+  error: "group-hover:animate-rusti-wiggle group-hover:brightness-110",
+  empty: "group-hover:animate-rusti-peek group-hover:opacity-100",
+  loading: "group-hover:animate-rusti-nod",
+  verified: "group-hover:animate-rusti-celebrate",
+  notFound: "group-hover:animate-rusti-wiggle group-hover:brightness-110",
+  proud: "group-hover:animate-rusti-spin-pop",
+  greeting: "group-hover:animate-rusti-wiggle",
+  search: "group-hover:animate-rusti-wiggle group-hover:scale-110",
+  warning: "group-hover:animate-rusti-wiggle",
 };
 &nbsp;
 // Glow/shadow effects per mood — gives Ti-Fi an emotional aura
@@ -967,7 +967,7 @@ export function Mascot({
       {/* Thought bubble */}
       {<span class="branch-0 cbranch-no" title="branch not covered" >thought &amp;&amp; !isStatic &amp;&amp; (</span>
         &lt;span
-          className="absolute -top-3 -right-1 text-sm animate-tifi-peek pointer-events-none z-10"
+          className="absolute -top-3 -right-1 text-sm animate-rusti-peek pointer-events-none z-10"
           aria-hidden="true"
         &gt;
           {thought}
@@ -1024,11 +1024,11 @@ export function MascotInline({ className }: { className?: string }) {
       alt="Ti-Fi"
       className={cn(
         "h-5 w-5 object-contain select-none cursor-pointer",
-        "animate-tifi-breathe",
-        "hover:animate-tifi-wiggle hover:scale-125",
+        "animate-rusti-breathe",
+        "hover:animate-rusti-wiggle hover:scale-125",
         "transition-transform duration-200",
         "dark:drop-shadow-[0_0_4px_rgba(255,255,255,0.15)]",
-<span class="branch-0 cbranch-no" title="branch not covered" >        clicked &amp;&amp; "animate-tifi-spin-pop",</span>
+<span class="branch-0 cbranch-no" title="branch not covered" >        clicked &amp;&amp; "animate-rusti-spin-pop",</span>
         className
       )}
       draggable={false}
@@ -1066,7 +1066,7 @@ export <span class="fstat-no" title="function not covered" >function Verificatio
 <span class="cstat-no" title="statement not covered" >    pending: "border-warning/30 bg-warning/5 text-warning",</span>
 <span class="cstat-no" title="statement not covered" >  };</span>
 <span class="cstat-no" title="statement not covered" >  const badgeAnim = {</span>
-<span class="cstat-no" title="statement not covered" >    verified: "animate-tifi-peek",</span>
+<span class="cstat-no" title="statement not covered" >    verified: "animate-rusti-peek",</span>
 <span class="cstat-no" title="statement not covered" >    revoked: "",</span>
 <span class="cstat-no" title="statement not covered" >    pending: "animate-pulse",</span>
 <span class="cstat-no" title="statement not covered" >  };</span>
@@ -1085,7 +1085,7 @@ export <span class="fstat-no" title="function not covered" >function Verificatio
 <span class="cstat-no" title="statement not covered" >        alt=""</span>
 <span class="cstat-no" title="statement not covered" >        className={cn(</span>
 <span class="cstat-no" title="statement not covered" >          "h-4 w-4 object-contain",</span>
-<span class="cstat-no" title="statement not covered" >          status === "verified" &amp;&amp; "animate-tifi-heartbeat"</span>
+<span class="cstat-no" title="statement not covered" >          status === "verified" &amp;&amp; "animate-rusti-heartbeat"</span>
         )}
 <span class="cstat-no" title="statement not covered" >        draggable={false}</span>
       /&gt;
@@ -1134,7 +1134,7 @@ export <span class="fstat-no" title="function not covered" >function MascotTipWi
 <span class="cstat-no" title="statement not covered" >        alt="Ti-Fi"</span>
 <span class="cstat-no" title="statement not covered" >        className={cn(</span>
 <span class="cstat-no" title="statement not covered" >          "h-8 w-8 object-contain shrink-0 mt-0.5",</span>
-<span class="cstat-no" title="statement not covered" >          "animate-tifi-breathe group-hover:animate-tifi-wiggle",</span>
+<span class="cstat-no" title="statement not covered" >          "animate-rusti-breathe group-hover:animate-rusti-wiggle",</span>
 <span class="cstat-no" title="statement not covered" >          "dark:drop-shadow-[0_0_4px_rgba(255,255,255,0.15)]"</span>
         )}
 <span class="cstat-no" title="statement not covered" >        draggable={false}</span>
@@ -1159,7 +1159,7 @@ export <span class="fstat-no" title="function not covered" >function MascotLoade
 <span class="cstat-no" title="statement not covered" >          alt="Loading\u2026"</span>
 <span class="cstat-no" title="statement not covered" >          className={cn(</span>
 <span class="cstat-no" title="statement not covered" >            "h-16 w-16 object-contain",</span>
-<span class="cstat-no" title="statement not covered" >            "animate-tifi-float",</span>
+<span class="cstat-no" title="statement not covered" >            "animate-rusti-float",</span>
 <span class="cstat-no" title="statement not covered" >            "drop-shadow-[0_0_12px_hsl(var(--primary)/0.3)]",</span>
 <span class="cstat-no" title="statement not covered" >            "dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]"</span>
           )}

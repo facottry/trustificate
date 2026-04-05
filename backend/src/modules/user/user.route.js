@@ -1,7 +1,17 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const userController = require('./user.controller');
 const { protect, restrictTo } = require('../../middlewares/auth.middleware');
+
+const avatarUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (/^image\/(jpeg|png|webp|gif)$/.test(file.mimetype)) cb(null, true);
+    else cb(new Error('Only JPEG, PNG, WebP and GIF images are allowed'));
+  },
+});
 
 /**
  * @swagger
@@ -47,6 +57,9 @@ router.get('/me', protect, userController.getMe);
  *                 minLength: 8
  */
 router.put('/change-password', protect, userController.changePassword);
+
+router.post('/avatar', protect, avatarUpload.single('avatar'), userController.uploadAvatar);
+router.delete('/avatar', protect, userController.removeAvatar);
 
 /**
  * @swagger

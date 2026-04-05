@@ -40,4 +40,19 @@ const changePassword = asyncHandler(async (req, res) => {
   success(res, null, result.message);
 });
 
-module.exports = { getMe, getAllUsers, getUserById, updateUser, deleteUser, changePassword };
+/** POST /api/users/avatar */
+const uploadAvatar = asyncHandler(async (req, res) => {
+  if (!req.file) throw new (require('../../middlewares/error.middleware').AppError)('No file uploaded', 400);
+  const { uploadCertificate } = require('../../services/cloudflareR2Service');
+  const { key, url } = await uploadCertificate(req.file.buffer, `avatar-${req.user.id}-${req.file.originalname}`, req.file.mimetype);
+  const user = await userService.updateUser(req.user.id, { avatarUrl: url });
+  success(res, { avatarUrl: url }, 'Avatar uploaded');
+});
+
+/** DELETE /api/users/avatar */
+const removeAvatar = asyncHandler(async (req, res) => {
+  const user = await userService.updateUser(req.user.id, { avatarUrl: null });
+  success(res, null, 'Avatar removed');
+});
+
+module.exports = { getMe, getAllUsers, getUserById, updateUser, deleteUser, changePassword, uploadAvatar, removeAvatar };

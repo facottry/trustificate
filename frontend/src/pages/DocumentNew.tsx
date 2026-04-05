@@ -40,6 +40,7 @@ export default function DocumentNewPage() {
   const [issueDate, setIssueDate] = useState(new Date().toISOString().split("T")[0]);
   const [completionDate, setCompletionDate] = useState("");
   const [saving, setSaving] = useState(false);
+  const [templateTab, setTemplateTab] = useState<"default" | "custom">("default");
   const [generatedCert, setGeneratedCert] = useState<any>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [pdfUploading, setPdfUploading] = useState(false);
@@ -271,34 +272,129 @@ export default function DocumentNewPage() {
                   No active templates. <a href="/templates/new" className="text-primary hover:underline">Create one first</a>
                 </p>
               ) : (
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {templates.map((t) => {
+                <>
+                {/* Default / Custom tabs */}
+                <div className="flex gap-1 p-1 bg-muted/60 rounded-lg w-fit">
+                  {([
+                    { key: "default" as const, label: "Default Templates", icon: "📋" },
+                    { key: "custom" as const, label: "My Templates", icon: "✏️" },
+                  ]).map((tab) => {
+                    const count = tab.key === "default"
+                      ? templates.filter((t) => t.isSystem).length
+                      : templates.filter((t) => !t.isSystem).length;
+                    return (
+                      <button
+                        key={tab.key}
+                        onClick={() => setTemplateTab(tab.key)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                          templateTab === tab.key
+                            ? "bg-background text-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <span>{tab.icon}</span>
+                        <span>{tab.label}</span>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                          templateTab === tab.key ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                        }`}>{count}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="max-h-[60vh] overflow-y-auto pr-1 scrollbar-thin">
+                {(() => {
+                  const filtered = templateTab === "default"
+                    ? templates.filter((t) => t.isSystem)
+                    : templates.filter((t) => !t.isSystem);
+
+                  if (filtered.length === 0) {
+                    return (
+                      <div className="flex flex-col items-center gap-2 py-10 text-center">
+                        <p className="text-2xl">{templateTab === "custom" ? "✏️" : "📋"}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {templateTab === "custom"
+                            ? "No custom templates yet."
+                            : "No default templates available."}
+                        </p>
+                        {templateTab === "custom" && (
+                          <a href="/templates/new" className="text-sm text-primary hover:underline">Create your first template →</a>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="grid gap-3 sm:grid-cols-2">
+                  {filtered.map((t) => {
                     const tTheme = (t.configuration?.color_theme as any) || {};
                     const tId = t.id || t._id;
+                    const isSelected = (selectedTemplate?.id || selectedTemplate?._id) === tId;
+                    const cats: string[] = t.categories || [];
+                    const bgColors = (t.configuration?.background_style as any)?.colors;
+                    const gradientBg = bgColors?.length === 2
+                      ? `linear-gradient(135deg, ${bgColors[0]}, ${bgColors[1]})`
+                      : tTheme.primary ? `linear-gradient(135deg, ${tTheme.primary}08, ${tTheme.secondary || tTheme.primary}15)` : undefined;
+
                     return (
                       <div
                         key={tId}
                         onClick={() => handleTemplateChange(tId)}
-                        className={`cursor-pointer rounded-lg border-2 p-4 transition-colors ${
-                          (selectedTemplate?.id || selectedTemplate?._id) === tId ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"
+                        className={`cursor-pointer rounded-xl border-2 overflow-hidden transition-all hover:shadow-md ${
+                          isSelected ? "border-primary shadow-md ring-2 ring-primary/20" : "border-border hover:border-primary/40"
                         }`}
                       >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className="flex h-9 w-9 items-center justify-center rounded-lg text-white font-bold text-xs"
-                            style={{ backgroundColor: tTheme.primary || "hsl(192,85%,22%)" }}
-                          >
-                            {(t.numberPrefix || t.number_prefix)?.charAt(0) || "C"}
+                        {/* Mini color preview bar */}
+                        <div
+                          className="h-16 relative flex items-end p-2"
+                          style={{ background: gradientBg || "#f1f5f9" }}
+                        >
+                          {/* Color dots */}
+                          <div className="flex gap-1.5 items-center">
+                            {tTheme.primary && <div className="h-3 w-3 rounded-full ring-1 ring-white/80 shadow-sm" style={{ backgroundColor: tTheme.primary }} />}
+                            {tTheme.secondary && <div className="h-2.5 w-2.5 rounded-full ring-1 ring-white/80 shadow-sm" style={{ backgroundColor: tTheme.secondary }} />}
+                            {tTheme.accent && <div className="h-2 w-2 rounded-full ring-1 ring-white/80 shadow-sm" style={{ backgroundColor: tTheme.accent }} />}
                           </div>
-                          <div>
-                            <p className="font-medium text-sm">{t.title}</p>
-                            <p className="text-xs text-muted-foreground">{t.numberPrefix || t.number_prefix} · {t.layout}</p>
+                          {/* Layout badge */}
+                          <Badge variant="secondary" className="absolute top-2 right-2 text-[9px] bg-white/80 dark:bg-black/50 backdrop-blur-sm px-1.5 py-0">
+                            {t.layout}
+                          </Badge>
+                          {/* Selected check */}
+                          {isSelected && (
+                            <div className="absolute top-2 left-2 h-5 w-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                              <Check className="h-3 w-3" />
+                            </div>
+                          )}
+                        </div>
+                        {/* Info */}
+                        <div className="p-3 space-y-1.5">
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold text-sm truncate flex-1">{t.title}</p>
+                            <span className="text-[10px] text-muted-foreground font-mono shrink-0">{t.numberPrefix || t.number_prefix}</span>
                           </div>
+                          {t.configuration?.subtitle && (
+                            <p className="text-[11px] text-muted-foreground truncate">{t.configuration.subtitle}</p>
+                          )}
+                          {t.description && (
+                            <p className="text-[10px] text-muted-foreground/70 line-clamp-2 leading-relaxed">{t.description}</p>
+                          )}
+                          {cats.length > 0 && (
+                            <div className="flex flex-wrap gap-1 pt-0.5">
+                              {cats.slice(0, 3).map((c: string) => (
+                                <span key={c} className="text-[9px] bg-muted px-1.5 py-0.5 rounded-full text-muted-foreground">{c}</span>
+                              ))}
+                              {cats.length > 3 && <span className="text-[9px] text-muted-foreground">+{cats.length - 3}</span>}
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
                   })}
                 </div>
+                  );
+                })()}
+                </div>
+                </>
               )}
               <div className="flex justify-end">
                 <Button onClick={goToStep2} disabled={!selectedTemplate}>
