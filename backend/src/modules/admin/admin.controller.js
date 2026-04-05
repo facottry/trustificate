@@ -25,6 +25,10 @@ const updateSuperTemplate = asyncHandler(async (req, res) => {
 });
 const getSuperBilling  = asyncHandler(async (req, res) => { success(res, await adminService.getSuperBilling()); });
 const getSuperPlans    = asyncHandler(async (req, res) => { success(res, await adminService.getSuperPlans()); });
+const updateSuperPlan  = asyncHandler(async (req, res) => {
+  const data = await adminService.updateSuperPlan(req.params.planId, req.body);
+  success(res, data, 'Plan updated');
+});
 const getAuditLogs     = asyncHandler(async (req, res) => { success(res, await adminService.getAuditLogs()); });
 const logAdminAction   = asyncHandler(async (req, res) => {
   await adminService.logAdminAction(req.user.id, req.body);
@@ -38,7 +42,7 @@ module.exports = {
   getSuperCerts, setCertStatus,
   getSuperTemplates, updateSuperTemplate,
   getSuperBilling,
-  getSuperPlans,
+  getSuperPlans, updateSuperPlan,
   getAuditLogs,
   logAdminAction, listUserRoles,
 };

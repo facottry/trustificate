@@ -11,6 +11,8 @@ if (missing.length) {
 }
 
 const { seedDefaultCoupons } = require('./modules/plan/plan.service');
+const { seedPlans } = require('./modules/plan/plan.seed');
+const { loadPlansFromDB } = require('./utils/planConfig');
 
 const PORT = process.env.PORT || 3001;
 const server = http.createServer(app);
@@ -24,8 +26,10 @@ server.listen(PORT, async () => {
 
   try {
     await seedDefaultCoupons();
+    await seedPlans();
+    await loadPlansFromDB();
   } catch (err) {
-    console.error('  ⚠️  Failed to seed default coupons:', err.message);
+    console.error('  ⚠️  Failed to seed defaults:', err.message);
   }
 });
 

@@ -1,12 +1,42 @@
+import { useEffect, useState } from "react";
 import { PublicLayout } from "@/components/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { pricingTiers } from "@/data/siteData";
+import { apiClient } from "@/lib/apiClient";
+
+interface PlanData {
+  id: string;
+  name: string;
+  price: number;
+  originalPrice: number;
+  description: string;
+  featureList: string[];
+  cta: string;
+  ctaVariant: "default" | "outline";
+  popular: boolean;
+  discount: string | null;
+}
 
 export default function Pricing() {
   const navigate = useNavigate();
+  const [plans, setPlans] = useState<PlanData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiClient<PlanData[]>("/api/public/plans")
+      .then(({ data }) => setPlans(data || []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const fmtPrice = (p: number) => {
+    if (p === 0) return "₹0";
+    if (p === -1) return "Custom";
+    return `₹${p.toLocaleString("en-IN")}`;
+  };
 
   return (
     <PublicLayout>
@@ -20,61 +50,78 @@ export default function Pricing() {
               Simple, transparent pricing
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Start free forever. Upgrade when you need more power. Use coupon <span className="font-mono font-semibold text-foreground">FREE_100</span> at checkout for an additional 100% off during our launch period.
+              Start free forever. Upgrade when you need more power. Use coupon{" "}
+              <span className="font-mono font-semibold text-foreground">FREE_100</span> at checkout for an
+              additional 100% off during our launch period.
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 max-w-6xl mx-auto">
-            {pricingTiers.map((tier) => (
-              <div
-                key={tier.name}
-                className={`relative flex flex-col rounded-xl border bg-card p-6 hover:shadow-md transition-all duration-200 ${
-                  tier.popular ? "border-primary ring-1 ring-primary shadow-lg shadow-primary/10" : ""
-                }`}
-              >
-                {tier.popular && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs">Most Popular</Badge>
-                )}
-                {tier.discount && (
-                  <Badge variant="outline" className="absolute -top-3 right-3 text-[10px] border-green-500/30 text-green-600 bg-green-50 dark:bg-green-950/20">
-                    {tier.discount}
-                  </Badge>
-                )}
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold">{tier.name}</h3>
-                  <div className="mt-2 flex items-baseline gap-2">
-                    <span className="text-3xl font-bold text-foreground">{tier.priceINR}</span>
-                    {tier.period && <span className="text-sm text-muted-foreground">{tier.period}</span>}
+          {loading ? (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 max-w-6xl mx-auto">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="rounded-xl border bg-card p-6">
+                  <Skeleton className="h-6 w-24 mb-3" />
+                  <Skeleton className="h-10 w-32 mb-4" />
+                  <div className="space-y-2">
+                    {[...Array(5)].map((_, j) => <Skeleton key={j} className="h-4 w-full" />)}
                   </div>
-                  {tier.originalPriceINR && (
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Regular price: <span className="line-through">{tier.originalPriceINR}/month</span>
-                    </p>
-                  )}
-                  <p className="mt-2 text-sm text-muted-foreground">{tier.description}</p>
                 </div>
-                <ul className="mb-8 space-y-3 flex-1">
-                  {tier.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm">
-                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  variant={tier.ctaVariant}
-                  className="w-full"
-                  onClick={() => {
-                    if (tier.name === "Enterprise") navigate("/contact");
-                    else if (tier.name === "Free") navigate("/signup");
-                    else navigate(`/checkout?plan=${tier.name.toLowerCase()}`);
-                  }}
+              ))}
+            </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 max-w-6xl mx-auto">
+              {plans.map((tier) => (
+                <div
+                  key={tier.id}
+                  className={`relative flex flex-col rounded-xl border bg-card p-6 hover:shadow-md transition-all duration-200 ${
+                    tier.popular ? "border-primary ring-1 ring-primary shadow-lg shadow-primary/10" : ""
+                  }`}
                 >
-                  {tier.cta}
-                </Button>
-              </div>
-            ))}
-          </div>
+                  {tier.popular && (
+                    <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs">Most Popular</Badge>
+                  )}
+                  {tier.discount && (
+                    <Badge variant="outline" className="absolute -top-3 right-3 text-[10px] border-green-500/30 text-green-600 bg-green-50 dark:bg-green-950/20">
+                      {tier.discount}
+                    </Badge>
+                  )}
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold">{tier.name}</h3>
+                    <div className="mt-2 flex items-baseline gap-2">
+                      <span className="text-3xl font-bold text-foreground">{fmtPrice(tier.price)}</span>
+                      {tier.price > 0 && <span className="text-sm text-muted-foreground">/month</span>}
+                      {tier.price === 0 && <span className="text-sm text-muted-foreground">forever</span>}
+                    </div>
+                    {tier.originalPrice > 0 && tier.originalPrice !== tier.price && (
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Regular price: <span className="line-through">₹{tier.originalPrice.toLocaleString("en-IN")}/month</span>
+                      </p>
+                    )}
+                    <p className="mt-2 text-sm text-muted-foreground">{tier.description}</p>
+                  </div>
+                  <ul className="mb-8 space-y-3 flex-1">
+                    {tier.featureList.map((f) => (
+                      <li key={f} className="flex items-start gap-2 text-sm">
+                        <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button
+                    variant={tier.ctaVariant}
+                    className="w-full"
+                    onClick={() => {
+                      if (tier.id === "enterprise") navigate("/contact");
+                      else if (tier.id === "free") navigate("/signup");
+                      else navigate(`/checkout?plan=${tier.id}`);
+                    }}
+                  >
+                    {tier.cta}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* FAQ */}
           <div className="mt-20 max-w-2xl mx-auto">

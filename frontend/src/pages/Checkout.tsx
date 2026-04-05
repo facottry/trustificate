@@ -10,7 +10,12 @@ import { CheckCircle2, Tag, ShieldCheck, ArrowLeft, Loader2 } from "lucide-react
 import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { pricingTiers } from "@/data/siteData";
+
+interface PlanData {
+  id: string; name: string; price: number; originalPrice: number;
+  description: string; featureList: string[]; cta: string; ctaVariant: string;
+  popular: boolean; discount: string | null;
+}
 
 export default function Checkout() {
   const [searchParams] = useSearchParams();
@@ -18,7 +23,8 @@ export default function Checkout() {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
 
-  const tier = planSlug ? pricingTiers.find((t) => t.name.toLowerCase() === planSlug) : null;
+  const [tier, setTier] = useState<PlanData | null>(null);
+  const [plansLoading, setPlansLoading] = useState(true);
 
   const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
@@ -29,8 +35,20 @@ export default function Checkout() {
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderData, setOrderData] = useState<any>(null);
 
-  const originalPrice = (tier as any)?.originalPriceValue || 0;
-  const discountedPrice = (tier as any)?.priceValue || 0;
+  // Fetch plan data from API
+  useEffect(() => {
+    if (!planSlug) { setPlansLoading(false); return; }
+    apiClient<PlanData[]>("/api/public/plans")
+      .then(({ data }) => {
+        const found = (data || []).find((p: PlanData) => p.id === planSlug || p.name.toLowerCase() === planSlug);
+        setTier(found || null);
+      })
+      .catch(() => {})
+      .finally(() => setPlansLoading(false));
+  }, [planSlug]);
+
+  const originalPrice = tier?.originalPrice || 0;
+  const discountedPrice = tier?.price || 0;
   const couponAmount = couponApplied ? Math.round(discountedPrice * (couponDiscount / 100)) : 0;
   const finalAmount = discountedPrice - couponAmount;
 
@@ -90,7 +108,7 @@ export default function Checkout() {
         {
           method: "POST",
           body: JSON.stringify({
-            plan: tier.name.toLowerCase(),
+            plan: tier.id || tier.name.toLowerCase(),
             couponCode: couponApplied ? couponCode.toUpperCase() : undefined,
           }),
         }
@@ -107,7 +125,7 @@ export default function Checkout() {
   }
 
   // Enterprise plan — show contact sales screen
-  if (planSlug === "enterprise" || tier?.name === "Enterprise") {
+  if (planSlug === "enterprise" || tier?.id === "enterprise" || tier?.name === "Enterprise") {
     return (
       <PublicLayout>
         <section className="py-20 lg:py-28 bg-brand-hero">
@@ -153,9 +171,21 @@ export default function Checkout() {
   }
 
   // Redirect if plan param is missing or invalid (Free plan has no checkout)
-  if (!planSlug || !tier || tier.name === "Free") {
+  if (!plansLoading && (!planSlug || !tier || tier.id === "free" || tier.name === "Free")) {
     navigate("/pricing");
     return null;
+  }
+
+  if (plansLoading) {
+    return (
+      <PublicLayout>
+        <section className="py-20 lg:py-28 bg-brand-hero">
+          <div className="container flex justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        </section>
+      </PublicLayout>
+    );
   }
 
   if (orderComplete) {

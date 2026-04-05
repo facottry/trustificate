@@ -217,12 +217,15 @@ const getSuperBilling = async () => {
 };
 
 // ── Super-admin: plans config (from planConfig.js) ───────────────────
-const { PLANS } = require('../../utils/planConfig');
+const Plan = require('../plan/plan.schema');
 const getSuperPlans = async () => {
-  return Object.entries(PLANS).map(([id, p], i) => ({
-    id,
+  const plans = await Plan.find().sort({ displayOrder: 1 }).lean();
+  return plans.map((p) => ({
+    id: p._id,
+    planId: p.planId,
     name: p.name,
     price_monthly: p.price,
+    original_price: p.originalPrice,
     max_certificates_per_month: p.limits.certificates_created,
     max_templates: p.limits.templates_created,
     team_members: p.limits.team_members,
@@ -232,8 +235,30 @@ const getSuperPlans = async () => {
     analytics_access: !!p.features?.analytics_access,
     audit_exports: !!p.features?.audit_exports,
     priority_support: !!p.features?.priority_support,
-    display_order: i,
+    display_order: p.displayOrder,
+    is_active: p.isActive,
+    description: p.description || '',
+    feature_list: p.featureList || [],
+    cta: p.cta || 'Get Started',
+    cta_variant: p.ctaVariant || 'outline',
+    popular: !!p.popular,
+    discount_label: p.discount || null,
   }));
+};
+
+const updateSuperPlan = async (planDbId, updates) => {
+  const { invalidateCache } = require('../../utils/planConfig');
+  // Whitelist allowed fields
+  const allowed = ['name', 'price', 'originalPrice', 'limits', 'features', 'displayOrder', 'isActive',
+    'description', 'featureList', 'cta', 'ctaVariant', 'popular', 'discount'];
+  const filtered = {};
+  for (const key of allowed) {
+    if (updates[key] !== undefined) filtered[key] = updates[key];
+  }
+  const plan = await Plan.findByIdAndUpdate(planDbId, { $set: filtered }, { new: true, runValidators: true }).lean();
+  if (!plan) throw new (require('../../middlewares/error.middleware').AppError)('Plan not found', 404);
+  invalidateCache();
+  return plan;
 };
 
 // ── Super-admin: audit logs (from Event collection) ──────────────────
@@ -278,6 +303,7 @@ module.exports = {
   updateSuperTemplate,
   getSuperBilling,
   getSuperPlans,
+  updateSuperPlan,
   getAuditLogs,
   logAdminAction,
   listUserRoles,

@@ -89,4 +89,35 @@ router.post('/contact', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/public/plans:
+ *   get:
+ *     summary: Get all active plans (public, no auth)
+ *     tags: [Public]
+ */
+router.get('/plans', async (req, res) => {
+  try {
+    const Plan = require('../plan/plan.schema');
+    const plans = await Plan.find({ isActive: true }).sort({ displayOrder: 1 }).lean();
+    const data = plans.map((p) => ({
+      id: p.planId,
+      name: p.name,
+      price: p.price,
+      originalPrice: p.originalPrice,
+      description: p.description || '',
+      featureList: p.featureList || [],
+      cta: p.cta || 'Get Started',
+      ctaVariant: p.ctaVariant || 'outline',
+      popular: !!p.popular,
+      discount: p.discount || null,
+      limits: p.limits,
+      features: p.features,
+    }));
+    res.json({ success: true, data });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to fetch plans' });
+  }
+});
+
 module.exports = router;

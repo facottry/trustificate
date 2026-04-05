@@ -17,6 +17,7 @@ router.get('/super/templates',       ...sa, c.getSuperTemplates);
 router.patch('/super/templates/:templateId', ...sa, c.updateSuperTemplate);
 router.get('/super/billing',         ...sa, c.getSuperBilling);
 router.get('/super/plans',           ...sa, c.getSuperPlans);
+router.patch('/super/plans/:planId', ...sa, c.updateSuperPlan);
 router.get('/super/audit-logs',      ...sa, c.getAuditLogs);
 
 // Legacy
