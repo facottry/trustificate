@@ -217,7 +217,10 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
         </div>
         <div className="border-t">
           <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} TRUSTIFICATE, Inc. All rights reserved.</p>
+            <div className="flex items-center gap-3">
+              <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} TRUSTIFICATE, Inc. All rights reserved.</p>
+              <span className="text-[10px] text-muted-foreground/50 tabular-nums">v{__APP_VERSION__}</span>
+            </div>
             <div className="flex items-center gap-4">
               <Link to="/terms" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Terms</Link>
               <Link to="/privacy" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Privacy</Link>
