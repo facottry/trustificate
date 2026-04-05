@@ -40,9 +40,7 @@ app.use((_req, res, next) => {
   next();
 });
 
-// ── Security ──────────────────────────────────────────────
-app.use(helmet());
-
+// ── CORS (must run before Helmet so preflight OPTIONS get headers) ─
 const ALLOWED_ORIGINS = [
   'http://localhost:8080',
   'http://localhost:5173',
@@ -50,6 +48,7 @@ const ALLOWED_ORIGINS = [
   'https://trustificate.vercel.app',
   'https://trustificate-47l9u2l2n-facottrys-projects.vercel.app',
   'https://trustificate.clicktory.in',
+  'https://trustificate.onrender.com',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
@@ -68,6 +67,11 @@ const corsOptions = {
 };
 app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
+
+// ── Security ──────────────────────────────────────────────
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
 
 // ── Body Parsing ──────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
