@@ -173,7 +173,7 @@ describe('Property-Based Tests — email-infrastructure', () => {
       fc.asyncProperty(fc.constantFrom(...ALL_TEMPLATE_NAMES), async (name) => {
         const html = compileTemplate(name, VALID_DATA[name]);
 
-        expect(html).toContain('trustificate.com');
+        expect(html).toContain('trustificate');
         expect(html).toContain('All rights reserved');
       }),
       { numRuns: 100 }

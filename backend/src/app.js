@@ -53,7 +53,7 @@ const ALLOWED_ORIGINS = [
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
-app.use(cors({
+const corsOptions = {
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
     if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
@@ -65,8 +65,9 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   exposedHeaders: ['X-App-Version'],
-}));
-app.options('*', cors());
+};
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
 
 // ── Body Parsing ──────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
