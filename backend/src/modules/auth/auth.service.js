@@ -50,10 +50,9 @@ const login = async ({ email, password }) => {
   const user = await User.findOne({ email: email.toLowerCase(), isActive: true }).select('+passwordHash');
   if (!user) throw new AppError('Invalid email or password', 401);
 
-  // If user has no password (social-only), guide them
+  // If user has no password (social-only), let them set one via forgot-password
   if (!user.passwordHash) {
-    const providers = user.authProvider.filter(p => p !== 'local').join(' or ');
-    throw new AppError(`This account uses ${providers} sign-in. Please use the ${providers} button to log in.`, 401);
+    throw new AppError('No password set for this account. Use "Forgot password" to create one, or sign in with Google/GitHub.', 401);
   }
 
   if (!(await user.comparePassword(password))) {
@@ -104,11 +103,8 @@ const forgotPassword = async (email) => {
   const user = await User.findOne({ email: email.toLowerCase() });
   if (!user) throw new AppError('User not found', 404);
 
-  // If user only has social auth (no password), remind them to use social login
-  if (!user.authProvider.includes('local') && user.authProvider.length > 0) {
-    const providers = user.authProvider.filter(p => p !== 'local').join(' or ');
-    throw new AppError(`This account uses ${providers} sign-in. Please log in with your ${providers} account instead.`, 400);
-  }
+  // Social-only users can use forgot-password to set their first password
+  // No guard needed — the flow works the same for all users
 
   // Generate 6-digit OTP
   const otp = generateOtp();
@@ -180,6 +176,7 @@ const resetPassword = async (email, newPassword, otp, token) => {
   validateResetCredential(user, otp, token);
 
   user.password = newPassword;
+  if (!user.authProvider.includes('local')) user.authProvider.push('local');
   user.resetOtp = undefined;
   user.resetToken = undefined;
   user.resetExpiry = undefined;
@@ -335,8 +332,8 @@ const resetPasswordOtp = async (email, otp, newPassword) => {
   if (!user) throw new AppError('User not found', 404);
 
   if (process.env.ENABLE_MASTER_OTP === 'true' && otp === '123987') {
-    // Master OTP bypass
     user.password = newPassword;
+    if (!user.authProvider.includes('local')) user.authProvider.push('local');
     user.authOtp = undefined;
     user.otpExpiry = undefined;
     await user.save();
@@ -348,6 +345,7 @@ const resetPasswordOtp = async (email, otp, newPassword) => {
   }
 
   user.password = newPassword;
+  if (!user.authProvider.includes('local')) user.authProvider.push('local');
   user.authOtp = undefined;
   user.otpExpiry = undefined;
   await user.save();

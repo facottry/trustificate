@@ -34,6 +34,8 @@ function GitHubIcon() {
 
 // Shared: load GSI script once, resolve when ready
 let gsiReady: Promise<void> | null = null;
+let gsiInitDone = false;
+
 function loadGsi(): Promise<void> {
   if (gsiReady) return gsiReady;
   gsiReady = new Promise((resolve) => {
@@ -53,6 +55,12 @@ function loadGsi(): Promise<void> {
   });
   return gsiReady;
 }
+
+/** Mark GSI as initialized (called by GoogleOneTap) */
+export function markGsiInitialized() { gsiInitDone = true; }
+
+/** Check if GSI was already initialized */
+export function isGsiInitialized() { return gsiInitDone; }
 
 interface SocialLoginButtonsProps {
   mode: "login" | "signup";
@@ -86,20 +94,11 @@ export function SocialLoginButtons({ mode }: SocialLoginButtonsProps) {
     [refresh, navigate]
   );
 
-  // Initialize GSI once
+  // Load GSI script (no initialize — GoogleOneTap handles that)
   useEffect(() => {
-    if (!GOOGLE_ENABLED || !GOOGLE_CLIENT_ID || initialized.current) return;
-    initialized.current = true;
-    loadGsi().then(() => {
-      const g = (window as any).google;
-      if (!g?.accounts?.id) return;
-      g.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: handleGoogleCredential,
-        use_fedcm_for_prompt: false,
-      });
-    });
-  }, [handleGoogleCredential]);
+    if (!GOOGLE_ENABLED || !GOOGLE_CLIENT_ID) return;
+    loadGsi();
+  }, []);
 
   const handleGoogleClick = async () => {
     if (googleLoading) return;
