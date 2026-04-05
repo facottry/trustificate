@@ -1,7 +1,7 @@
 {
   "name": "trusticicate-app",
   "private": true,
-  "version": "1.4.5.15",
+  "version": "1.4.5.19",
   "type": "module",
   "scripts": {
     "dev:portless": "portless run --name trustificate vite",
