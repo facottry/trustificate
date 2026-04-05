@@ -351,4 +351,8 @@ router.get('/email-status', authController.checkEmailStatus);
  */
 router.get('/confirm-email/:token', authController.confirmEmailLink);
 
+// ── Social Auth ───────────────────────────────────────────
+router.post('/social/google', authController.googleLogin);
+router.post('/social/github', authController.githubLogin);
+
 module.exports = router;

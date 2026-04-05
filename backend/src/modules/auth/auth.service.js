@@ -48,8 +48,16 @@ const login = async ({ email, password }) => {
   if (!email || !password) throw new AppError('Email and password are required', 400);
 
   const user = await User.findOne({ email: email.toLowerCase(), isActive: true }).select('+passwordHash');
-  if (!user || !(await user.comparePassword(password))) {
-    throw new AppError('Invalid email or password', 401); // intentionally vague
+  if (!user) throw new AppError('Invalid email or password', 401);
+
+  // If user has no password (social-only), guide them
+  if (!user.passwordHash) {
+    const providers = user.authProvider.filter(p => p !== 'local').join(' or ');
+    throw new AppError(`This account uses ${providers} sign-in. Please use the ${providers} button to log in.`, 401);
+  }
+
+  if (!(await user.comparePassword(password))) {
+    throw new AppError('Invalid email or password', 401);
   }
   user.lastLoginAt = new Date();
   await user.save({ validateBeforeSave: false });
@@ -95,6 +103,12 @@ const crypto = require('crypto');
 const forgotPassword = async (email) => {
   const user = await User.findOne({ email: email.toLowerCase() });
   if (!user) throw new AppError('User not found', 404);
+
+  // If user only has social auth (no password), remind them to use social login
+  if (!user.authProvider.includes('local') && user.authProvider.length > 0) {
+    const providers = user.authProvider.filter(p => p !== 'local').join(' or ');
+    throw new AppError(`This account uses ${providers} sign-in. Please log in with your ${providers} account instead.`, 400);
+  }
 
   // Generate 6-digit OTP
   const otp = generateOtp();
@@ -339,4 +353,82 @@ const resetPasswordOtp = async (email, otp, newPassword) => {
   await user.save();
 };
 
-module.exports = { register, login, getAuthUser, forgotPassword, loginWithOtp, resetPassword, verifyEmailLink, resendVerificationLink, checkEmailVerificationStatusByEmail, sendVerificationOtp, verifyEmailOtp, forgotPasswordOtp, resetPasswordOtp };
+/**
+ * Unified social login/signup handler.
+ * @param {'google'|'github'} provider
+ * @param {{ email: string, displayName: string, providerId: string, avatarUrl?: string }} profile
+ */
+const socialLogin = async (provider, profile) => {
+  const { email, displayName, providerId, avatarUrl } = profile;
+  if (!email) throw new AppError('Email is required from the social provider', 400);
+
+  const providerIdField = provider === 'google' ? 'googleId' : 'githubId';
+
+  // 1. Try to find by provider ID first
+  let user = await User.findOne({ [providerIdField]: providerId, isActive: true });
+
+  if (!user) {
+    // 2. Try to find by email (account linking)
+    user = await User.findOne({ email: email.toLowerCase(), isActive: true });
+
+    if (user) {
+      // Link the social provider to existing account
+      user[providerIdField] = providerId;
+      if (!user.authProvider.includes(provider)) {
+        user.authProvider.push(provider);
+      }
+      if (!user.avatarUrl && avatarUrl) {
+        user.avatarUrl = avatarUrl;
+      }
+      // Social login auto-verifies email
+      user.isEmailVerified = true;
+      user.lastLoginAt = new Date();
+      await user.save({ validateBeforeSave: false });
+    } else {
+      // 3. Create new user
+      user = new User({
+        displayName: displayName || email.split('@')[0],
+        email: email.toLowerCase(),
+        authProvider: [provider],
+        [providerIdField]: providerId,
+        avatarUrl: avatarUrl || null,
+        isEmailVerified: true, // social providers verify email
+      });
+
+      await user.save({ validateBeforeSave: false });
+
+      // Create default organization
+      const Organization = require('../organization/organization.schema');
+      const Role = require('../role/role.schema');
+      const orgName = `${user.displayName}'s Organization`;
+      const slug = `org-${user._id.toString().slice(-8)}`.toLowerCase();
+      const organization = await Organization.create({ name: orgName, slug });
+      await Role.create({ userId: user._id, organizationId: organization._id, role: 'admin' });
+      user.organizationId = organization._id;
+      user.role = 'admin';
+      user.lastLoginAt = new Date();
+      await user.save({ validateBeforeSave: false });
+    }
+  } else {
+    // Existing user found by provider ID — just update login time
+    user.lastLoginAt = new Date();
+    if (!user.avatarUrl && avatarUrl) user.avatarUrl = avatarUrl;
+    await user.save({ validateBeforeSave: false });
+  }
+
+  const token = signToken({ id: user._id, role: user.role, organizationId: user.organizationId });
+  return {
+    token,
+    user: {
+      id: user._id,
+      displayName: user.displayName,
+      email: user.email,
+      role: user.role,
+      organizationId: user.organizationId,
+      isEmailVerified: true,
+      avatarUrl: user.avatarUrl,
+    },
+  };
+};
+
+module.exports = { register, login, getAuthUser, forgotPassword, loginWithOtp, resetPassword, verifyEmailLink, resendVerificationLink, checkEmailVerificationStatusByEmail, sendVerificationOtp, verifyEmailOtp, forgotPasswordOtp, resetPasswordOtp, socialLogin };

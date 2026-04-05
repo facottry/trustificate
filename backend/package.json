@@ -6,8 +6,8 @@
   "scripts": {
     "killport": "npx kill-port 3000",
     "start": "node src/server.js",
-    "dev": "portless run --name api.trustificate nodemon src/server.js",
-    "dev:local": "nodemon src/server.js",
+    "de:portless": "portless run --name api.trustificate nodemon src/server.js",
+    "dev": "nodemon src/server.js",
     "generate-sitemap": "node src/scripts/generate-sitemap.js",
     "test": "jest",
     "commit": "git add . && git commit -m 'Update'",
@@ -24,6 +24,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-rate-limit": "^7.3.1",
+    "google-auth-library": "^10.6.2",
     "handlebars": "^4.7.8",
     "helmet": "^7.1.0",
     "joi": "^17.13.3",
@@ -44,7 +45,12 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "setupFiles": ["./src/__tests__/setup.js"],
-    "testPathIgnorePatterns": ["/node_modules/", "setup\\.js$"]
+    "setupFiles": [
+      "./src/__tests__/setup.js"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "setup\\.js$"
+    ]
   }
 }

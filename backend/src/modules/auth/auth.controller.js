@@ -120,4 +120,82 @@ const resetPasswordOtp = asyncHandler(async (req, res) => {
   success(res, null, 'Password reset successfully');
 });
 
-module.exports = { register, login, getMe, logout, forgotPassword, loginWithOtp, resetPassword, verifyEmail, confirmEmailLink, resendVerificationLink, checkEmailStatus, sendVerificationOtp, verifyEmailOtp, forgotPasswordOtp, resetPasswordOtp };
+/** POST /api/auth/social/google */
+const googleLogin = asyncHandler(async (req, res) => {
+  const { credential } = req.body;
+  if (!credential) throw new AppError('Google credential is required', 400);
+
+  // Verify the Google ID token
+  const { OAuth2Client } = require('google-auth-library');
+  const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+  let payload;
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    payload = ticket.getPayload();
+  } catch {
+    throw new AppError('Invalid Google credential', 401);
+  }
+
+  if (!payload.email) throw new AppError('Google account has no email', 400);
+
+  const data = await authService.socialLogin('google', {
+    email: payload.email,
+    displayName: payload.name || payload.email.split('@')[0],
+    providerId: payload.sub,
+    avatarUrl: payload.picture || null,
+  });
+  success(res, data, 'Google login successful');
+});
+
+/** POST /api/auth/social/github */
+const githubLogin = asyncHandler(async (req, res) => {
+  const { code } = req.body;
+  if (!code) throw new AppError('GitHub authorization code is required', 400);
+
+  // Exchange code for access token
+  const tokenRes = await fetch('https://github.com/login/oauth/access_token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({
+      client_id: process.env.GITHUB_CLIENT_ID,
+      client_secret: process.env.GITHUB_CLIENT_SECRET,
+      code,
+    }),
+  });
+  const tokenData = await tokenRes.json();
+  if (tokenData.error || !tokenData.access_token) {
+    throw new AppError(tokenData.error_description || 'GitHub authentication failed', 401);
+  }
+
+  // Fetch user profile
+  const [profileRes, emailsRes] = await Promise.all([
+    fetch('https://api.github.com/user', {
+      headers: { Authorization: `Bearer ${tokenData.access_token}`, Accept: 'application/json' },
+    }),
+    fetch('https://api.github.com/user/emails', {
+      headers: { Authorization: `Bearer ${tokenData.access_token}`, Accept: 'application/json' },
+    }),
+  ]);
+  const profile = await profileRes.json();
+  const emails = await emailsRes.json();
+
+  // Get primary verified email
+  const primaryEmail = Array.isArray(emails)
+    ? emails.find(e => e.primary && e.verified)?.email || emails.find(e => e.verified)?.email
+    : null;
+  const email = primaryEmail || profile.email;
+  if (!email) throw new AppError('No verified email found on GitHub account', 400);
+
+  const data = await authService.socialLogin('github', {
+    email,
+    displayName: profile.name || profile.login,
+    providerId: String(profile.id),
+    avatarUrl: profile.avatar_url || null,
+  });
+  success(res, data, 'GitHub login successful');
+});
+
+module.exports = { register, login, getMe, logout, forgotPassword, loginWithOtp, resetPassword, verifyEmail, confirmEmailLink, resendVerificationLink, checkEmailStatus, sendVerificationOtp, verifyEmailOtp, forgotPasswordOtp, resetPasswordOtp, googleLogin, githubLogin };

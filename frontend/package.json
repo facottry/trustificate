@@ -4,8 +4,8 @@
   "version": "1.4.5",
   "type": "module",
   "scripts": {
-    "dev": "portless run --name trustificate vite",
-    "dev:local": "vite --port 80 --host",
+    "dev:portless": "portless run --name trustificate vite",
+    "dev": "vite --port 8080 --host",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",

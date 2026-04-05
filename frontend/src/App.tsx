@@ -64,6 +64,7 @@ import NewsletterConfirm from "./pages/NewsletterConfirm";
 import NewsletterUnsubscribed from "./pages/NewsletterUnsubscribed";
 import Playground from "./pages/Playground";
 import AcceptInvite from "./pages/AcceptInvite";
+import GitHubCallback from "./pages/GitHubCallback";
 
 const queryClient = new QueryClient();
 
@@ -115,6 +116,7 @@ const App = () => (
             <Route path="/confirm-email" element={<ConfirmEmail />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/auth/github/callback" element={<GitHubCallback />} />
 
             {/* Admin routes */}
             <Route path="/welcome" element={<ProtectedRoute><Welcome /></ProtectedRoute>} />

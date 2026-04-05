@@ -22,6 +22,13 @@ const userSchema = new mongoose.Schema(
       type: String,
       select: false,
     },
+    authProvider: {
+      type: [String],
+      enum: ['local', 'google', 'github'],
+      default: ['local'],
+    },
+    googleId: { type: String, default: null, sparse: true },
+    githubId: { type: String, default: null, sparse: true },
     avatarUrl: { type: String, default: null },
     organizationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', default: null },
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
@@ -47,7 +54,8 @@ userSchema.virtual('password')
   });
 
 userSchema.pre('save', async function (next) {
-  if (this.isNew && !this._password) {
+  // Social-only users don't need a password
+  if (this.isNew && !this._password && this.authProvider.every(p => p === 'local')) {
     return next(new Error('Password is required'));
   }
   if (!this._password) return next();
