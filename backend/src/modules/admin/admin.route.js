@@ -14,6 +14,7 @@ router.patch('/super/organizations/:orgId/plan', ...sa, c.changeOrgPlan);
 router.get('/super/certificates',    ...sa, c.getSuperCerts);
 router.patch('/super/certificates/:certId/status', ...sa, c.setCertStatus);
 router.get('/super/templates',       ...sa, c.getSuperTemplates);
+router.patch('/super/templates/:templateId', ...sa, c.updateSuperTemplate);
 router.get('/super/billing',         ...sa, c.getSuperBilling);
 router.get('/super/plans',           ...sa, c.getSuperPlans);
 router.get('/super/audit-logs',      ...sa, c.getAuditLogs);

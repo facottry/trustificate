@@ -196,109 +196,161 @@ function TemplateCard({ t, certCounts, onDuplicate, onToggle, onDelete }: {
   const isSystem = Boolean(t.isSystem);
   const color = COLOR_MAP[t.colorTheme] || COLOR_MAP.slate;
   const categories: string[] = t.categories || [];
+  const [flipped, setFlipped] = useState(false);
+  const hasSample = Boolean(t.sampleImageUrl || t.samplePdfUrl);
 
   return (
-    <Card className={`group transition-all hover:shadow-lg hover:-translate-y-0.5 overflow-hidden ${!t.isActive ? "opacity-70" : ""}`}>
-      {/* Color banner / preview area */}
-      <div className={`relative h-28 ${color.bg} ${color.border} border-b flex items-center justify-center overflow-hidden`}>
-        {/* Decorative background pattern */}
-        <div className="absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 10px, currentColor 10px, currentColor 11px)`,
-        }} />
-        {/* Color swatch dots */}
-        <div className="flex items-center gap-2 relative z-10">
-          <div className={`h-4 w-4 rounded-full ${color.dot} ring-2 ring-white shadow-sm`} />
-          {theme.secondary && <div className="h-3 w-3 rounded-full ring-2 ring-white shadow-sm" style={{ backgroundColor: theme.secondary }} />}
-          {theme.accent && <div className="h-2.5 w-2.5 rounded-full ring-2 ring-white shadow-sm" style={{ backgroundColor: theme.accent }} />}
+    <div
+      className="group [perspective:1000px] h-[340px] cursor-pointer"
+      onClick={() => setFlipped((f) => !f)}
+    >
+      <div className={`relative w-full h-full transition-transform duration-500 [transform-style:preserve-3d] ${flipped ? "[transform:rotateY(180deg)]" : ""}`}>
+
+        {/* ═══ FRONT ═══ */}
+        <div className="absolute inset-0 [backface-visibility:hidden]">
+          <Card className={`h-full flex flex-col transition-all hover:shadow-lg overflow-hidden ${!t.isActive ? "opacity-70" : ""}`}>
+            {/* Color banner */}
+            <div className={`relative h-24 ${color.bg} ${color.border} border-b flex items-center justify-center overflow-hidden shrink-0`}>
+              <div className="absolute inset-0 opacity-[0.04]" style={{
+                backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 10px, currentColor 10px, currentColor 11px)`,
+              }} />
+              <div className="flex items-center gap-2 relative z-10">
+                <div className={`h-4 w-4 rounded-full ${color.dot} ring-2 ring-white shadow-sm`} />
+                {theme.secondary && <div className="h-3 w-3 rounded-full ring-2 ring-white shadow-sm" style={{ backgroundColor: theme.secondary }} />}
+                {theme.accent && <div className="h-2.5 w-2.5 rounded-full ring-2 ring-white shadow-sm" style={{ backgroundColor: theme.accent }} />}
+              </div>
+              <div className="absolute bottom-2 left-3">
+                <Badge variant="secondary" className="text-[10px] bg-white/80 dark:bg-black/40 backdrop-blur-sm">
+                  <Palette className="h-2.5 w-2.5 mr-1" />{t.layout}
+                </Badge>
+              </div>
+              {isSystem && (
+                <Badge variant="outline" className="absolute top-2 right-2 text-[10px] bg-white/80 dark:bg-black/40 backdrop-blur-sm">Built-in</Badge>
+              )}
+              {!t.isActive && (
+                <Badge className="absolute top-2 left-2 text-[10px] bg-amber-500/90 text-white border-0">Draft</Badge>
+              )}
+              <div className="absolute bottom-2 right-3">
+                <Badge variant="secondary" className="text-[9px] bg-white/90 dark:bg-black/50 backdrop-blur-sm cursor-pointer hover:bg-white">
+                  {hasSample ? "🔄 Preview sample" : "🔄 Flip"}
+                </Badge>
+              </div>
+            </div>
+
+            <CardHeader className="pb-2 pt-3 shrink-0">
+              <div className="flex items-start justify-between">
+                <div className="flex-1 min-w-0">
+                  <CardTitle className="text-base truncate">{t.name || t.title}</CardTitle>
+                  {t.configuration?.subtitle && (
+                    <CardDescription className="text-xs truncate">{t.configuration.subtitle}</CardDescription>
+                  )}
+                </div>
+                <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2" onClick={(e) => e.stopPropagation()}>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onDuplicate(t)} title="Clone"><Copy className="h-3 w-3" /></Button>
+                  {!isSystem && (
+                    <>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" asChild title="Edit">
+                        <Link to={`/templates/${t.id || t._id}/edit`}><Edit className="h-3 w-3" /></Link>
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onToggle(t)} title={t.isActive ? "Deactivate" : "Activate"}>
+                        {t.isActive ? <ToggleRight className="h-3 w-3" /> : <ToggleLeft className="h-3 w-3" />}
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" title="Delete"><Trash2 className="h-3 w-3" /></Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Template?</AlertDialogTitle>
+                            <AlertDialogDescription>This will permanently delete "{t.name || t.title}". Existing certificates won't be affected.</AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => onDelete(t)}>Delete</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </>
+                  )}
+                </div>
+              </div>
+            </CardHeader>
+
+            <CardContent className="space-y-3 pt-0 flex-1 flex flex-col justify-between">
+              <div className="space-y-2">
+                {t.description && <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{t.description}</p>}
+                {categories.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {categories.map((cat: string) => (
+                      <Badge key={cat} variant="outline" className="text-[10px] px-1.5 py-0">
+                        {CATEGORIES.find((c) => c.key === cat)?.emoji} {cat}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center justify-between pt-1 border-t">
+                <div className="flex items-center gap-1.5">
+                  <Badge variant="secondary" className="text-[10px]">{t.numberPrefix}</Badge>
+                  {t.samplePdfUrl && (
+                    <a href={t.samplePdfUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                      <Badge variant="outline" className="text-[9px] text-blue-600 border-blue-300 hover:bg-blue-50 cursor-pointer">📥 PDF</Badge>
+                    </a>
+                  )}
+                  {t.sampleImageUrl && (
+                    <Badge variant="outline" className="text-[9px] text-green-600 border-green-300">🖼️ Preview</Badge>
+                  )}
+                </div>
+                <span className="text-[10px] text-muted-foreground">
+                  {t.createdAt ? new Date(t.createdAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : ""}
+                  {" · "}{count} issued
+                </span>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-        {/* Layout label */}
-        <div className="absolute bottom-2 left-3">
-          <Badge variant="secondary" className="text-[10px] bg-white/80 dark:bg-black/40 backdrop-blur-sm">
-            <Palette className="h-2.5 w-2.5 mr-1" />{t.layout}
-          </Badge>
+
+        {/* ═══ BACK (sample preview) ═══ */}
+        <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)]">
+          <Card className={`h-full flex flex-col overflow-hidden ${color.border} border-2`}>
+            {t.sampleImageUrl ? (
+              <div className="flex-1 relative bg-muted/30">
+                <img
+                  src={t.sampleImageUrl}
+                  alt={`${t.title} sample`}
+                  className="w-full h-full object-contain p-2"
+                  draggable={false}
+                />
+              </div>
+            ) : (
+              <div className={`flex-1 flex flex-col items-center justify-center gap-3 ${color.bg} p-4`}>
+                <div className="text-4xl">📄</div>
+                <p className="text-sm font-medium text-muted-foreground text-center">Sample preview not set</p>
+                <p className="text-[10px] text-muted-foreground/60 text-center">Admin can set a sample image or PDF link for this template</p>
+              </div>
+            )}
+            <div className="shrink-0 p-3 border-t flex items-center justify-between bg-card">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold truncate">{t.title}</p>
+                <p className="text-[10px] text-muted-foreground">{t.configuration?.subtitle || t.layout}</p>
+              </div>
+              <div className="flex gap-1.5 shrink-0 ml-2" onClick={(e) => e.stopPropagation()}>
+                {t.samplePdfUrl && (
+                  <a href={t.samplePdfUrl} target="_blank" rel="noopener noreferrer">
+                    <Badge variant="default" className="text-[10px] cursor-pointer hover:opacity-80">
+                      📥 PDF
+                    </Badge>
+                  </a>
+                )}
+                <Badge variant="outline" className="text-[10px] cursor-pointer" onClick={() => setFlipped(false)}>
+                  🔄 Flip back
+                </Badge>
+              </div>
+            </div>
+          </Card>
         </div>
-        {/* System badge */}
-        {isSystem && (
-          <Badge variant="outline" className="absolute top-2 right-2 text-[10px] bg-white/80 dark:bg-black/40 backdrop-blur-sm">
-            Built-in
-          </Badge>
-        )}
-        {!t.isActive && (
-          <Badge className="absolute top-2 left-2 text-[10px] bg-amber-500/90 text-white border-0">Draft</Badge>
-        )}
+
       </div>
-
-      <CardHeader className="pb-2 pt-3">
-        <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0">
-            <CardTitle className="text-base truncate">{t.name || t.title}</CardTitle>
-            {t.configuration?.subtitle && (
-              <CardDescription className="text-xs truncate">{t.configuration.subtitle}</CardDescription>
-            )}
-          </div>
-          <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2">
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onDuplicate(t)} title="Clone">
-              <Copy className="h-3 w-3" />
-            </Button>
-            {!isSystem && (
-              <>
-                <Button variant="ghost" size="icon" className="h-7 w-7" asChild title="Edit">
-                  <Link to={`/templates/${t.id || t._id}/edit`}><Edit className="h-3 w-3" /></Link>
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onToggle(t)} title={t.isActive ? "Deactivate" : "Activate"}>
-                  {t.isActive ? <ToggleRight className="h-3 w-3" /> : <ToggleLeft className="h-3 w-3" />}
-                </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" title="Delete">
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Template?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will permanently delete "{t.name || t.title}". Existing certificates won't be affected.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => onDelete(t)}>Delete</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </>
-            )}
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent className="space-y-3 pt-0">
-        {/* Description */}
-        {t.description && (
-          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{t.description}</p>
-        )}
-
-        {/* Category tags */}
-        {categories.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {categories.map((cat: string) => (
-              <Badge key={cat} variant="outline" className="text-[10px] px-1.5 py-0">
-                {CATEGORIES.find((c) => c.key === cat)?.emoji} {cat}
-              </Badge>
-            ))}
-          </div>
-        )}
-
-        {/* Footer: prefix + date + count */}
-        <div className="flex items-center justify-between pt-1 border-t">
-          <Badge variant="secondary" className="text-[10px]">{t.numberPrefix}</Badge>
-          <span className="text-[10px] text-muted-foreground">
-            {t.createdAt ? new Date(t.createdAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : ""}
-            {" · "}{count} issued
-          </span>
-        </div>
-      </CardContent>
-    </Card>
+    </div>
   );
 }

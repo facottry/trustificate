@@ -154,9 +154,26 @@ const getSuperTemplates = async () => {
     number_prefix: t.numberPrefix,
     layout: t.layout,
     is_active: t.isActive,
+    is_system: t.isSystem || false,
     org_name: t.organizationId?.name || null,
+    categories: t.categories || [],
+    description: t.description || "",
+    colorTheme: t.colorTheme || null,
+    samplePdfUrl: t.samplePdfUrl || null,
+    sampleImageUrl: t.sampleImageUrl || null,
     created_at: t.createdAt,
   }));
+};
+
+const updateSuperTemplate = async (templateId, updates) => {
+  const allowed = ['samplePdfUrl', 'sampleImageUrl', 'description', 'categories', 'colorTheme', 'isActive'];
+  const filtered = {};
+  for (const key of allowed) {
+    if (updates[key] !== undefined) filtered[key] = updates[key];
+  }
+  const template = await Template.findByIdAndUpdate(templateId, { $set: filtered }, { new: true }).lean();
+  if (!template) throw new (require('../../middlewares/error.middleware').AppError)('Template not found', 404);
+  return template;
 };
 
 // ── Super-admin: billing (orders + coupons) ──────────────────────────
@@ -258,6 +275,7 @@ module.exports = {
   getSuperCerts,
   setCertStatus,
   getSuperTemplates,
+  updateSuperTemplate,
   getSuperBilling,
   getSuperPlans,
   getAuditLogs,

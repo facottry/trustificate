@@ -14,6 +14,8 @@ const templateSchema = new mongoose.Schema(
     description: { type: String, default: '', trim: true, maxlength: 300 },
     colorTheme: { type: String, default: null },
     previewUrl: { type: String, default: null },
+    samplePdfUrl: { type: String, default: null },
+    sampleImageUrl: { type: String, default: null },
     organizationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: false },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
   },

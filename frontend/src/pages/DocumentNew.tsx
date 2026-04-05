@@ -340,13 +340,13 @@ export default function DocumentNewPage() {
                       <div
                         key={tId}
                         onClick={() => handleTemplateChange(tId)}
-                        className={`cursor-pointer rounded-xl border-2 overflow-hidden transition-all hover:shadow-md ${
+                        className={`cursor-pointer rounded-xl border-2 overflow-hidden transition-all hover:shadow-md h-[260px] flex flex-col ${
                           isSelected ? "border-primary shadow-md ring-2 ring-primary/20" : "border-border hover:border-primary/40"
                         }`}
                       >
                         {/* Mini color preview bar */}
                         <div
-                          className="h-16 relative flex items-end p-2"
+                          className="h-16 relative flex items-end p-2 shrink-0"
                           style={{ background: gradientBg || "#f1f5f9" }}
                         >
                           {/* Color dots */}
@@ -367,7 +367,7 @@ export default function DocumentNewPage() {
                           )}
                         </div>
                         {/* Info */}
-                        <div className="p-3 space-y-1.5">
+                        <div className="p-3 space-y-1.5 flex-1 flex flex-col overflow-hidden">
                           <div className="flex items-center gap-2">
                             <p className="font-semibold text-sm truncate flex-1">{t.title}</p>
                             <span className="text-[10px] text-muted-foreground font-mono shrink-0">{t.numberPrefix || t.number_prefix}</span>
@@ -379,7 +379,7 @@ export default function DocumentNewPage() {
                             <p className="text-[10px] text-muted-foreground/70 line-clamp-2 leading-relaxed">{t.description}</p>
                           )}
                           {cats.length > 0 && (
-                            <div className="flex flex-wrap gap-1 pt-0.5">
+                            <div className="flex flex-wrap gap-1 pt-0.5 mt-auto">
                               {cats.slice(0, 3).map((c: string) => (
                                 <span key={c} className="text-[9px] bg-muted px-1.5 py-0.5 rounded-full text-muted-foreground">{c}</span>
                               ))}
