@@ -1,0 +1,1714 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for src/data/testimonialData.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/data</a> testimonialData.ts</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>0/515</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>0/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>0/515</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line low'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a>
+<a name='L129'></a><a href='#L129'>129</a>
+<a name='L130'></a><a href='#L130'>130</a>
+<a name='L131'></a><a href='#L131'>131</a>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a>
+<a name='L145'></a><a href='#L145'>145</a>
+<a name='L146'></a><a href='#L146'>146</a>
+<a name='L147'></a><a href='#L147'>147</a>
+<a name='L148'></a><a href='#L148'>148</a>
+<a name='L149'></a><a href='#L149'>149</a>
+<a name='L150'></a><a href='#L150'>150</a>
+<a name='L151'></a><a href='#L151'>151</a>
+<a name='L152'></a><a href='#L152'>152</a>
+<a name='L153'></a><a href='#L153'>153</a>
+<a name='L154'></a><a href='#L154'>154</a>
+<a name='L155'></a><a href='#L155'>155</a>
+<a name='L156'></a><a href='#L156'>156</a>
+<a name='L157'></a><a href='#L157'>157</a>
+<a name='L158'></a><a href='#L158'>158</a>
+<a name='L159'></a><a href='#L159'>159</a>
+<a name='L160'></a><a href='#L160'>160</a>
+<a name='L161'></a><a href='#L161'>161</a>
+<a name='L162'></a><a href='#L162'>162</a>
+<a name='L163'></a><a href='#L163'>163</a>
+<a name='L164'></a><a href='#L164'>164</a>
+<a name='L165'></a><a href='#L165'>165</a>
+<a name='L166'></a><a href='#L166'>166</a>
+<a name='L167'></a><a href='#L167'>167</a>
+<a name='L168'></a><a href='#L168'>168</a>
+<a name='L169'></a><a href='#L169'>169</a>
+<a name='L170'></a><a href='#L170'>170</a>
+<a name='L171'></a><a href='#L171'>171</a>
+<a name='L172'></a><a href='#L172'>172</a>
+<a name='L173'></a><a href='#L173'>173</a>
+<a name='L174'></a><a href='#L174'>174</a>
+<a name='L175'></a><a href='#L175'>175</a>
+<a name='L176'></a><a href='#L176'>176</a>
+<a name='L177'></a><a href='#L177'>177</a>
+<a name='L178'></a><a href='#L178'>178</a>
+<a name='L179'></a><a href='#L179'>179</a>
+<a name='L180'></a><a href='#L180'>180</a>
+<a name='L181'></a><a href='#L181'>181</a>
+<a name='L182'></a><a href='#L182'>182</a>
+<a name='L183'></a><a href='#L183'>183</a>
+<a name='L184'></a><a href='#L184'>184</a>
+<a name='L185'></a><a href='#L185'>185</a>
+<a name='L186'></a><a href='#L186'>186</a>
+<a name='L187'></a><a href='#L187'>187</a>
+<a name='L188'></a><a href='#L188'>188</a>
+<a name='L189'></a><a href='#L189'>189</a>
+<a name='L190'></a><a href='#L190'>190</a>
+<a name='L191'></a><a href='#L191'>191</a>
+<a name='L192'></a><a href='#L192'>192</a>
+<a name='L193'></a><a href='#L193'>193</a>
+<a name='L194'></a><a href='#L194'>194</a>
+<a name='L195'></a><a href='#L195'>195</a>
+<a name='L196'></a><a href='#L196'>196</a>
+<a name='L197'></a><a href='#L197'>197</a>
+<a name='L198'></a><a href='#L198'>198</a>
+<a name='L199'></a><a href='#L199'>199</a>
+<a name='L200'></a><a href='#L200'>200</a>
+<a name='L201'></a><a href='#L201'>201</a>
+<a name='L202'></a><a href='#L202'>202</a>
+<a name='L203'></a><a href='#L203'>203</a>
+<a name='L204'></a><a href='#L204'>204</a>
+<a name='L205'></a><a href='#L205'>205</a>
+<a name='L206'></a><a href='#L206'>206</a>
+<a name='L207'></a><a href='#L207'>207</a>
+<a name='L208'></a><a href='#L208'>208</a>
+<a name='L209'></a><a href='#L209'>209</a>
+<a name='L210'></a><a href='#L210'>210</a>
+<a name='L211'></a><a href='#L211'>211</a>
+<a name='L212'></a><a href='#L212'>212</a>
+<a name='L213'></a><a href='#L213'>213</a>
+<a name='L214'></a><a href='#L214'>214</a>
+<a name='L215'></a><a href='#L215'>215</a>
+<a name='L216'></a><a href='#L216'>216</a>
+<a name='L217'></a><a href='#L217'>217</a>
+<a name='L218'></a><a href='#L218'>218</a>
+<a name='L219'></a><a href='#L219'>219</a>
+<a name='L220'></a><a href='#L220'>220</a>
+<a name='L221'></a><a href='#L221'>221</a>
+<a name='L222'></a><a href='#L222'>222</a>
+<a name='L223'></a><a href='#L223'>223</a>
+<a name='L224'></a><a href='#L224'>224</a>
+<a name='L225'></a><a href='#L225'>225</a>
+<a name='L226'></a><a href='#L226'>226</a>
+<a name='L227'></a><a href='#L227'>227</a>
+<a name='L228'></a><a href='#L228'>228</a>
+<a name='L229'></a><a href='#L229'>229</a>
+<a name='L230'></a><a href='#L230'>230</a>
+<a name='L231'></a><a href='#L231'>231</a>
+<a name='L232'></a><a href='#L232'>232</a>
+<a name='L233'></a><a href='#L233'>233</a>
+<a name='L234'></a><a href='#L234'>234</a>
+<a name='L235'></a><a href='#L235'>235</a>
+<a name='L236'></a><a href='#L236'>236</a>
+<a name='L237'></a><a href='#L237'>237</a>
+<a name='L238'></a><a href='#L238'>238</a>
+<a name='L239'></a><a href='#L239'>239</a>
+<a name='L240'></a><a href='#L240'>240</a>
+<a name='L241'></a><a href='#L241'>241</a>
+<a name='L242'></a><a href='#L242'>242</a>
+<a name='L243'></a><a href='#L243'>243</a>
+<a name='L244'></a><a href='#L244'>244</a>
+<a name='L245'></a><a href='#L245'>245</a>
+<a name='L246'></a><a href='#L246'>246</a>
+<a name='L247'></a><a href='#L247'>247</a>
+<a name='L248'></a><a href='#L248'>248</a>
+<a name='L249'></a><a href='#L249'>249</a>
+<a name='L250'></a><a href='#L250'>250</a>
+<a name='L251'></a><a href='#L251'>251</a>
+<a name='L252'></a><a href='#L252'>252</a>
+<a name='L253'></a><a href='#L253'>253</a>
+<a name='L254'></a><a href='#L254'>254</a>
+<a name='L255'></a><a href='#L255'>255</a>
+<a name='L256'></a><a href='#L256'>256</a>
+<a name='L257'></a><a href='#L257'>257</a>
+<a name='L258'></a><a href='#L258'>258</a>
+<a name='L259'></a><a href='#L259'>259</a>
+<a name='L260'></a><a href='#L260'>260</a>
+<a name='L261'></a><a href='#L261'>261</a>
+<a name='L262'></a><a href='#L262'>262</a>
+<a name='L263'></a><a href='#L263'>263</a>
+<a name='L264'></a><a href='#L264'>264</a>
+<a name='L265'></a><a href='#L265'>265</a>
+<a name='L266'></a><a href='#L266'>266</a>
+<a name='L267'></a><a href='#L267'>267</a>
+<a name='L268'></a><a href='#L268'>268</a>
+<a name='L269'></a><a href='#L269'>269</a>
+<a name='L270'></a><a href='#L270'>270</a>
+<a name='L271'></a><a href='#L271'>271</a>
+<a name='L272'></a><a href='#L272'>272</a>
+<a name='L273'></a><a href='#L273'>273</a>
+<a name='L274'></a><a href='#L274'>274</a>
+<a name='L275'></a><a href='#L275'>275</a>
+<a name='L276'></a><a href='#L276'>276</a>
+<a name='L277'></a><a href='#L277'>277</a>
+<a name='L278'></a><a href='#L278'>278</a>
+<a name='L279'></a><a href='#L279'>279</a>
+<a name='L280'></a><a href='#L280'>280</a>
+<a name='L281'></a><a href='#L281'>281</a>
+<a name='L282'></a><a href='#L282'>282</a>
+<a name='L283'></a><a href='#L283'>283</a>
+<a name='L284'></a><a href='#L284'>284</a>
+<a name='L285'></a><a href='#L285'>285</a>
+<a name='L286'></a><a href='#L286'>286</a>
+<a name='L287'></a><a href='#L287'>287</a>
+<a name='L288'></a><a href='#L288'>288</a>
+<a name='L289'></a><a href='#L289'>289</a>
+<a name='L290'></a><a href='#L290'>290</a>
+<a name='L291'></a><a href='#L291'>291</a>
+<a name='L292'></a><a href='#L292'>292</a>
+<a name='L293'></a><a href='#L293'>293</a>
+<a name='L294'></a><a href='#L294'>294</a>
+<a name='L295'></a><a href='#L295'>295</a>
+<a name='L296'></a><a href='#L296'>296</a>
+<a name='L297'></a><a href='#L297'>297</a>
+<a name='L298'></a><a href='#L298'>298</a>
+<a name='L299'></a><a href='#L299'>299</a>
+<a name='L300'></a><a href='#L300'>300</a>
+<a name='L301'></a><a href='#L301'>301</a>
+<a name='L302'></a><a href='#L302'>302</a>
+<a name='L303'></a><a href='#L303'>303</a>
+<a name='L304'></a><a href='#L304'>304</a>
+<a name='L305'></a><a href='#L305'>305</a>
+<a name='L306'></a><a href='#L306'>306</a>
+<a name='L307'></a><a href='#L307'>307</a>
+<a name='L308'></a><a href='#L308'>308</a>
+<a name='L309'></a><a href='#L309'>309</a>
+<a name='L310'></a><a href='#L310'>310</a>
+<a name='L311'></a><a href='#L311'>311</a>
+<a name='L312'></a><a href='#L312'>312</a>
+<a name='L313'></a><a href='#L313'>313</a>
+<a name='L314'></a><a href='#L314'>314</a>
+<a name='L315'></a><a href='#L315'>315</a>
+<a name='L316'></a><a href='#L316'>316</a>
+<a name='L317'></a><a href='#L317'>317</a>
+<a name='L318'></a><a href='#L318'>318</a>
+<a name='L319'></a><a href='#L319'>319</a>
+<a name='L320'></a><a href='#L320'>320</a>
+<a name='L321'></a><a href='#L321'>321</a>
+<a name='L322'></a><a href='#L322'>322</a>
+<a name='L323'></a><a href='#L323'>323</a>
+<a name='L324'></a><a href='#L324'>324</a>
+<a name='L325'></a><a href='#L325'>325</a>
+<a name='L326'></a><a href='#L326'>326</a>
+<a name='L327'></a><a href='#L327'>327</a>
+<a name='L328'></a><a href='#L328'>328</a>
+<a name='L329'></a><a href='#L329'>329</a>
+<a name='L330'></a><a href='#L330'>330</a>
+<a name='L331'></a><a href='#L331'>331</a>
+<a name='L332'></a><a href='#L332'>332</a>
+<a name='L333'></a><a href='#L333'>333</a>
+<a name='L334'></a><a href='#L334'>334</a>
+<a name='L335'></a><a href='#L335'>335</a>
+<a name='L336'></a><a href='#L336'>336</a>
+<a name='L337'></a><a href='#L337'>337</a>
+<a name='L338'></a><a href='#L338'>338</a>
+<a name='L339'></a><a href='#L339'>339</a>
+<a name='L340'></a><a href='#L340'>340</a>
+<a name='L341'></a><a href='#L341'>341</a>
+<a name='L342'></a><a href='#L342'>342</a>
+<a name='L343'></a><a href='#L343'>343</a>
+<a name='L344'></a><a href='#L344'>344</a>
+<a name='L345'></a><a href='#L345'>345</a>
+<a name='L346'></a><a href='#L346'>346</a>
+<a name='L347'></a><a href='#L347'>347</a>
+<a name='L348'></a><a href='#L348'>348</a>
+<a name='L349'></a><a href='#L349'>349</a>
+<a name='L350'></a><a href='#L350'>350</a>
+<a name='L351'></a><a href='#L351'>351</a>
+<a name='L352'></a><a href='#L352'>352</a>
+<a name='L353'></a><a href='#L353'>353</a>
+<a name='L354'></a><a href='#L354'>354</a>
+<a name='L355'></a><a href='#L355'>355</a>
+<a name='L356'></a><a href='#L356'>356</a>
+<a name='L357'></a><a href='#L357'>357</a>
+<a name='L358'></a><a href='#L358'>358</a>
+<a name='L359'></a><a href='#L359'>359</a>
+<a name='L360'></a><a href='#L360'>360</a>
+<a name='L361'></a><a href='#L361'>361</a>
+<a name='L362'></a><a href='#L362'>362</a>
+<a name='L363'></a><a href='#L363'>363</a>
+<a name='L364'></a><a href='#L364'>364</a>
+<a name='L365'></a><a href='#L365'>365</a>
+<a name='L366'></a><a href='#L366'>366</a>
+<a name='L367'></a><a href='#L367'>367</a>
+<a name='L368'></a><a href='#L368'>368</a>
+<a name='L369'></a><a href='#L369'>369</a>
+<a name='L370'></a><a href='#L370'>370</a>
+<a name='L371'></a><a href='#L371'>371</a>
+<a name='L372'></a><a href='#L372'>372</a>
+<a name='L373'></a><a href='#L373'>373</a>
+<a name='L374'></a><a href='#L374'>374</a>
+<a name='L375'></a><a href='#L375'>375</a>
+<a name='L376'></a><a href='#L376'>376</a>
+<a name='L377'></a><a href='#L377'>377</a>
+<a name='L378'></a><a href='#L378'>378</a>
+<a name='L379'></a><a href='#L379'>379</a>
+<a name='L380'></a><a href='#L380'>380</a>
+<a name='L381'></a><a href='#L381'>381</a>
+<a name='L382'></a><a href='#L382'>382</a>
+<a name='L383'></a><a href='#L383'>383</a>
+<a name='L384'></a><a href='#L384'>384</a>
+<a name='L385'></a><a href='#L385'>385</a>
+<a name='L386'></a><a href='#L386'>386</a>
+<a name='L387'></a><a href='#L387'>387</a>
+<a name='L388'></a><a href='#L388'>388</a>
+<a name='L389'></a><a href='#L389'>389</a>
+<a name='L390'></a><a href='#L390'>390</a>
+<a name='L391'></a><a href='#L391'>391</a>
+<a name='L392'></a><a href='#L392'>392</a>
+<a name='L393'></a><a href='#L393'>393</a>
+<a name='L394'></a><a href='#L394'>394</a>
+<a name='L395'></a><a href='#L395'>395</a>
+<a name='L396'></a><a href='#L396'>396</a>
+<a name='L397'></a><a href='#L397'>397</a>
+<a name='L398'></a><a href='#L398'>398</a>
+<a name='L399'></a><a href='#L399'>399</a>
+<a name='L400'></a><a href='#L400'>400</a>
+<a name='L401'></a><a href='#L401'>401</a>
+<a name='L402'></a><a href='#L402'>402</a>
+<a name='L403'></a><a href='#L403'>403</a>
+<a name='L404'></a><a href='#L404'>404</a>
+<a name='L405'></a><a href='#L405'>405</a>
+<a name='L406'></a><a href='#L406'>406</a>
+<a name='L407'></a><a href='#L407'>407</a>
+<a name='L408'></a><a href='#L408'>408</a>
+<a name='L409'></a><a href='#L409'>409</a>
+<a name='L410'></a><a href='#L410'>410</a>
+<a name='L411'></a><a href='#L411'>411</a>
+<a name='L412'></a><a href='#L412'>412</a>
+<a name='L413'></a><a href='#L413'>413</a>
+<a name='L414'></a><a href='#L414'>414</a>
+<a name='L415'></a><a href='#L415'>415</a>
+<a name='L416'></a><a href='#L416'>416</a>
+<a name='L417'></a><a href='#L417'>417</a>
+<a name='L418'></a><a href='#L418'>418</a>
+<a name='L419'></a><a href='#L419'>419</a>
+<a name='L420'></a><a href='#L420'>420</a>
+<a name='L421'></a><a href='#L421'>421</a>
+<a name='L422'></a><a href='#L422'>422</a>
+<a name='L423'></a><a href='#L423'>423</a>
+<a name='L424'></a><a href='#L424'>424</a>
+<a name='L425'></a><a href='#L425'>425</a>
+<a name='L426'></a><a href='#L426'>426</a>
+<a name='L427'></a><a href='#L427'>427</a>
+<a name='L428'></a><a href='#L428'>428</a>
+<a name='L429'></a><a href='#L429'>429</a>
+<a name='L430'></a><a href='#L430'>430</a>
+<a name='L431'></a><a href='#L431'>431</a>
+<a name='L432'></a><a href='#L432'>432</a>
+<a name='L433'></a><a href='#L433'>433</a>
+<a name='L434'></a><a href='#L434'>434</a>
+<a name='L435'></a><a href='#L435'>435</a>
+<a name='L436'></a><a href='#L436'>436</a>
+<a name='L437'></a><a href='#L437'>437</a>
+<a name='L438'></a><a href='#L438'>438</a>
+<a name='L439'></a><a href='#L439'>439</a>
+<a name='L440'></a><a href='#L440'>440</a>
+<a name='L441'></a><a href='#L441'>441</a>
+<a name='L442'></a><a href='#L442'>442</a>
+<a name='L443'></a><a href='#L443'>443</a>
+<a name='L444'></a><a href='#L444'>444</a>
+<a name='L445'></a><a href='#L445'>445</a>
+<a name='L446'></a><a href='#L446'>446</a>
+<a name='L447'></a><a href='#L447'>447</a>
+<a name='L448'></a><a href='#L448'>448</a>
+<a name='L449'></a><a href='#L449'>449</a>
+<a name='L450'></a><a href='#L450'>450</a>
+<a name='L451'></a><a href='#L451'>451</a>
+<a name='L452'></a><a href='#L452'>452</a>
+<a name='L453'></a><a href='#L453'>453</a>
+<a name='L454'></a><a href='#L454'>454</a>
+<a name='L455'></a><a href='#L455'>455</a>
+<a name='L456'></a><a href='#L456'>456</a>
+<a name='L457'></a><a href='#L457'>457</a>
+<a name='L458'></a><a href='#L458'>458</a>
+<a name='L459'></a><a href='#L459'>459</a>
+<a name='L460'></a><a href='#L460'>460</a>
+<a name='L461'></a><a href='#L461'>461</a>
+<a name='L462'></a><a href='#L462'>462</a>
+<a name='L463'></a><a href='#L463'>463</a>
+<a name='L464'></a><a href='#L464'>464</a>
+<a name='L465'></a><a href='#L465'>465</a>
+<a name='L466'></a><a href='#L466'>466</a>
+<a name='L467'></a><a href='#L467'>467</a>
+<a name='L468'></a><a href='#L468'>468</a>
+<a name='L469'></a><a href='#L469'>469</a>
+<a name='L470'></a><a href='#L470'>470</a>
+<a name='L471'></a><a href='#L471'>471</a>
+<a name='L472'></a><a href='#L472'>472</a>
+<a name='L473'></a><a href='#L473'>473</a>
+<a name='L474'></a><a href='#L474'>474</a>
+<a name='L475'></a><a href='#L475'>475</a>
+<a name='L476'></a><a href='#L476'>476</a>
+<a name='L477'></a><a href='#L477'>477</a>
+<a name='L478'></a><a href='#L478'>478</a>
+<a name='L479'></a><a href='#L479'>479</a>
+<a name='L480'></a><a href='#L480'>480</a>
+<a name='L481'></a><a href='#L481'>481</a>
+<a name='L482'></a><a href='#L482'>482</a>
+<a name='L483'></a><a href='#L483'>483</a>
+<a name='L484'></a><a href='#L484'>484</a>
+<a name='L485'></a><a href='#L485'>485</a>
+<a name='L486'></a><a href='#L486'>486</a>
+<a name='L487'></a><a href='#L487'>487</a>
+<a name='L488'></a><a href='#L488'>488</a>
+<a name='L489'></a><a href='#L489'>489</a>
+<a name='L490'></a><a href='#L490'>490</a>
+<a name='L491'></a><a href='#L491'>491</a>
+<a name='L492'></a><a href='#L492'>492</a>
+<a name='L493'></a><a href='#L493'>493</a>
+<a name='L494'></a><a href='#L494'>494</a>
+<a name='L495'></a><a href='#L495'>495</a>
+<a name='L496'></a><a href='#L496'>496</a>
+<a name='L497'></a><a href='#L497'>497</a>
+<a name='L498'></a><a href='#L498'>498</a>
+<a name='L499'></a><a href='#L499'>499</a>
+<a name='L500'></a><a href='#L500'>500</a>
+<a name='L501'></a><a href='#L501'>501</a>
+<a name='L502'></a><a href='#L502'>502</a>
+<a name='L503'></a><a href='#L503'>503</a>
+<a name='L504'></a><a href='#L504'>504</a>
+<a name='L505'></a><a href='#L505'>505</a>
+<a name='L506'></a><a href='#L506'>506</a>
+<a name='L507'></a><a href='#L507'>507</a>
+<a name='L508'></a><a href='#L508'>508</a>
+<a name='L509'></a><a href='#L509'>509</a>
+<a name='L510'></a><a href='#L510'>510</a>
+<a name='L511'></a><a href='#L511'>511</a>
+<a name='L512'></a><a href='#L512'>512</a>
+<a name='L513'></a><a href='#L513'>513</a>
+<a name='L514'></a><a href='#L514'>514</a>
+<a name='L515'></a><a href='#L515'>515</a>
+<a name='L516'></a><a href='#L516'>516</a>
+<a name='L517'></a><a href='#L517'>517</a>
+<a name='L518'></a><a href='#L518'>518</a>
+<a name='L519'></a><a href='#L519'>519</a>
+<a name='L520'></a><a href='#L520'>520</a>
+<a name='L521'></a><a href='#L521'>521</a>
+<a name='L522'></a><a href='#L522'>522</a>
+<a name='L523'></a><a href='#L523'>523</a>
+<a name='L524'></a><a href='#L524'>524</a>
+<a name='L525'></a><a href='#L525'>525</a>
+<a name='L526'></a><a href='#L526'>526</a>
+<a name='L527'></a><a href='#L527'>527</a>
+<a name='L528'></a><a href='#L528'>528</a>
+<a name='L529'></a><a href='#L529'>529</a>
+<a name='L530'></a><a href='#L530'>530</a>
+<a name='L531'></a><a href='#L531'>531</a>
+<a name='L532'></a><a href='#L532'>532</a>
+<a name='L533'></a><a href='#L533'>533</a>
+<a name='L534'></a><a href='#L534'>534</a>
+<a name='L535'></a><a href='#L535'>535</a>
+<a name='L536'></a><a href='#L536'>536</a>
+<a name='L537'></a><a href='#L537'>537</a>
+<a name='L538'></a><a href='#L538'>538</a>
+<a name='L539'></a><a href='#L539'>539</a>
+<a name='L540'></a><a href='#L540'>540</a>
+<a name='L541'></a><a href='#L541'>541</a>
+<a name='L542'></a><a href='#L542'>542</a>
+<a name='L543'></a><a href='#L543'>543</a>
+<a name='L544'></a><a href='#L544'>544</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >﻿export interface Testimonial {</span></span></span>
+  name: string;
+  role: string;
+  company: string;
+  avatar: string;
+  quote: string;
+  result: string;
+  certificatesIssued: string;
+  verificationRate: string;
+}
+&nbsp;
+export interface TestimonialPage {
+  slug: string;
+  title: string;
+  metaTitle: string;
+  metaDescription: string;
+  heroHeading: string;
+  heroSubheading: string;
+  industry: string;
+  testimonials: Testimonial[];
+  useCases: string[];
+  ctaHeading: string;
+  ctaDescription: string;
+}
+&nbsp;
+<span class="cstat-no" title="statement not covered" >export const testimonialPages: TestimonialPage[] = [</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    slug: "online-course-creators",</span>
+<span class="cstat-no" title="statement not covered" >    title: "Online Course Creators",</span>
+<span class="cstat-no" title="statement not covered" >    metaTitle: "Certificate Generator for Online Course Creators | Testimonials",</span>
+<span class="cstat-no" title="statement not covered" >    metaDescription: "See how online course creators use TRUSTIFICATE to automate certificate generation and boost student engagement. Real stories, real results.",</span>
+<span class="cstat-no" title="statement not covered" >    heroHeading: "Trusted by Online Course Creators Worldwide",</span>
+<span class="cstat-no" title="statement not covered" >    heroSubheading: "See how educators and course creators automate certificate generation to increase completion rates and student satisfaction.",</span>
+<span class="cstat-no" title="statement not covered" >    industry: "Online Education",</span>
+<span class="cstat-no" title="statement not covered" >    testimonials: [</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Priya Mehta",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Founder",</span>
+<span class="cstat-no" title="statement not covered" >        company: "LearnHub Academy",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "PM",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "TRUSTIFICATE transformed how we deliver certificates. What used to take our team 2 days now happens automatically. Students get their certificates within seconds of completing a course.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Reduced certificate delivery time from 48 hours to under 10 seconds",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "12,000+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "99.8%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "James Rodriguez",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Head of Education",</span>
+<span class="cstat-no" title="statement not covered" >        company: "SkillForge Online",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "JR",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "The verification system alone justified the investment. Our students share their certificates on LinkedIn and employers can instantly verify them. It's added incredible credibility to our courses.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "87% of graduates share certificates on LinkedIn",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "45,000+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "99.9%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Ananya Singh",</span>
+<span class="cstat-no" title="statement not covered" >        role: "CEO",</span>
+<span class="cstat-no" title="statement not covered" >        company: "CodeMaster Pro",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "AS",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "We integrated TRUSTIFICATE's API into our LMS in under a day. The bulk generation feature is a lifesaver for our cohort-based programs where we issue 500+ certificates at once.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Saved 120+ hours per year on certificate management",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "28,000+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "100%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    useCases: [</span>
+<span class="cstat-no" title="statement not covered" >      "Automated certificate delivery upon course completion",</span>
+<span class="cstat-no" title="statement not covered" >      "Bulk certificate generation for cohort-based courses",</span>
+<span class="cstat-no" title="statement not covered" >      "QR code verification for employer validation",</span>
+<span class="cstat-no" title="statement not covered" >      "Custom branded templates matching course branding",</span>
+<span class="cstat-no" title="statement not covered" >      "API integration with existing LMS platforms",</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    ctaHeading: "Start Issuing Certificates for Your Courses",</span>
+<span class="cstat-no" title="statement not covered" >    ctaDescription: "Join thousands of course creators who trust TRUSTIFICATE for professional, verifiable certificates.",</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    slug: "hr-teams",</span>
+<span class="cstat-no" title="statement not covered" >    title: "HR Teams",</span>
+<span class="cstat-no" title="statement not covered" >    metaTitle: "Certificate Generator for HR Teams | Employee Training Certificates",</span>
+<span class="cstat-no" title="statement not covered" >    metaDescription: "Discover how HR teams automate employee training certificates with TRUSTIFICATE. Streamline compliance tracking and onboarding certification.",</span>
+<span class="cstat-no" title="statement not covered" >    heroHeading: "HR Teams Trust TRUSTIFICATE for Employee Certificates",</span>
+<span class="cstat-no" title="statement not covered" >    heroSubheading: "From onboarding to compliance training, see how HR departments automate their certification workflows.",</span>
+<span class="cstat-no" title="statement not covered" >    industry: "Human Resources",</span>
+<span class="cstat-no" title="statement not covered" >    testimonials: [</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Sarah Chen",</span>
+<span class="cstat-no" title="statement not covered" >        role: "VP of People Operations",</span>
+<span class="cstat-no" title="statement not covered" >        company: "TechScale Inc.",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "SC",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "Managing compliance certificates for 2,000+ employees was a nightmare. TRUSTIFICATE centralized everything. Now we can track who has which certification, when they expire, and auto-generate renewal certificates.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "100% compliance tracking accuracy, zero missed renewals",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "8,500+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "99.7%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Michael Thompson",</span>
+<span class="cstat-no" title="statement not covered" >        role: "HR Director",</span>
+<span class="cstat-no" title="statement not covered" >        company: "GlobalCorp Solutions",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "MT",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "Our onboarding process now includes automatic certificate generation for each training module. New hires love it it makes them feel valued from day one.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Employee onboarding satisfaction up 34%",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "15,200+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "99.9%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Kavita Patel",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Learning &amp; Development Manager",</span>
+<span class="cstat-no" title="statement not covered" >        company: "Innovate Corp",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "KP",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "The template system is incredibly flexible. We have different certificate designs for safety training, leadership programs, and technical certifications all managed from one dashboard.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Reduced certificate design time by 90%",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "6,800+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "100%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    useCases: [</span>
+<span class="cstat-no" title="statement not covered" >      "Employee onboarding certification",</span>
+<span class="cstat-no" title="statement not covered" >      "Compliance and safety training certificates",</span>
+<span class="cstat-no" title="statement not covered" >      "Leadership development program certificates",</span>
+<span class="cstat-no" title="statement not covered" >      "Annual training completion tracking",</span>
+<span class="cstat-no" title="statement not covered" >      "Automated certificate renewal reminders",</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    ctaHeading: "Streamline Your HR Certification Workflow",</span>
+<span class="cstat-no" title="statement not covered" >    ctaDescription: "Automate employee training certificates and never miss a compliance deadline again.",</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    slug: "webinar-hosts",</span>
+<span class="cstat-no" title="statement not covered" >    title: "Webinar Hosts",</span>
+<span class="cstat-no" title="statement not covered" >    metaTitle: "Certificate Generator for Webinars | Attendance Certificates",</span>
+<span class="cstat-no" title="statement not covered" >    metaDescription: "Learn how webinar hosts use TRUSTIFICATE to generate attendance certificates automatically. Boost engagement and provide proof of participation.",</span>
+<span class="cstat-no" title="statement not covered" >    heroHeading: "Webinar Hosts Love TRUSTIFICATE Certificates",</span>
+<span class="cstat-no" title="statement not covered" >    heroSubheading: "Automatically generate and deliver attendance certificates to every webinar participant.",</span>
+<span class="cstat-no" title="statement not covered" >    industry: "Webinars &amp; Events",</span>
+<span class="cstat-no" title="statement not covered" >    testimonials: [</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "David Park",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Community Manager",</span>
+<span class="cstat-no" title="statement not covered" >        company: "DevTalk Weekly",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "DP",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "We host weekly webinars with 200-500 attendees. TRUSTIFICATE's bulk generation means all certificates are sent within minutes of the webinar ending. Our attendees are always impressed.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Certificate delivery within 5 minutes of webinar end",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "32,000+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "99.8%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Lisa Fernandez",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Events Director",</span>
+<span class="cstat-no" title="statement not covered" >        company: "MarketingPro Summit",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "LF",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "Certificates increased our webinar attendance by 40%. People want proof they attended, and the verification link makes it shareable and credible.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "40% increase in webinar registration rates",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "18,500+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "99.9%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Rajesh Kumar",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Founder",</span>
+<span class="cstat-no" title="statement not covered" >        company: "AI Insights Live",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "RK",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "The API integration with our webinar platform was seamless. Attendees get their certificates automatically no manual work on our end whatsoever.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Zero manual intervention in certificate workflow",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "9,200+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "100%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    useCases: [</span>
+<span class="cstat-no" title="statement not covered" >      "Automatic attendance certificate generation",</span>
+<span class="cstat-no" title="statement not covered" >      "Bulk delivery to all webinar participants",</span>
+<span class="cstat-no" title="statement not covered" >      "Custom branded webinar certificates",</span>
+<span class="cstat-no" title="statement not covered" >      "Integration with webinar platforms via API",</span>
+<span class="cstat-no" title="statement not covered" >      "Shareable verification links for social media",</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    ctaHeading: "Automate Webinar Certificates Today",</span>
+<span class="cstat-no" title="statement not covered" >    ctaDescription: "Generate and deliver certificates to hundreds of attendees in minutes, not days.",</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    slug: "training-institutes",</span>
+<span class="cstat-no" title="statement not covered" >    title: "Training Institutes",</span>
+<span class="cstat-no" title="statement not covered" >    metaTitle: "Certificate Generator for Training Institutes | Professional Certificates",</span>
+<span class="cstat-no" title="statement not covered" >    metaDescription: "See how training institutes use TRUSTIFICATE to issue professional, verifiable certificates. Automate your certification process and build credibility.",</span>
+<span class="cstat-no" title="statement not covered" >    heroHeading: "Training Institutes Scale with TRUSTIFICATE",</span>
+<span class="cstat-no" title="statement not covered" >    heroSubheading: "From small coaching centers to large training organizations, see how institutes modernize their certification process.",</span>
+<span class="cstat-no" title="statement not covered" >    industry: "Professional Training",</span>
+<span class="cstat-no" title="statement not covered" >    testimonials: [</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Dr. Aisha Mohammed",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Director",</span>
+<span class="cstat-no" title="statement not covered" >        company: "National Skills Academy",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "AM",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "We issue certificates for 50+ different training programs. TRUSTIFICATE's template system lets us maintain consistent branding while customizing each certificate for the specific program.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Standardized certificates across 50+ programs",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "42,000+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "99.9%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Robert Kline",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Operations Manager",</span>
+<span class="cstat-no" title="statement not covered" >        company: "TechCert Training",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "RKl",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "The QR code verification has been a game-changer. Employers scan the code and instantly see the certificate details. It's eliminated all fraud concerns.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Zero fraudulent certificate claims since adoption",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "21,000+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "100%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Sunita Rao",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Head of Operations",</span>
+<span class="cstat-no" title="statement not covered" >        company: "SkillBridge Institute",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "SR",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "We switched from manual PDF certificates to TRUSTIFICATE and saved our admin team 15 hours per week. The automation is incredible.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "15 hours per week saved on certificate administration",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "35,600+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "99.8%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    useCases: [</span>
+<span class="cstat-no" title="statement not covered" >      "Multi-program certificate management",</span>
+<span class="cstat-no" title="statement not covered" >      "QR code verification for employers",</span>
+<span class="cstat-no" title="statement not covered" >      "Branded certificate templates per program",</span>
+<span class="cstat-no" title="statement not covered" >      "Bulk generation for batch completions",</span>
+<span class="cstat-no" title="statement not covered" >      "Digital certificate registry for alumni",</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    ctaHeading: "Modernize Your Institute's Certificates",</span>
+<span class="cstat-no" title="statement not covered" >    ctaDescription: "Issue professional, verifiable certificates that employers trust and students value.",</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    slug: "bootcamps",</span>
+<span class="cstat-no" title="statement not covered" >    title: "Bootcamps",</span>
+<span class="cstat-no" title="statement not covered" >    metaTitle: "Certificate Generator for Bootcamps | Coding &amp; Tech Certificates",</span>
+<span class="cstat-no" title="statement not covered" >    metaDescription: "How bootcamps use TRUSTIFICATE to issue professional completion certificates. Boost graduate credibility with verifiable digital certificates.",</span>
+<span class="cstat-no" title="statement not covered" >    heroHeading: "Bootcamps Build Credibility with TRUSTIFICATE",</span>
+<span class="cstat-no" title="statement not covered" >    heroSubheading: "Issue professional, verifiable completion certificates that help graduates land jobs faster.",</span>
+<span class="cstat-no" title="statement not covered" >    industry: "Bootcamps &amp; Intensive Programs",</span>
+<span class="cstat-no" title="statement not covered" >    testimonials: [</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Alex Turner",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Co-Founder",</span>
+<span class="cstat-no" title="statement not covered" >        company: "FullStack Academy",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "AT",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "Our graduates share their TRUSTIFICATE certificates on LinkedIn and job applications. The instant verification gives hiring managers confidence in our program's legitimacy.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Graduate hiring rate improved by 23%",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "7,800+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "100%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Nina Patel",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Program Director",</span>
+<span class="cstat-no" title="statement not covered" >        company: "DataCamp Elite",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "NP",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "We run 12-week intensive bootcamps and issue certificates with detailed skill breakdowns. TRUSTIFICATE's custom fields let us include project scores, specializations, and more.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Certificates include detailed skill assessments",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "4,200+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "99.9%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Chris Okafor",</span>
+<span class="cstat-no" title="statement not covered" >        role: "CEO",</span>
+<span class="cstat-no" title="statement not covered" >        company: "DevPath Bootcamp",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "CO",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "The API integration with our student management system means certificates are generated the moment a student completes their final project. It's completely hands-off.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Fully automated certificate pipeline",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "11,500+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "100%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    useCases: [</span>
+<span class="cstat-no" title="statement not covered" >      "Completion certificates with skill breakdowns",</span>
+<span class="cstat-no" title="statement not covered" >      "LinkedIn-shareable verification links",</span>
+<span class="cstat-no" title="statement not covered" >      "Automated generation on course completion",</span>
+<span class="cstat-no" title="statement not covered" >      "Custom fields for project scores and specializations",</span>
+<span class="cstat-no" title="statement not covered" >      "Alumni certificate registry",</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    ctaHeading: "Certificates That Help Graduates Get Hired",</span>
+<span class="cstat-no" title="statement not covered" >    ctaDescription: "Issue verifiable bootcamp certificates that stand out to employers.",</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    slug: "event-organizers",</span>
+<span class="cstat-no" title="statement not covered" >    title: "Event Organizers",</span>
+<span class="cstat-no" title="statement not covered" >    metaTitle: "Certificate Generator for Events | Participation Certificates",</span>
+<span class="cstat-no" title="statement not covered" >    metaDescription: "Event organizers use TRUSTIFICATE to generate participation certificates at scale. Automate certificate delivery for conferences, summits, and meetups.",</span>
+<span class="cstat-no" title="statement not covered" >    heroHeading: "Event Organizers Choose TRUSTIFICATE",</span>
+<span class="cstat-no" title="statement not covered" >    heroSubheading: "Generate participation certificates for hundreds or thousands of attendees effortlessly.",</span>
+<span class="cstat-no" title="statement not covered" >    industry: "Events &amp; Conferences",</span>
+<span class="cstat-no" title="statement not covered" >    testimonials: [</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Maria Santos",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Event Director",</span>
+<span class="cstat-no" title="statement not covered" >        company: "TechSummit Global",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "MS",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "We had 3,000 attendees at our last conference. TRUSTIFICATE generated and delivered all participation certificates within 30 minutes of the closing ceremony. The feedback was incredible.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "3,000 certificates delivered in under 30 minutes",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "52,000+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "99.9%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Tom Richards",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Operations Lead",</span>
+<span class="cstat-no" title="statement not covered" >        company: "StartupWeek",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "TR",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "Different certificate designs for speakers, attendees, volunteers, and sponsors all managed from one platform. TRUSTIFICATE made our multi-track event seamless.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "4 certificate types managed from single dashboard",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "28,000+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "100%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Fatima Al-Hassan",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Community Manager",</span>
+<span class="cstat-no" title="statement not covered" >        company: "Women in Tech Conf",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "FA",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "The branded certificates with our event theme look absolutely stunning. Attendees proudly share them on social media, which is amazing organic marketing for our next event.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "65% of attendees share certificates on social media",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "14,300+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "99.8%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    useCases: [</span>
+<span class="cstat-no" title="statement not covered" >      "Mass certificate generation for large events",</span>
+<span class="cstat-no" title="statement not covered" >      "Multiple certificate types per event",</span>
+<span class="cstat-no" title="statement not covered" >      "Branded designs matching event themes",</span>
+<span class="cstat-no" title="statement not covered" >      "Speaker and volunteer recognition certificates",</span>
+<span class="cstat-no" title="statement not covered" >      "Post-event social media sharing",</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    ctaHeading: "Certificates for Events of Any Size",</span>
+<span class="cstat-no" title="statement not covered" >    ctaDescription: "From intimate workshops to 10,000-person conferences, deliver certificates at scale.",</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    slug: "coaching-centers",</span>
+<span class="cstat-no" title="statement not covered" >    title: "Coaching Centers",</span>
+<span class="cstat-no" title="statement not covered" >    metaTitle: "Certificate Generator for Coaching Centers | Course Certificates",</span>
+<span class="cstat-no" title="statement not covered" >    metaDescription: "Coaching centers use TRUSTIFICATE to issue professional certificates for students. Build trust with parents and students through verifiable credentials.",</span>
+<span class="cstat-no" title="statement not covered" >    heroHeading: "Coaching Centers Trust TRUSTIFICATE",</span>
+<span class="cstat-no" title="statement not covered" >    heroSubheading: "Issue professional certificates that build trust with students and parents alike.",</span>
+<span class="cstat-no" title="statement not covered" >    industry: "Coaching &amp; Tutoring",</span>
+<span class="cstat-no" title="statement not covered" >    testimonials: [</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Vikram Sharma",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Director",</span>
+<span class="cstat-no" title="statement not covered" >        company: "Excel Coaching Academy",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "VS",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "Parents love that their children receive professional certificates for completing our programs. It adds tremendous value to our coaching services and justifies our pricing.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Parent satisfaction scores increased by 45%",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "16,500+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "99.7%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Emily Watson",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Academic Head",</span>
+<span class="cstat-no" title="statement not covered" >        company: "BrightMinds Tutoring",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "EW",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "We issue certificates for exam prep courses, summer programs, and achievement milestones. TRUSTIFICATE makes it easy to manage all of them from a single dashboard.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Unified certificate management across all programs",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "9,800+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "100%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Abdul Rahman",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Founder",</span>
+<span class="cstat-no" title="statement not covered" >        company: "MathGenius Academy",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "AR",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "The verification feature helps us stand out from competitors. When a student's certificate can be verified online, it proves the authenticity of our program.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Competitive differentiation through verified certificates",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "5,400+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "99.9%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    useCases: [</span>
+<span class="cstat-no" title="statement not covered" >      "Student achievement certificates",</span>
+<span class="cstat-no" title="statement not covered" >      "Exam preparation completion certificates",</span>
+<span class="cstat-no" title="statement not covered" >      "Summer program certificates",</span>
+<span class="cstat-no" title="statement not covered" >      "Milestone-based recognition",</span>
+<span class="cstat-no" title="statement not covered" >      "Verifiable credentials for college applications",</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    ctaHeading: "Professional Certificates for Your Coaching Center",</span>
+<span class="cstat-no" title="statement not covered" >    ctaDescription: "Build credibility and trust with verifiable certificates for every student achievement.",</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    slug: "universities",</span>
+<span class="cstat-no" title="statement not covered" >    title: "Universities",</span>
+<span class="cstat-no" title="statement not covered" >    metaTitle: "Digital Certificate Platform for Universities | Academic Credentials",</span>
+<span class="cstat-no" title="statement not covered" >    metaDescription: "Universities use TRUSTIFICATE for digital certificate issuance and verification. Modernize academic credentials with tamper-proof, verifiable certificates.",</span>
+<span class="cstat-no" title="statement not covered" >    heroHeading: "Universities Modernize with TRUSTIFICATE",</span>
+<span class="cstat-no" title="statement not covered" >    heroSubheading: "Issue tamper-proof digital certificates for degrees, diplomas, and continuing education programs.",</span>
+<span class="cstat-no" title="statement not covered" >    industry: "Higher Education",</span>
+<span class="cstat-no" title="statement not covered" >    testimonials: [</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Prof. Elizabeth Grant",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Dean of Continuing Education",</span>
+<span class="cstat-no" title="statement not covered" >        company: "Pacific University",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "EG",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "Our continuing education department issues 5,000+ certificates annually. TRUSTIFICATE automated the entire process, freeing our staff to focus on program quality instead of paperwork.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Administrative workload reduced by 80%",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "23,000+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "100%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Dr. Rajan Iyer",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Registrar",</span>
+<span class="cstat-no" title="statement not covered" >        company: "Mumbai Technical University",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "RI",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "The digital verification system has virtually eliminated certificate fraud. Employers can verify any certificate in seconds through the verification portal.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Certificate fraud reduced to zero",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "67,000+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "99.9%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Dr. Catherine Liu",</span>
+<span class="cstat-no" title="statement not covered" >        role: "VP of Academic Affairs",</span>
+<span class="cstat-no" title="statement not covered" >        company: "Western Digital University",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "CL",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "We use TRUSTIFICATE for short courses, professional development, and executive education. The API integration with our student information system makes it completely seamless.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Seamless SIS integration with zero manual steps",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "38,500+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "100%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    useCases: [</span>
+<span class="cstat-no" title="statement not covered" >      "Continuing education certificates",</span>
+<span class="cstat-no" title="statement not covered" >      "Professional development credentials",</span>
+<span class="cstat-no" title="statement not covered" >      "Short course completion certificates",</span>
+<span class="cstat-no" title="statement not covered" >      "Executive education certificates",</span>
+<span class="cstat-no" title="statement not covered" >      "Digital diploma supplements",</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    ctaHeading: "Digital Credentials for Modern Universities",</span>
+<span class="cstat-no" title="statement not covered" >    ctaDescription: "Issue verifiable, tamper-proof certificates that uphold your institution's reputation.",</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    slug: "hackathon-organizers",</span>
+<span class="cstat-no" title="statement not covered" >    title: "Hackathon Organizers",</span>
+<span class="cstat-no" title="statement not covered" >    metaTitle: "Certificate Generator for Hackathons | Participation &amp; Winner Certificates",</span>
+<span class="cstat-no" title="statement not covered" >    metaDescription: "Hackathon organizers use TRUSTIFICATE to generate participant and winner certificates instantly. Celebrate achievements with verifiable digital certificates.",</span>
+<span class="cstat-no" title="statement not covered" >    heroHeading: "Hackathon Organizers Trust TRUSTIFICATE",</span>
+<span class="cstat-no" title="statement not covered" >    heroSubheading: "Celebrate participants and winners with professional, shareable certificates.",</span>
+<span class="cstat-no" title="statement not covered" >    industry: "Hackathons &amp; Competitions",</span>
+<span class="cstat-no" title="statement not covered" >    testimonials: [</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Kevin Zhang",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Lead Organizer",</span>
+<span class="cstat-no" title="statement not covered" >        company: "HackGlobal",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "KZ",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "We run hackathons with 1,000+ participants across 30 countries. TRUSTIFICATE generates participation and winner certificates for everyone within minutes of results being announced.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Certificates for 1,000+ global participants in minutes",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "41,000+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "100%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Sophie Martin",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Community Lead",</span>
+<span class="cstat-no" title="statement not covered" >        company: "EcoHack",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "SM",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "The custom template feature lets us create unique designs for each hackathon theme. Winners get special certificates with their project names and achievement details.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Unique themed certificates for each hackathon",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "8,700+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "99.9%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Arjun Nair",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Technical Director",</span>
+<span class="cstat-no" title="statement not covered" >        company: "DevJam",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "AN",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "Participants add their hackathon certificates to GitHub profiles and resumes. The verification link adds authenticity that generic PDFs simply can't match.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "92% of participants add certificates to their profiles",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "19,300+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "100%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    useCases: [</span>
+<span class="cstat-no" title="statement not covered" >      "Participation certificates for all attendees",</span>
+<span class="cstat-no" title="statement not covered" >      "Winner and runner-up certificates",</span>
+<span class="cstat-no" title="statement not covered" >      "Category-specific achievement certificates",</span>
+<span class="cstat-no" title="statement not covered" >      "Mentor and judge recognition certificates",</span>
+<span class="cstat-no" title="statement not covered" >      "Sponsor acknowledgment certificates",</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    ctaHeading: "Certificates That Celebrate Innovation",</span>
+<span class="cstat-no" title="statement not covered" >    ctaDescription: "Make every hackathon memorable with professional, verifiable certificates.",</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    slug: "consulting-firms",</span>
+<span class="cstat-no" title="statement not covered" >    title: "Consulting Firms",</span>
+<span class="cstat-no" title="statement not covered" >    metaTitle: "Certificate Generator for Consulting Firms | Professional Development",</span>
+<span class="cstat-no" title="statement not covered" >    metaDescription: "Consulting firms use TRUSTIFICATE for internal training certificates and client deliverables. Streamline professional development tracking and certification.",</span>
+<span class="cstat-no" title="statement not covered" >    heroHeading: "Consulting Firms Choose TRUSTIFICATE",</span>
+<span class="cstat-no" title="statement not covered" >    heroSubheading: "Manage internal training certifications and deliver professional credentials to clients.",</span>
+<span class="cstat-no" title="statement not covered" >    industry: "Consulting &amp; Professional Services",</span>
+<span class="cstat-no" title="statement not covered" >    testimonials: [</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Jennifer Walsh",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Partner",</span>
+<span class="cstat-no" title="statement not covered" >        company: "Meridian Consulting Group",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "JW",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "We certify our consultants in proprietary methodologies and frameworks. TRUSTIFICATE lets us issue, track, and verify these internal certifications efficiently.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Centralized tracking of 200+ consultant certifications",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "3,400+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "100%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Daniel Osei",</span>
+<span class="cstat-no" title="statement not covered" >        role: "Director of Training",</span>
+<span class="cstat-no" title="statement not covered" >        company: "Apex Advisory",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "DO",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "Our clients receive certification when they complete our consulting engagement workshops. It adds tangible value to our services and strengthens client relationships.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Client retention improved by 28%",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "7,100+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "99.9%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        name: "Amanda Brooks",</span>
+<span class="cstat-no" title="statement not covered" >        role: "COO",</span>
+<span class="cstat-no" title="statement not covered" >        company: "NexGen Consulting",</span>
+<span class="cstat-no" title="statement not covered" >        avatar: "AB",</span>
+<span class="cstat-no" title="statement not covered" >        quote: "The professional templates and branding options ensure our certificates reflect our firm's premium positioning. Every detail matters in consulting, and TRUSTIFICATE delivers.",</span>
+<span class="cstat-no" title="statement not covered" >        result: "Brand-consistent certificates across all engagements",</span>
+<span class="cstat-no" title="statement not covered" >        certificatesIssued: "4,800+",</span>
+<span class="cstat-no" title="statement not covered" >        verificationRate: "100%",</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    useCases: [</span>
+<span class="cstat-no" title="statement not covered" >      "Internal methodology certification",</span>
+<span class="cstat-no" title="statement not covered" >      "Client workshop completion certificates",</span>
+<span class="cstat-no" title="statement not covered" >      "Professional development tracking",</span>
+<span class="cstat-no" title="statement not covered" >      "Engagement milestone certificates",</span>
+<span class="cstat-no" title="statement not covered" >      "Partner and associate certifications",</span>
+<span class="cstat-no" title="statement not covered" >    ],</span>
+<span class="cstat-no" title="statement not covered" >    ctaHeading: "Professional Certificates for Your Firm",</span>
+<span class="cstat-no" title="statement not covered" >    ctaDescription: "Elevate your consulting practice with verifiable, branded certificates.",</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >];</span>
+&nbsp;
+import { PLATFORM_STATS } from "@/data/platformStats";
+&nbsp;
+<span class="cstat-no" title="statement not covered" >export const testimonialOverview = {</span>
+<span class="cstat-no" title="statement not covered" >  metaTitle: "Customer Testimonials | TRUSTIFICATE Certificate Platform",</span>
+<span class="cstat-no" title="statement not covered" >  metaDescription: "Read real stories from organizations using TRUSTIFICATE to automate certificate generation and verification. Trusted by course creators, HR teams, universities, and more.",</span>
+<span class="cstat-no" title="statement not covered" >  heroHeading: "Trusted by Organizations Worldwide",</span>
+<span class="cstat-no" title="statement not covered" >  heroSubheading: "From startups to universities, see how teams use TRUSTIFICATE to issue professional, verifiable certificates at scale.",</span>
+<span class="cstat-no" title="statement not covered" >  stats: {</span>
+<span class="cstat-no" title="statement not covered" >    totalCertificates: PLATFORM_STATS.CERTIFICATES_ISSUED_LABEL,</span>
+<span class="cstat-no" title="statement not covered" >    organizations: PLATFORM_STATS.ORGANIZATIONS_LABEL,</span>
+<span class="cstat-no" title="statement not covered" >    verificationRate: PLATFORM_STATS.VERIFICATION_RATE,</span>
+<span class="cstat-no" title="statement not covered" >    countriesServed: PLATFORM_STATS.COUNTRIES_SERVED_LABEL,</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >};</span>
+&nbsp;
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2026-04-05T08:13:48.628Z
+            </div>
+        <script src="../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../sorter.js"></script>
+        <script src="../../block-navigation.js"></script>
+    </body>
+</html>
+    
